@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np 
 from glob import glob 
 import os 
-
+from sklearn.decomposition import PCA
 
 
 # ./cpet/efield_cox_5o4k.dat
@@ -54,12 +54,13 @@ def aug_all(mat, target, xy = True, z = False, mut = False):
     full_aug_target = []
 
     for ind, i in enumerate(mat):
-        x_aug, y_aug = augment_mat(i, target[ind])
+        x_aug, y_aug = augment_mat_field(i, target[ind])
         [full_aug.append(j) for j in x_aug]
         [full_aug_target.append(j) for j in y_aug]
-    return full_aug, full_aug_target
 
-def augment_mat(mat, target, xy = True, z = False, mut = False):
+    return np.array(full_aug), np.array(full_aug_target)
+
+def augment_mat_field(mat, target, xy = True, z = False, mut = False):
     aug_target = []
     aug_mat = []
 
@@ -111,4 +112,17 @@ def augment_mat(mat, target, xy = True, z = False, mut = False):
     return aug_mat, aug_target
         
 
+# try to sparify image data 
+# alternatively use just the pca compression as input
+def pca(mat): 
+    mat = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3])
+    pca = PCA(n_components=10)
+    mat = pca.fit_transform(mat)
 
+    return mat, pca
+
+def unwrap_pca(mat, pca, shape): 
+    mat = pca.inverse_transform(mat)
+    mat = mat.reshape(len(mat), shape[1], shape[2], shape[3])
+    
+    return mat 
