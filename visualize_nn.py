@@ -45,20 +45,24 @@ def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 if __name__ == "__main__":
 
 
-    dense = False
+    dense = True
     gradcam = False
+    pca_tf = True
     no_classes = 3
     df = pd.read_csv("protein_data.csv")
     x, y = pull_mats_w_label('./dat')
     arr_min, arr_max,  = np.min(x), np.max(x)
     x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     shape_mat = x.shape
-    mat = pca(x)
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
     X_train, y_train = aug_all(X_train, y_train)
     X_test, y_test = aug_all(X_test, y_test)
-
-    mat_pca_inverse = unwrap_pca(mat, pca, shape_mat)
+    if (pca):
+        mat, pca_obj = pca(np.concatenate((X_train, X_test)))
+        X_train = mat[:len(X_train)]
+        X_test = mat[len(X_train):]
+        mat_pca_inverse = unwrap_pca(mat, pca_obj, shape_mat)
+    
     # y_test label 3 is 0 
     # y_test label 2 is 1 
     # y_test label 1 is 27
@@ -68,13 +72,21 @@ if __name__ == "__main__":
         model_xgb = XGBClassifier(max_depth = 2, colsample_bytree = 0.6, subsample = 0.5, eta = 0.03)
         flat_y_train = [np.argmax(i) for i in y_train]
         flat_y_test = [np.argmax(i) for i in y_test]
-
-        model_xgb.fit(X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2] * X_train.shape[3] * X_train.shape[4]
-        ), flat_y_train, verbose = True) 
+        if(pca_tf):
+            model_xgb.fit(X_train, flat_y_train, verbose = True) 
         
-        y_train_pred = model_xgb.predict(X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2] * X_train.shape[3] * X_train.shape[4]))
-        y_test_pred = model_xgb.predict(X_test.reshape(X_test.shape[0], X_test.shape[1] * X_test.shape[2] * X_test.shape[3] * X_test.shape[4]))
+        else:
+            model_xgb.fit(X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2] * X_train.shape[3] * X_train.shape[4]
+            ), flat_y_train, verbose = True) 
         
+        if(pca_tf):
+            y_train_pred = model_xgb.predict(X_train)
+            y_test_pred = model_xgb.predict(X_test)
+            
+        else:
+            y_train_pred = model_xgb.predict(X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2] * X_train.shape[3] * X_train.shape[4]))
+            y_test_pred = model_xgb.predict(X_test.reshape(X_test.shape[0], X_test.shape[1] * X_test.shape[2] * X_test.shape[3] * X_test.shape[4]))
+            
         print("test r^2: " + str(r2_score(flat_y_train, y_train_pred)))
         print("test r^2: " + str(r2_score(flat_y_test, y_test_pred)))
         
@@ -111,10 +123,15 @@ if __name__ == "__main__":
                 metrics = ['accuracy']
 
                 )
+    if(pca):
+        img_1 = X_train[0,:,]
+        img_2 = X_train[1,:]
+        img_3 = X_train[27,:]
 
-    img_1 = X_train[0,:,:,:,:].reshape([1,30,30,30,3])
-    img_2 = X_train[1,:,:,:,:].reshape([1,30,30,30,3])
-    img_3 = X_train[27,:,:,:,:].reshape([1,30,30,30,3])
+    else:
+        img_1 = X_train[0,:,:,:,:].reshape([1,30,30,30,3])
+        img_2 = X_train[1,:,:,:,:].reshape([1,30,30,30,3])
+        img_3 = X_train[27,:,:,:,:].reshape([1,30,30,30,3])
 
     if(dense):
         model.fit(X_train, y_train,epochs=50, validation_data = (X_test,y_test), verbose = True)

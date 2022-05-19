@@ -125,8 +125,7 @@ def random_array(shape, mean=128., std=20.):
 def saliency_map_dense(model, test_field):
 
     images = tf.Variable(test_field, dtype=float)
-    #print(images.shape)
-    #tf.reshape(images,[None, 30, 30, 30, 3])
+
     with tf.GradientTape() as tape:
         pred = model(images, training=False)
         #np.array(pred)
@@ -135,19 +134,11 @@ def saliency_map_dense(model, test_field):
         grads = tape.gradient(loss, images)
 
     dgrad_abs = tf.math.abs(grads)
-    #print(dgrad_abs.shape)
-
-    #dgrad_max_ = np.max(dgrad_abs, axis=3)#[0]
-
-    #print(dgrad_max_.shape)
 
     ## normalize to range between 0 and 1
     arr_min, arr_max  = np.min(dgrad_abs), np.max(dgrad_abs)
     grad_eval = (dgrad_abs - arr_min) / (arr_max - arr_min + 1e-18)
-    #print(grad_eval)
-    #print(grad_eval.shape)
-    #plt.hist(grad_eval.flatten())
-    #plt.show()
+
     return np.around(grad_eval/10, decimals=2)*10
 
 

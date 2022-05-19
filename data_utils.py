@@ -3,6 +3,8 @@ import numpy as np
 from glob import glob 
 import os 
 from sklearn.decomposition import PCA
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 
 # ./cpet/efield_cox_5o4k.dat
@@ -24,7 +26,6 @@ def mat_pull(file):
         mat[int(ind/(steps_z*steps_y)), int(ind/steps_z % steps_y), ind%steps_z, 1] = float(line_split[-2])
         mat[int(ind/(steps_z*steps_y)), int(ind/steps_z % steps_y), ind%steps_z, 2] = float(line_split[-1])
     return mat  
-
 
 def pull_mats_w_label(dir_dat):
 
@@ -111,18 +112,49 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
         
     return aug_mat, aug_target
         
-
 # try to sparify image data 
 # alternatively use just the pca compression as input
 def pca(mat): 
-    mat = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3])
+    mat_transform = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4])
     pca = PCA(n_components=10)
-    mat = pca.fit_transform(mat)
+    mat_transform = pca.fit_transform(mat_transform)
+    cum_explained_var = []
+    for i in range(0, len(pca.explained_variance_ratio_)):
+        if i == 0:
+            cum_explained_var.append(pca.explained_variance_ratio_[i])
+        else:
+            cum_explained_var.append(pca.explained_variance_ratio_[i] + 
+                                    cum_explained_var[i-1])
 
-    return mat, pca
+    pc0 = pca.components_[0]
+    print(np.shape(pc0))
+    pc0 = pc0.reshape(1, mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4])
+
+    fig = make_subplots(
+        rows=1, cols=1,
+        specs=[[{'type': 'cone'}]
+            ])
+    x, y, z = np.meshgrid(np.arange(-3, 2.8, 0.2),
+                        np.arange(-3, 2.8, 0.2),
+                        np.arange(-3, 2.8, 0.2))
+    u = pc0[0][:,:,:,0].flatten()
+    v = pc0[0][:,:,:,1].flatten()
+    w = pc0[0][:,:,:,2].flatten()
+    fig.add_trace(
+        go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), u=u, v=v, w=w),
+        row=1, col=1)
+
+    fig.write_html("out_pca.html")
+
+    print(cum_explained_var)
+    
+    return mat_transform, pca
 
 def unwrap_pca(mat, pca, shape): 
     mat = pca.inverse_transform(mat)
-    mat = mat.reshape(len(mat), shape[1], shape[2], shape[3])
-    
+    mat = mat.reshape(len(mat), shape[1], shape[2], shape[3], shape[4])
     return mat 
+
+#def unwrap_and_show_comp(mat, pca, shape, comp = 1 ):
+
+    
