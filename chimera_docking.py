@@ -26,3 +26,10 @@ for i in files:
     run("chimera --nogui ./pdbs_processed/" + i + " incompleteSideChains.py")
     run("mv ./temp.pdb ./pdbs_processed/" + i)
 rc("stop now")
+
+
+
+files_processed = os.listdir("./pdbs_processed/")
+
+for i in files_processed:
+    
