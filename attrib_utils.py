@@ -138,8 +138,8 @@ def saliency_map_dense(model, test_field):
     ## normalize to range between 0 and 1
     arr_min, arr_max  = np.min(dgrad_abs), np.max(dgrad_abs)
     grad_eval = (dgrad_abs - arr_min) / (arr_max - arr_min + 1e-18)
-
-    return np.around(grad_eval/10, decimals=2)*10
+    #np.around(grad_eval/10, decimals=3)*10
+    return np.array(grad_eval)
 
 
 # integrated gradients

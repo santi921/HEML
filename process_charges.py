@@ -106,9 +106,19 @@ if __name__ == "__main__" :
                 shift = -1
             if 'HETATM' in line[0] and ('NA' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
                 N_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}'        
+                N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
             if 'HETATM' in line[0] and ('NB' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
                 N_ID2 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+                N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+            if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+                N_ID3 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+                N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+            if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+                N_ID4 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+                N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
             
+            
+                mean_N_xyz =np.mean(np.array([N1_xyz, N2_xyz, N3_xyz, N4_xyz]), axis=0)
             
             if (sg_cond or oh_cond or nend_cond):
                 crit_ID = f'{line[4]}:{line[5]}:{line[2]}'
@@ -144,6 +154,8 @@ if __name__ == "__main__" :
         #print(f'Cysteine ligand distance from {best_crit} is {best_crit_dist} angstrom.')
         print(f'Nitro 1 {N_ID}')
         print(f'Nitro 2 {N_ID2}')
+        print(f'Nitro 3 {N_ID3}')
+        print(f'Nitro 4 {N_ID4}')
         print(f'ligand of note {best_crit}\n')
 
         # get info for each
@@ -162,7 +174,7 @@ if __name__ == "__main__" :
                 if (zero_active and ('HETATM' in line_split[0] or cond)):
                     temp_write = j[:56] + '0.000' + j[61:]
                     outfile.write(temp_write)
-                if(zero_everything_charged and lines_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
+                if(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
                     temp_write = j[:56] + '0.000' + j[61:]
                     outfile.write(temp_write)
                 else: 
@@ -171,7 +183,7 @@ if __name__ == "__main__" :
 
         file_name = i.split("charges")[-1][1:].split('.')[0]
         options = open(f'./cpet/options_{file_name}.txt', 'w+')
-        options.write(f'align {fe_ID} {best_crit} {N_ID}\n')
+        options.write(f'align {mean_N_xyz} {N_ID} {N_ID2}\n')
         options.write(f'%plot3d \n')
         options.write(f'    show false \n')
         options.write(f'    volume box 3.0 3.0 3.0 \n')
@@ -180,4 +192,5 @@ if __name__ == "__main__" :
         options.write(f'end \n')                   
         options.close()
 
+    print("fail count: {}".format(fail))
 

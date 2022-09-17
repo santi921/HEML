@@ -111,7 +111,8 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
         aug_target.append(target)
         
     return aug_mat, aug_target
-        
+      
+    
 # try to sparify image data 
 # alternatively use just the pca compression as input
 def pca(mat): 
