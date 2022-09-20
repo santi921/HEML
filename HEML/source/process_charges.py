@@ -217,7 +217,8 @@ if __name__ == "__main__" :
             options.write(f'end \n')                   
             options.close()
         else: 
-            samples = 5
+            samples = 500000
+            bins = 200
             step_size = 0.001
             out_folder_name = "cpet"
             options = open(f'../../data/cpet/options_topology_{file_name}.txt', 'w+')
@@ -227,6 +228,8 @@ if __name__ == "__main__" :
             options.write('    stepSize {} \n'.format(step_size))
             options.write('    samples {} \n'.format(samples))
             options.write('    sampleOutput {} \n'.format(file_name))
+            options.write('    bins {} \n'.format(bins))
+
             options.write(f'end \n')                   
             options.close()
     

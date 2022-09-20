@@ -1,17 +1,24 @@
-# mod10.3 modeller_clean.py
+# /home/santiagovargas/bin/modeller10.3/bin/modpy.sh modeller_clean.py
 
 from modeller import *
 from modeller.scripts import complete_pdb
 
-log.verbose()    # request verbose output
+from modeller import *
+from modeller.automodel import *    # Load the AutoModel class
+
+log.verbose()
 env = Environ()
-env.libs.topology.read(file='$(LIB)/top_heav.lib') # read topology
-env.libs.parameters.read(file='$(LIB)/par.lib') # read parameters
 
-# read model file
-mdl = complete_pdb(env, 'TvLDH.B99990002.pdb')
+# directories for input atom files
+env.io.atom_files_directory = ['.', '../atom_files']
 
-# Assess with DOPE:
-s = Selection(mdl)   # all atom selection
-s.assess_dope(output='ENERGY_PROFILE NO_REPORT', file='TvLDH.profile',
-              normalize_profile=True, smoothing_window=15)
+a = AutoModel(env, alnfile = 'alignment.ali',
+              knowns = '1qg8', sequence = '1qg8_fill')
+
+a.starting_model= 1
+a.ending_model  = 1
+a.loop.starting_model = 1
+a.loop.ending_model   = 2
+a.loop.md_level       = refine.fast
+
+a.make()
