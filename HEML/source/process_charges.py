@@ -104,18 +104,34 @@ if __name__ == "__main__" :
             shift = 0 
             if(len(line[0]) > 6):
                 shift = -1
+
             if 'HETATM' in line[0] and ('NA' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-                N_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}'        
-                N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+                N_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+                try:
+                    N1_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+                except: 
+                    N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+
             if 'HETATM' in line[0] and ('NB' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
                 N_ID2 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
-                N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+                try:
+                    N2_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+                except: 
+                    N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+
             if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
                 N_ID3 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
-                N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+                try:
+                    N3_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+                except: 
+                    N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+            
             if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
                 N_ID4 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
-                N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+                try:
+                    N4_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+                except: 
+                    N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
             
             
                 mean_N_xyz =np.mean(np.array([N1_xyz, N2_xyz, N3_xyz, N4_xyz]), axis=0)
@@ -182,15 +198,18 @@ if __name__ == "__main__" :
 
 
         file_name = i.split("charges")[-1][1:].split('.')[0]
-        options = open(f'../../data/cpet/options_{file_name}.txt', 'w+')
-        options.write(f'align {mean_N_xyz} {N_ID} {N_ID2}\n')
-        options.write(f'%plot3d \n')
-        options.write(f'    show false \n')
-        options.write(f'    volume box 3.0 3.0 3.0 \n')
-        options.write(f'    density 10 10 10 \n')
-        options.write(f'output ../../data/cpet/efield_cox_{file_name}.dat \n')
-        options.write(f'end \n')                   
-        options.close()
+        
+        box = True
+        if(box):
+            options = open(f'../../data/cpet/options_{file_name}.txt', 'w+')
+            options.write(f'align {mean_N_xyz} {N_ID} {N_ID2}\n')
+            options.write(f'%plot3d \n')
+            options.write(f'    show false \n')
+            options.write(f'    volume box 3.0 3.0 3.0 \n')
+            options.write(f'    density 10 10 10 \n')
+            options.write(f'output ../../data/cpet/efield_cox_{file_name}.dat \n')
+            options.write(f'end \n')                   
+            options.close()
 
     print("fail count: {}".format(fail))
 
