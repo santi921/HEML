@@ -190,7 +190,7 @@ if __name__ == "__main__" :
                 if (zero_active and ('HETATM' in line_split[0] or cond)):
                     temp_write = j[:56] + '0.000' + j[61:]
                     outfile.write(temp_write)
-                if(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
+                elif(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
                     temp_write = j[:56] + '0.000' + j[61:]
                     outfile.write(temp_write)
                 else: 
