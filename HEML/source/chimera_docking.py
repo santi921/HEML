@@ -6,7 +6,7 @@ from os import system as run
 # todo:
 targets = []
 
-with open("het_list.txt") as f:
+with open("../../data/het_list.txt") as f:
     del_list = f.readlines()
     del_list = [i[0:-1] for i in del_list]
 

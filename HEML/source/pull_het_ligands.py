@@ -95,7 +95,7 @@ for thing in standard_res:
     try: list.remove(thing) 
     except: pass    
 
-with open('het_list.txt', 'w') as f:
+with open('../../data/het_list.txt', 'w') as f:
     for item in list:
         f.write("%s\n" % item)
 
