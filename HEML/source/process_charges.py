@@ -199,17 +199,37 @@ if __name__ == "__main__" :
 
         file_name = i.split("charges")[-1][1:].split('.')[0]
         
-        box = True
+        box = False
+        box_size = 3.0
+
+        
         if(box):
-            options = open(f'../../data/cpet/options_{file_name}.txt', 'w+')
-            options.write(f'align {mean_N_xyz} {N_ID} {N_ID2}\n')
+            density = 10
+            
+            out_folder_name = "cpet"
+            options = open(f'../../data/cpet/options_field_{file_name}.txt', 'w+')
+            options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N1_xyz[0]}:{N1_xyz[1]}:{N1_xyz[2]} {N2_xyz[0]}:{N2_xyz[1]}:{N2_xyz[2]}\n')
             options.write(f'%plot3d \n')
             options.write(f'    show false \n')
-            options.write(f'    volume box 3.0 3.0 3.0 \n')
-            options.write(f'    density 10 10 10 \n')
-            options.write(f'output ../../data/cpet/efield_cox_{file_name}.dat \n')
+            options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
+            options.write('    density {} {} {} \n'.format(density, density, density))
+            options.write(f'output ../../data/{out_folder_name}/efield_cox_{file_name}.dat \n')
             options.write(f'end \n')                   
             options.close()
+        else: 
+            samples = 5
+            step_size = 0.001
+            out_folder_name = "cpet"
+            options = open(f'../../data/cpet/options_topology_{file_name}.txt', 'w+')
+            options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N_ID} {N_ID2}\n')
+            options.write(f'%topology \n')
+            options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
+            options.write('    stepSize {} \n'.format(step_size))
+            options.write('    samples {} \n'.format(samples))
+            options.write('    sampleOutput {} \n'.format(file_name))
+            options.write(f'end \n')                   
+            options.close()
+    
 
     print("fail count: {}".format(fail))
 
