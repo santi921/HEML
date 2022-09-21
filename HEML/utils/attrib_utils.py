@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import numpy as np
-from keras import backend as K
+#from keras import backend as K
+from tensorflow import keras
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import scipy.ndimage as ndimage
@@ -59,7 +60,7 @@ def normalize(array, min_value=0., max_value=1.):
     """
     arr_min = np.min(array)
     arr_max = np.max(array)
-    normalized = (array - arr_min) / (arr_max - arr_min + K.epsilon())
+    normalized = (array - arr_min) / (arr_max - arr_min + keras.backend.epsilon())
     return (max_value - min_value) * normalized + min_value
 def get_img_shape(img):
     """Returns image shape in a backend agnostic manner.
@@ -72,9 +73,9 @@ def get_img_shape(img):
     if isinstance(img, np.ndarray):
         shape = img.shape
     else:
-        shape = K.int_shape(img)
+        shape = keras.backend.int_shape(img)
 
-    if K.image_data_format() == 'channels_last':
+    if keras.backend.image_data_format() == 'channels_last':
         shape = list(shape)
         shape.insert(1, shape[-1])
         shape = tuple(shape[:-1])
@@ -90,7 +91,7 @@ def deprocess_input(input_array, input_range=(0, 255)):
     # normalize tensor: center on 0., ensure std is 0.1
     input_array = input_array.copy()
     input_array -= input_array.mean()
-    input_array /= (input_array.std() + K.epsilon())
+    input_array /= (input_array.std() + keras.backend.epsilon())
     input_array *= 0.1
 
     # clip to [0, 1]
@@ -109,7 +110,7 @@ def random_array(shape, mean=128., std=20.):
     """
     x = np.random.random(shape)
     # normalize around mean=0, std=1
-    x = (x - np.mean(x)) / (np.std(x) + K.epsilon())
+    x = (x - np.mean(x)) / (np.std(x) + keras.backend.epsilon())
     # and then around the desired mean/std
     x = (x * std) + mean
     return x
