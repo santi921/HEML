@@ -4,13 +4,11 @@ from glob import glob
 
 def main():
     
-    #files_target = glob('../../data/cpet/options_field*.txt')
-    files_target = glob('../../data/cpet/options_topology*.txt')
+    files_target = glob('../../data/cpet/options_field*.txt')
+    #files_target = glob('../../data/cpet/options_topology*.txt')
     for file in files_target:
         protein=file.split("_")[-1].split(".")[0]#.split("_")[-1]
-        print("protein file: {}".format(protein))
         os.system("./cpet -p {} -t 16 -o {} ".format('../../data/charge_processed/{}.pqr'.format(protein), file))
-        print("cpet done running")
-        os.system("mv {}_0.top ../../data/cpet/{}.top".format(protein, protein))
+        #os.system("mv {}_0.top ../../data/cpet/{}.top".format(protein, protein))
     print("done running cpet")
 main()

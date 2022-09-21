@@ -217,12 +217,13 @@ if __name__ == "__main__" :
             options.write(f'end \n')                   
             options.close()
         else: 
-            samples = 500000
+            samples = 100000
             bins = 200
             step_size = 0.001
             out_folder_name = "cpet"
             options = open(f'../../data/cpet/options_topology_{file_name}.txt', 'w+')
-            options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N_ID} {N_ID2}\n')
+            options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N1_xyz[0]}:{N1_xyz[1]}:{N1_xyz[2]} {N2_xyz[0]}:{N2_xyz[1]}:{N2_xyz[2]}\n')
+            #options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N_ID} {N_ID2}\n')
             options.write(f'%topology \n')
             options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
             options.write('    stepSize {} \n'.format(step_size))
