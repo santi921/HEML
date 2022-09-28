@@ -1,6 +1,6 @@
 import os 
 from glob import glob
-
+from random import sample, choice
 
 def main():
     
@@ -8,7 +8,8 @@ def main():
     files_target = glob('../../data/cpet/options_topology*.txt')
     files_done = os.listdir("../../data/cpet/")
     
-    for file in files_target:
+    for i in range(100):
+        file = choice(files_target)
         protein=file.split("_")[-1].split(".")[0]#.split("_")[-1]
         print("protein file: {}".format(protein))
         if(protein+".top" not in files_done):

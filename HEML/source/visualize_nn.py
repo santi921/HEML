@@ -60,7 +60,7 @@ if __name__ == "__main__":
     x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     shape_mat = x.shape
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
-    X_train, y_train = aug_all(X_train, y_train)
+    #X_train, y_train = aug_all(X_train, y_train)
     #X_test, y_test = aug_all(X_test, y_test)
     
     if (pca_tf):
