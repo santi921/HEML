@@ -1,14 +1,16 @@
 from __future__ import absolute_import
 import numpy as np
 #from keras import backend as K
-from tensorflow import keras
 import matplotlib.pyplot as plt
-import tensorflow as tf
 import scipy.ndimage as ndimage
 
+
 def model_modifier_function(cloned_model):
+    import tensorflow as tf
     cloned_model.layers[1].activation = tf.keras.activations.linear
 def macro_f1(y, y_hat, thresh=0.5):
+    import tensorflow as tf
+
     """Compute the macro F1-score on a batch of observations (average F1 across labels)
 
     Args:
@@ -27,6 +29,7 @@ def macro_f1(y, y_hat, thresh=0.5):
     macro_f1 = tf.reduce_mean(f1)
     return macro_f1
 def macro_soft_f1(y, y_hat):
+    import tensorflow as tf
     """Compute the macro soft F1-score as a cost.
     Average (1 - soft-F1) across all labels.
     Use probability values instead of binary predictions.
@@ -50,6 +53,7 @@ def macro_soft_f1(y, y_hat):
 
     return macro_cost
 def normalize(array, min_value=0., max_value=1.):
+    from tensorflow import keras
     """Normalizes the numpy array to (min_value, max_value)
     Args:
         array: The numpy array
@@ -63,6 +67,8 @@ def normalize(array, min_value=0., max_value=1.):
     normalized = (array - arr_min) / (arr_max - arr_min + keras.backend.epsilon())
     return (max_value - min_value) * normalized + min_value
 def get_img_shape(img):
+    from tensorflow import keras
+
     """Returns image shape in a backend agnostic manner.
     Args:
         img: An image tensor of shape: `(channels, image_dims...)` if data_format='channels_first' or
@@ -81,6 +87,8 @@ def get_img_shape(img):
         shape = tuple(shape[:-1])
     return shape
 def deprocess_input(input_array, input_range=(0, 255)):
+    from tensorflow import keras
+
     """Utility function to scale the `input_array` to `input_range` throwing away high frequency artifacts.
     Args:
         input_array: An N-dim numpy array.
@@ -101,6 +109,8 @@ def deprocess_input(input_array, input_range=(0, 255)):
     # Convert to `input_range`
     return (input_range[1] - input_range[0]) * input_array + input_range[0]
 def random_array(shape, mean=128., std=20.):
+    from tensorflow import keras
+
     """Creates a uniformly distributed random array with the given `mean` and `std`.
     Args:
         shape: The desired shape
@@ -124,6 +134,7 @@ def random_array(shape, mean=128., std=20.):
 
 # saliency maps
 def saliency_map_dense(model, test_field):
+    import tensorflow as tf
 
     images = tf.Variable(test_field, dtype=float)
 
@@ -145,6 +156,8 @@ def saliency_map_dense(model, test_field):
 
 # integrated gradients
 def get_gradients(img_input, model, top_pred_idx):
+    import tensorflow as tf
+
     """Computes the gradients of outputs w.r.t input image.
 
     Args:
@@ -164,6 +177,8 @@ def get_gradients(img_input, model, top_pred_idx):
     grads = tape.gradient(top_class, images)
     return grads
 def get_integrated_gradients(img_input, top_pred_idx, model, baseline=None, num_steps=50):
+    import tensorflow as tf
+
     """Computes Integrated Gradients for a predicted label.
 
     Args:
@@ -253,6 +268,9 @@ def random_baseline_integrated_gradients(
 
 # grad-cam
 def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None):
+    from tensorflow import keras
+    import tensorflow as tf
+
     # First, we create a model that maps the input image to the activations
     # of the last conv layer as well as the output predictions
     grad_model = tf.keras.models.Model(
