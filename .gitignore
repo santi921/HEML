@@ -7,3 +7,8 @@
 *txt
 *swp
 *html
+config*
+debug*
+run*
+conda*
+wandb*

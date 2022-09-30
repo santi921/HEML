@@ -16,6 +16,6 @@ def main():
             #print("deez")    
             os.system("./cpet -p {} -t 16 -o {} ".format('../../data/charge_processed/{}.pqr'.format(protein), file))
         print("cpet done running")
-        os.system("mv {}_0.top ../../data/cpet/{}.top".format(protein, protein))
+        #os.system("mv {}_0.top ../../data/cpet/{}.top".format(protein, protein))
     print("done running cpet")
 main()

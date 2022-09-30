@@ -60,7 +60,7 @@ if __name__ == "__main__":
     x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     shape_mat = x.shape
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
-    #X_train, y_train = aug_all(X_train, y_train)
+    X_train, y_train = aug_all(X_train, y_train)
     #X_test, y_test = aug_all(X_test, y_test)
     
     if (pca_tf):
@@ -81,10 +81,14 @@ if __name__ == "__main__":
         
         from xgboost import XGBClassifier
         from sklearn.linear_model import LogisticRegression
+        from sklearn.neural_network import MLPClassifier
         from sklearn.ensemble import RandomForestClassifier
 
         model_xgb = XGBClassifier(max_depth = 4, colsample_bytree = 0.2, subsample = 0.3, eta = 0.03)
-        #model_xgb = RandomForestClassifier(max_depth=2, bootstrap=True, ccp_alpha=0.2, )
+        model_xgb = RandomForestClassifier(max_depth=2, bootstrap=True, ccp_alpha=0.2, )
+        model_xgb = LogisticRegression()
+        #model_xgb = MLPClassifier()
+
         flat_y_train = [np.argmax(i) for i in y_train]
         flat_y_test = [np.argmax(i) for i in y_test]
 
@@ -116,10 +120,9 @@ if __name__ == "__main__":
             #tf.keras.layers.Dense(np.shape(y)[1], activation = 'softmax', name = 'visualized_layer')
             #])
 
-        print("test r^2: " + str(accuracy_score(flat_y_train, y_train_pred)))
+        print("train r^2: " + str(accuracy_score(flat_y_train, y_train_pred)))
         print("test r^2: " + str(accuracy_score(flat_y_test, y_test_pred)))
-        
-       
+          
     else:
         model = tf.keras.Sequential([
             tf.keras.layers.Conv3D(128, (4, 4, 4), strides = (1,1,1), 

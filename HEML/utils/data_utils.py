@@ -7,6 +7,35 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
+def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
+
+    arr_mean, arr_std, arr_min, arr_max  = np.mean(mat), np.std(mat), np.min(mat), np.max(mat)
+    if(min_max):
+        mat = (mat - arr_min) / (arr_max - arr_min + 10e-10)
+
+    if(std_mean):
+        mat = (mat - arr_mean) / (arr_std)
+    
+    try:
+        u = mat[0][:,:,:,0].flatten()
+        v = mat[0][:,:,:,1].flatten()
+        w = mat[0][:,:,:,2].flatten()
+    except:
+        u = mat[:,:,:,0].flatten()
+        v = mat[:,:,:,1].flatten()
+        w = mat[:,:,:,2].flatten()
+
+    component_distro = [np.sqrt(u[ind]**2 + v[ind]**2 + w[ind]**2) for ind in range(len(u))]
+    cutoff = np.percentile(component_distro, cutoff)
+
+    for ind, i in enumerate(component_distro): 
+        if (i < cutoff): 
+            u[ind], v[ind], w[ind] = 0,0,0  
+    u = np.around(u, decimals=1)
+    v = np.around(v, decimals=1)
+    w = np.around(w, decimals=1)
+    return u, v, w
+
 # ./cpet/efield_cox_5o4k.dat
 def mat_pull(file):
 
@@ -36,7 +65,7 @@ def pull_mats_w_label(dir_dat):
     df = pd.read_csv("../../data/protein_data.csv")
     y_count, h_count, c_count = 0, 0, 0
     for row in df.iterrows():
-        print(row[1]['name'])
+        #print(row[1]['name'])
         cpet_name = "../../data/cpet/efield_cox_" + row[1]['name'] + ".dat"
         
         if(os.path.exists(cpet_name)):
@@ -116,12 +145,15 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
     return aug_mat, aug_target
       
     
-# try to sparify image data 
-# alternatively use just the pca compression as input
-def pca(mat): 
+def pca(mat, pca = None, verbose = False): 
+    
     mat_transform = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4])
-    pca = PCA(n_components=10)
-    mat_transform = pca.fit_transform(mat_transform)
+    if(pca == None):
+        pca = PCA(n_components=10)
+        mat_transform = pca.fit_transform(mat_transform)
+    else: 
+        mat_transform = pca.transform(mat_transform)
+
     cum_explained_var = []
     for i in range(0, len(pca.explained_variance_ratio_)):
         if i == 0:
@@ -131,7 +163,7 @@ def pca(mat):
                                     cum_explained_var[i-1])
 
     pc0 = pca.components_[0]
-    print(np.shape(pc0))
+    #print(np.shape(pc0))
     pc0 = pc0.reshape(1, mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4])
 
     fig = make_subplots(
@@ -149,8 +181,8 @@ def pca(mat):
         row=1, col=1)
 
     fig.write_html("out_pca.html")
-
-    print(cum_explained_var)
+    if(verbose):
+        print(cum_explained_var)
     
     return mat_transform, pca
 
@@ -159,6 +191,5 @@ def unwrap_pca(mat, pca, shape):
     mat = mat.reshape(len(mat), shape[1], shape[2], shape[3], shape[4])
     return mat 
 
-#def unwrap_and_show_comp(mat, pca, shape, comp = 1 ):
 
     
