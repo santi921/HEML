@@ -59,7 +59,10 @@ if __name__ == "__main__" :
     
 
     fail = 0
-    filelist = glob.glob('../../data/charges/*.pqr')
+    outdir = "../../data/charges_processed/"
+    outdir_cpet = "../../data/cpet/"
+    charges_directory = '../../data/charges/*.pqr'
+    filelist = glob.glob(charges_directory)
 
     for i in filelist:
         print(i)
@@ -180,7 +183,7 @@ if __name__ == "__main__" :
         # new filename
         filename = os.path.basename(i)
         listname = filename.split('.')
-        output = f'../../data/charge_processed/{listname[0]}.pqr'
+        output = f'{outdir}{listname[0]}.pqr'
         
         with open(output, 'w') as outfile:
             for j in readfile:
@@ -202,26 +205,22 @@ if __name__ == "__main__" :
         box = False
         box_size = 3.0
 
-        
         if(box):
-            density = 10
-            
-            out_folder_name = "cpet"
-            options = open(f'../../data/cpet/options_field_{file_name}.txt', 'w+')
+            density = 10            
+            options = open(f'{outdir_cpet}options_field_{file_name}.txt', 'w+')
             options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N1_xyz[0]}:{N1_xyz[1]}:{N1_xyz[2]} {N2_xyz[0]}:{N2_xyz[1]}:{N2_xyz[2]}\n')
             options.write(f'%plot3d \n')
             options.write(f'    show false \n')
             options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
             options.write('    density {} {} {} \n'.format(density, density, density))
-            options.write(f'output ../../data/{out_folder_name}/efield_cox_{file_name}.dat \n')
+            options.write(f'output {out_folder_name}efield_cox_{file_name}.dat \n')
             options.write(f'end \n')                   
             options.close()
         else: 
             samples = 1000
             bins = 20
             step_size = 0.001
-            out_folder_name = "cpet"
-            options = open(f'../../data/cpet/options_topology_{file_name}.txt', 'w+')
+            options = open(f'{outdir_cpet}options_topology_{file_name}.txt', 'w+')
             options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N1_xyz[0]}:{N1_xyz[1]}:{N1_xyz[2]} {N2_xyz[0]}:{N2_xyz[1]}:{N2_xyz[2]}\n')
             #options.write(f'align {mean_N_xyz[0]}:{mean_N_xyz[1]}:{mean_N_xyz[2]} {N_ID} {N_ID2}\n')
             options.write(f'%topology \n')
@@ -230,7 +229,6 @@ if __name__ == "__main__" :
             options.write('    samples {} \n'.format(samples))
             options.write('    sampleOutput {} \n'.format(file_name))
             options.write('    bins {} \n'.format(bins))
-
             options.write(f'end \n')                   
             options.close()
     
