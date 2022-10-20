@@ -39,7 +39,7 @@ class training:
             self.X_train_untransformed = self.X_train
             self.X_test_untransformed = self.X_test
             
-            _, self.pca_obj = pca(np.concatenate((self.X_train, self.X_test)), verbose = True) 
+            _, self.pca_obj = pca(np.concatenate((self.X_train, self.X_test)), verbose = True, pca_comps=15) 
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)        
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)  
 

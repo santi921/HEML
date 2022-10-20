@@ -15,7 +15,7 @@ def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 
     if(std_mean):
         mat = (mat - arr_mean) / (arr_std)
-    
+   
     try:
         u = mat[0][:,:,:,0].flatten()
         v = mat[0][:,:,:,1].flatten()
@@ -31,9 +31,11 @@ def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
     for ind, i in enumerate(component_distro): 
         if (i < cutoff): 
             u[ind], v[ind], w[ind] = 0,0,0  
-    u = np.around(u, decimals=1)
-    v = np.around(v, decimals=1)
-    w = np.around(w, decimals=1)
+
+    u = np.around(u, decimals=2)
+    v = np.around(v, decimals=2)
+    w = np.around(w, decimals=2)
+
     return u, v, w
 
 # ./cpet/efield_cox_5o4k.dat
@@ -145,11 +147,11 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
     return aug_mat, aug_target
       
     
-def pca(mat, pca = None, verbose = False): 
+def pca(mat, pca = None, verbose = False, pca_comps = 10): 
     
     mat_transform = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4])
     if(pca == None):
-        pca = PCA(n_components=10)
+        pca = PCA(n_components=pca_comps)
         mat_transform = pca.fit_transform(mat_transform)
     else: 
         mat_transform = pca.transform(mat_transform)

@@ -262,11 +262,10 @@ if __name__ == "__main__":
     fig.add_trace(
         go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), u=u_3, v=v_3, w=w_3),
         row=1, col=3)
-    #fig.add_trace(go.Surface(x=x_sphere, y=y_sphere, z=z_sphere), row=1, col=3)
-
 
     fig.show()
     fig.write_html("out_final.html")
+
     print("------Checking Equality Conditions------")
     print("...first and second example...")
     print(np.array_equal(u_1, u_2))
