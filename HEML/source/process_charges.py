@@ -59,9 +59,10 @@ if __name__ == "__main__" :
     
 
     fail = 0
-    outdir = "../../data/charges_processed/"
-    outdir_cpet = "../../data/cpet/"
-    charges_directory = '../../data/charges/*.pqr'
+    outdir = "/ocean/projects/che160019p/santi92/charges_processed/"
+    outdir_cpet = "/ocean/projects/che160019p/santi92/cpet/"
+    charges_directory = "/ocean/projects/che160019p/santi92/heme_charges/*pqr" 
+    
     filelist = glob.glob(charges_directory)
 
     for i in filelist:

@@ -21,11 +21,11 @@ files = glob(pdb_folder)
 files_out = glob(out_folder+"*")
 
 #print(random.sample(files, 5000))
-for i in random.sample(files,10000):
+for i in random.sample(files,50000):
     try:
         print(out_folder + "pro_" + i.split("/")[-1] not in files_out)
         if(out_folder + "pro_" + i.split("/")[-1] not in files_out):
-            rc("open " + pdb_folder + i.split("/")[-1])
+            rc("open " + pdb_folder[:-1] + i.split("/")[-1])
             rc("delete solvent")
             rc("addh")
             [rc("delete :" + j) for j in del_list]
@@ -33,7 +33,7 @@ for i in random.sample(files,10000):
             rc("write #0 " + pdb_folder + "pro_" + i.split("/")[-1])
             rc("close session")
             print("processed h + solvent")
-            run("chimera --nogui " +  pdb_folder + "pro_" + i.split("/")[-1] + " incompleteSideChains.py")
+            run("chimera --nogui " +  pdb_folder[:-1] + "pro_" + i.split("/")[-1] + " incompleteSideChains.py")
             run("mv ./temp.pdb " + out_folder + i.split("/")[-1])
     except: pass
 rc("stop now")
