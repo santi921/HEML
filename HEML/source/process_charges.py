@@ -5,6 +5,11 @@ import glob, os, re
     
 # zero heteroatom / iron 
 # other options include zeroing non active site residues or all charged residues
+def check_if_file_is_empty(file):
+    if os.stat(file).st_size == 0:
+        return True
+    else:
+        return False
 
 def break_up_line(str_process):
     split_str = str_process.split('-')
@@ -238,86 +243,87 @@ if __name__ == "__main__" :
     filelist = glob.glob(charges_directory)
     #print(filelist)
     for i in filelist:
-        
-        print(i)
-        openfile = open(i)
-        readfile = openfile.readlines()
-        openfile.close
-        filename = i.split('.')[0]
 
-        # Look for FE in each line, and get chain:res:atom ID and xyz coords if exists.
-
-
-        fe_id, fe_xyz = get_fe_positions(i)
-        nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
-        ligand_dict = get_ligand_info(i)
- 
-        if ligand_dict["best_crit_dist"] > 4.0:
-            print(ligand_dict["best_crit_dist"])
-            print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
-            fail += 1
-            continue
-        
-        #print(f'Cysteine ligand distance from {best_crit} is {best_crit_dist} angstrom.')
-        print(f'Nitro 1 {nitrogen_dict["N_ID1"]}')
-        print(f'Nitro 2 {nitrogen_dict["N_ID2"]}')
-        print(f'Nitro 3 {nitrogen_dict["N_ID3"]}')
-        print(f'Nitro 4 {nitrogen_dict["N_ID4"]}')
-        print(f'ligand of note {ligand_dict["best_crit"]}\n')
-
-        # get info for each
-        ligand_identifier = ligand_dict["best_crit"].split(':')
-        
-        # new filename
-        filename = os.path.basename(i)
-        listname = filename.split('.')
-
-        #check that output isn't already there
-        output = f'{outdir}{listname[0]}.pqr'
-        if os.path.exists(output):
-            pass:
+        if(check_if_file_is_empty(i)): pass
         else:        
-            with open(output, 'w') as outfile:
-                for j in readfile:
-                    line_split = re.split(r'(\s+)', j)
-                    cond = ((line_split[8] == ligand_identifier[0] and line_split[10] == ligand_identifier[1]) )
-                    
-                    if (zero_active and ('HETATM' in line_split[0] or cond)):
-                        temp_write = j[:56] + '0.000' + j[61:]
-                        outfile.write(temp_write)
-                    elif(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
-                        temp_write = j[:56] + '0.000' + j[61:]
-                        outfile.write(temp_write)
-                    else: 
-                        outfile.write(j)
+            openfile = open(i)
+            readfile = openfile.readlines()
+            openfile.close
+            filename = i.split('.')[0]
 
-            file_name = i.split("charges")[-1][1:].split('.')[0]
+            # Look for FE in each line, and get chain:res:atom ID and xyz coords if exists.
 
-            if(box):
-                density = 10            
-                options = open(f'{outdir_cpet}options_field_{file_name}.txt', 'w+')
-                options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
-                options.write(f'%plot3d \n')
-                options.write(f'    show false \n')
-                options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
-                options.write('    density {} {} {} \n'.format(density, density, density))
-                options.write(f'output {outdir}efield_cox_{file_name}.dat \n')
-                options.write(f'end \n')                   
-                options.close()
-            else: 
-                samples = 1000
-                bins = 20
-                step_size = 0.001
-                options = open(f'{outdir_cpet}options_topology_{file_name}.txt', 'w+')
-                options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
-                options.write(f'%topology \n')
-                options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
-                options.write('    stepSize {} \n'.format(step_size))
-                options.write('    samples {} \n'.format(samples))
-                options.write('    sampleOutput {} \n'.format(file_name))
-                options.write('    bins {} \n'.format(bins))
-                options.write(f'end \n')                   
-                options.close()
+
+            fe_id, fe_xyz = get_fe_positions(i)
+            nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
+            ligand_dict = get_ligand_info(i)
+    
+            if ligand_dict["best_crit_dist"] > 4.0:
+                print(ligand_dict["best_crit_dist"])
+                print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
+                fail += 1
+                continue
+            
+            #print(f'Cysteine ligand distance from {best_crit} is {best_crit_dist} angstrom.')
+            print(f'Nitro 1 {nitrogen_dict["N_ID1"]}')
+            print(f'Nitro 2 {nitrogen_dict["N_ID2"]}')
+            print(f'Nitro 3 {nitrogen_dict["N_ID3"]}')
+            print(f'Nitro 4 {nitrogen_dict["N_ID4"]}')
+            print(f'ligand of note {ligand_dict["best_crit"]}\n')
+
+            # get info for each
+            ligand_identifier = ligand_dict["best_crit"].split(':')
+            
+            # new filename
+            filename = os.path.basename(i)
+            listname = filename.split('.')
+
+            #check that output isn't already there
+            output = f'{outdir}{listname[0]}.pqr'
+            if os.path.exists(output):
+                pass
+            else:        
+                with open(output, 'w') as outfile:
+                    for j in readfile:
+                        line_split = re.split(r'(\s+)', j)
+                        cond = ((line_split[8] == ligand_identifier[0] and line_split[10] == ligand_identifier[1]) )
+                        
+                        if (zero_active and ('HETATM' in line_split[0] or cond)):
+                            temp_write = j[:56] + '0.000' + j[61:]
+                            outfile.write(temp_write)
+                        elif(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
+                            temp_write = j[:56] + '0.000' + j[61:]
+                            outfile.write(temp_write)
+                        else: 
+                            outfile.write(j)
+
+                file_name = i.split("charges")[-1][1:].split('.')[0]
+
+                if(box):
+                    density = 10            
+                    options = open(f'{outdir_cpet}options_field_{file_name}.txt', 'w+')
+                    options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
+                    options.write(f'%plot3d \n')
+                    options.write(f'    show false \n')
+                    options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
+                    options.write('    density {} {} {} \n'.format(density, density, density))
+                    options.write(f'output {outdir}efield_cox_{file_name}.dat \n')
+                    options.write(f'end \n')                   
+                    options.close()
+                else: 
+                    samples = 1000
+                    bins = 20
+                    step_size = 0.001
+                    options = open(f'{outdir_cpet}options_topology_{file_name}.txt', 'w+')
+                    options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
+                    options.write(f'%topology \n')
+                    options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
+                    options.write('    stepSize {} \n'.format(step_size))
+                    options.write('    samples {} \n'.format(samples))
+                    options.write('    sampleOutput {} \n'.format(file_name))
+                    options.write('    bins {} \n'.format(bins))
+                    options.write(f'end \n')                   
+                    options.close()
         
 
     print("fail count: {}".format(fail))
