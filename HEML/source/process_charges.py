@@ -52,7 +52,7 @@ def spacefinder(List_String):
                   + (" " * backlen10) + List_String[10]
     return outstring
 
-def get_N_positions(file, fe_ID):
+def get_N_positions(file, fe_ID, fe_xyz):
     N_ID, N_ID2, N_ID3, N_ID4 = None, None, None, None
     N1_xyz, N2_xyz, N3_xyz, N4_xyz = None, None, None, None
 
@@ -78,14 +78,12 @@ def get_N_positions(file, fe_ID):
                 N2_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
             except: 
                 N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
-
         if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
             N_ID3 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
             try:
                 N3_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
             except: 
                 N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
-        
         if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
             N_ID4 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
             try:
@@ -93,7 +91,50 @@ def get_N_positions(file, fe_ID):
             except: 
                 N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
         
+    # if there are missing N atoms, find all of the nitrogens and assign them to the closest N atom
     
+    full_N_dict = {}
+    if(N_ID == None or  N_ID2 == None or N_ID3 == None or N_ID4 == None):
+        count = 0 
+        for j in readfile:
+            line = j.split()
+
+            shift = 0 
+            if(len(line[0]) > 6):
+                    shift = -1   
+            
+            heme_id = fe_ID.split(":")[0]
+
+            if 'HETATM' in line[0] and ('N' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == heme_id:
+                try:
+                    full_N_dict[count] = {
+                            "id":f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}', 
+                            "xyz":[float(j[31:38]), float(j[38:45]), float(j[46:54])],
+                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
+                        }
+                except: 
+                    full_N_dict[count] = {
+                            "id": f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' ,
+                            "xyz":[float(line[-5]), float(line[-4]), float(line[-3])],
+                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
+                            }
+                count += 1
+        
+        # sort the dictionary by distance to iron
+        full_N_dict = {k: v for k, v in sorted(full_N_dict.items(), key=lambda item: item[1]['distance_to_iron'])}
+        # get first 4 values of the dictionary
+        full_N_dict = dict(list(full_N_dict.items())[0:4])
+        # assign the N_IDs
+        N_ID = full_N_dict[0]["id"]
+        N_ID2 = full_N_dict[1]["id"]
+        N_ID3 = full_N_dict[2]["id"]
+        N_ID4 = full_N_dict[3]["id"]
+        # assign the N_xyz
+        N1_xyz = full_N_dict[0]["xyz"]
+        N2_xyz = full_N_dict[1]["xyz"]
+        N3_xyz = full_N_dict[2]["xyz"]
+        N4_xyz = full_N_dict[3]["xyz"]   
+
     assert N_ID != None, "Nitrogens 1 were not found"
     assert N_ID2 != None, "Nitrogens 2 were not found"
     assert N_ID3 != None, "Nitrogens 3 were not found"
@@ -208,10 +249,9 @@ if __name__ == "__main__" :
 
 
         fe_id, fe_xyz = get_fe_positions(i)
-        nitrogen_dict = get_N_positions(i, fe_id)
+        nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
         ligand_dict = get_ligand_info(i)
  
-                    
         if ligand_dict["best_crit_dist"] > 4.0:
             print(ligand_dict["best_crit_dist"])
             print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
@@ -245,7 +285,6 @@ if __name__ == "__main__" :
                     outfile.write(temp_write)
                 else: 
                     outfile.write(j)
-
 
         file_name = i.split("charges")[-1][1:].split('.')[0]
 
