@@ -227,7 +227,7 @@ if __name__ == "__main__" :
     box_size = 3.0
 
     fail = 0
-    outdir = "/ocean/projects/che160019p/santi92/charges_processed/"
+    outdir = "/ocean/projects/che160019p/santi92/processed_charges/"
     outdir_cpet = "/ocean/projects/che160019p/santi92/cpet/"
     charges_directory = "/ocean/projects/che160019p/santi92/heme_charges/*pqr" 
 
@@ -271,49 +271,54 @@ if __name__ == "__main__" :
         # new filename
         filename = os.path.basename(i)
         listname = filename.split('.')
+
+        #check that output isn't already there
         output = f'{outdir}{listname[0]}.pqr'
-        with open(output, 'w') as outfile:
-            for j in readfile:
-                line_split = re.split(r'(\s+)', j)
-                cond = ((line_split[8] == ligand_identifier[0] and line_split[10] == ligand_identifier[1]) )
-                
-                if (zero_active and ('HETATM' in line_split[0] or cond)):
-                    temp_write = j[:56] + '0.000' + j[61:]
-                    outfile.write(temp_write)
-                elif(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
-                    temp_write = j[:56] + '0.000' + j[61:]
-                    outfile.write(temp_write)
-                else: 
-                    outfile.write(j)
+        if os.path.exists(output):
+            pass:
+        else:        
+            with open(output, 'w') as outfile:
+                for j in readfile:
+                    line_split = re.split(r'(\s+)', j)
+                    cond = ((line_split[8] == ligand_identifier[0] and line_split[10] == ligand_identifier[1]) )
+                    
+                    if (zero_active and ('HETATM' in line_split[0] or cond)):
+                        temp_write = j[:56] + '0.000' + j[61:]
+                        outfile.write(temp_write)
+                    elif(zero_everything_charged and line_split[3] in ["ASP", "GLU", "LYS", "ARG", "HIS"]):
+                        temp_write = j[:56] + '0.000' + j[61:]
+                        outfile.write(temp_write)
+                    else: 
+                        outfile.write(j)
 
-        file_name = i.split("charges")[-1][1:].split('.')[0]
+            file_name = i.split("charges")[-1][1:].split('.')[0]
 
-        if(box):
-            density = 10            
-            options = open(f'{outdir_cpet}options_field_{file_name}.txt', 'w+')
-            options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
-            options.write(f'%plot3d \n')
-            options.write(f'    show false \n')
-            options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
-            options.write('    density {} {} {} \n'.format(density, density, density))
-            options.write(f'output {outdir}efield_cox_{file_name}.dat \n')
-            options.write(f'end \n')                   
-            options.close()
-        else: 
-            samples = 1000
-            bins = 20
-            step_size = 0.001
-            options = open(f'{outdir_cpet}options_topology_{file_name}.txt', 'w+')
-            options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
-            options.write(f'%topology \n')
-            options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
-            options.write('    stepSize {} \n'.format(step_size))
-            options.write('    samples {} \n'.format(samples))
-            options.write('    sampleOutput {} \n'.format(file_name))
-            options.write('    bins {} \n'.format(bins))
-            options.write(f'end \n')                   
-            options.close()
-    
+            if(box):
+                density = 10            
+                options = open(f'{outdir_cpet}options_field_{file_name}.txt', 'w+')
+                options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
+                options.write(f'%plot3d \n')
+                options.write(f'    show false \n')
+                options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
+                options.write('    density {} {} {} \n'.format(density, density, density))
+                options.write(f'output {outdir}efield_cox_{file_name}.dat \n')
+                options.write(f'end \n')                   
+                options.close()
+            else: 
+                samples = 1000
+                bins = 20
+                step_size = 0.001
+                options = open(f'{outdir_cpet}options_topology_{file_name}.txt', 'w+')
+                options.write(f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n')
+                options.write(f'%topology \n')
+                options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
+                options.write('    stepSize {} \n'.format(step_size))
+                options.write('    samples {} \n'.format(samples))
+                options.write('    sampleOutput {} \n'.format(file_name))
+                options.write('    bins {} \n'.format(bins))
+                options.write(f'end \n')                   
+                options.close()
+        
 
     print("fail count: {}".format(fail))
 
