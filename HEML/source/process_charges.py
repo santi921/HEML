@@ -72,6 +72,12 @@ if __name__ == "__main__" :
                         print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
                         fail += 1
                         continue
+                    else: 
+                        print(f'Nitro 1 {nitrogen_dict["N_ID1"]}')
+                        print(f'Nitro 2 {nitrogen_dict["N_ID2"]}')
+                        print(f'Nitro 3 {nitrogen_dict["N_ID3"]}')
+                        print(f'Nitro 4 {nitrogen_dict["N_ID4"]}')
+                        print(f'ligand of note {ligand_dict["best_crit"]}\n')
 
             except: 
                 fail_cond = True
@@ -79,13 +85,7 @@ if __name__ == "__main__" :
                 fail += 1 
 
 
-            
-            #print(f'Cysteine ligand distance from {best_crit} is {best_crit_dist} angstrom.')
-            print(f'Nitro 1 {nitrogen_dict["N_ID1"]}')
-            print(f'Nitro 2 {nitrogen_dict["N_ID2"]}')
-            print(f'Nitro 3 {nitrogen_dict["N_ID3"]}')
-            print(f'Nitro 4 {nitrogen_dict["N_ID4"]}')
-            print(f'ligand of note {ligand_dict["best_crit"]}\n')
+
 
             filename = os.path.basename(i)
             listname = filename.split('.')
