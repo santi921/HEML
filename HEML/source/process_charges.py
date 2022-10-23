@@ -3,8 +3,6 @@ from tkinter import E
 import numpy as np
 import glob, os, re
     
-# zero heteroatom / iron 
-# other options include zeroing non active site residues or all charged residues
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:
         return True
@@ -250,14 +248,15 @@ if __name__ == "__main__" :
         filename = os.path.basename(i)
         listname = filename.split('.')
 
-        #check that output isn't already there
+        #check that output isn't already there in the processed directory
         output = f'{outdir}{listname[0]}.pqr'
         if os.path.exists(output):
-            #print(output)
-            #print("exists")
             pass
 
-        elif(check_if_file_is_empty(i)): pass
+        #checks that input file is not empty
+        elif(check_if_file_is_empty(i)): 
+            pass
+
         else:        
             openfile = open(i)
             readfile = openfile.readlines()
@@ -266,11 +265,19 @@ if __name__ == "__main__" :
 
             # Look for FE in each line, and get chain:res:atom ID and xyz coords if exists.
 
+            fail_cond = True
+            try: 
 
-            fe_id, fe_xyz = get_fe_positions(i)
-            nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
-            ligand_dict = get_ligand_info(i)
-    
+                fe_id, fe_xyz = get_fe_positions(i)
+                nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
+                ligand_dict = get_ligand_info(i)
+                fail_cond = False
+
+            except: 
+                fail_cond = True
+                print("Failed File: ".format(i))
+                fail += 1 
+
             if ligand_dict["best_crit_dist"] > 4.0:
                 print(ligand_dict["best_crit_dist"])
                 print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
@@ -293,11 +300,8 @@ if __name__ == "__main__" :
 
             #check that output isn't already there
             output = f'{outdir}{listname[0]}.pqr'
-            if os.path.exists(output):
-                #print(output)
-                print("exists")
-                pass
-            else:        
+
+            if(not fail_cond):  
                 with open(output, 'w') as outfile:
                     for j in readfile:
                         line_split = re.split(r'(\s+)', j)

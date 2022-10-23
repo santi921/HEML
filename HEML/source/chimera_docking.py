@@ -41,7 +41,8 @@ for i in random.sample(files,100000):
             run("chimera --nogui " +  pdb_folder[:-1] + "pro_" + i.split("/")[-1] + " incompleteSideChains.py")
             run("mv ./temp.pdb " + out_folder + i.split("/")[-1])
             os.remove(pdb_folder[:-1] + "pro_" + i.split("/")[-1])
-    except: passrc("stop now")
+    except: 
+        passrc("stop now")
 
 
 
