@@ -58,6 +58,7 @@ def spacefinder(List_String):
     return outstring
 
 def get_N_positions(file, fe_ID, fe_xyz):
+    print(file)
     N_ID, N_ID2, N_ID3, N_ID4 = None, None, None, None
     N1_xyz, N2_xyz, N3_xyz, N4_xyz = None, None, None, None
 
@@ -236,15 +237,27 @@ if __name__ == "__main__" :
     outdir_cpet = "/ocean/projects/che160019p/santi92/cpet/"
     charges_directory = "/ocean/projects/che160019p/santi92/heme_charges/*pqr" 
 
-    outdir = "../../data/charge_processed/"
-    outdir_cpet = "../../data/cpet/"
-    charges_directory = "../../data/charges/*pqr" 
+    #outdir = "../../data/charge_processed/"
+    #outdir_cpet = "../../data/cpet/"
+    #charges_directory = "../../data/charges/*pqr" 
     
     filelist = glob.glob(charges_directory)
     #print(filelist)
     for i in filelist:
 
-        if(check_if_file_is_empty(i)): pass
+
+        # new filename
+        filename = os.path.basename(i)
+        listname = filename.split('.')
+
+        #check that output isn't already there
+        output = f'{outdir}{listname[0]}.pqr'
+        if os.path.exists(output):
+            #print(output)
+            #print("exists")
+            pass
+
+        elif(check_if_file_is_empty(i)): pass
         else:        
             openfile = open(i)
             readfile = openfile.readlines()
@@ -281,6 +294,8 @@ if __name__ == "__main__" :
             #check that output isn't already there
             output = f'{outdir}{listname[0]}.pqr'
             if os.path.exists(output):
+                #print(output)
+                print("exists")
                 pass
             else:        
                 with open(output, 'w') as outfile:
