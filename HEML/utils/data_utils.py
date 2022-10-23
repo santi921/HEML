@@ -16,7 +16,12 @@ def check_if_dict_has_None(dict):
     for key, value in dict.items():
         if value is None:
             return True
-    return False
+
+    if dict is {}:
+        return True
+    else:
+        return False
+
 
 def break_up_line(str_process):
     split_str = str_process.split('-')
@@ -170,6 +175,7 @@ def get_N_positions(file, fe_ID, fe_xyz):
     return nitrogen_dict 
 
 def get_fe_positions(file):
+    fe_ID, fe_xyz = None, None
     with open(file, 'r') as f:
         readfile = f.readlines()
 

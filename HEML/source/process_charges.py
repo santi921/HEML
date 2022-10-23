@@ -51,9 +51,14 @@ if __name__ == "__main__" :
 
             fail_cond = True
 
-            try: 
+            ligand_dict = {}
+            nitrogen_dict = {}
 
+            try: 
+                
                 fe_id, fe_xyz = get_fe_positions(i)
+                assert fe_id != None
+                print(fe_id, fe_xyz)
                 ligand_dict = get_ligand_info(i, fe_xyz)
                 nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
@@ -61,16 +66,19 @@ if __name__ == "__main__" :
                 if(not nitro_none and not ligand_none):
                     fail_cond = False
 
+            
+                    if ligand_dict["best_crit_dist"] > 4.0:
+                        print(ligand_dict["best_crit_dist"])
+                        print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
+                        fail += 1
+                        continue
+
             except: 
                 fail_cond = True
                 print("Failed File: ".format(i))
                 fail += 1 
 
-            if ligand_dict["best_crit_dist"] > 4.0:
-                print(ligand_dict["best_crit_dist"])
-                print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
-                fail += 1
-                continue
+
             
             #print(f'Cysteine ligand distance from {best_crit} is {best_crit_dist} angstrom.')
             print(f'Nitro 1 {nitrogen_dict["N_ID1"]}')
