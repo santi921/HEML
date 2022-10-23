@@ -21,7 +21,7 @@ if __name__ == "__main__" :
     #outdir_cpet = "../../data/cpet/"
     #charges_directory = "../../data/charges/*pqr" 
     
-    filelist = glob.glob(charges_directory)
+    filelist = glob(charges_directory)
     #print(filelist)
     for i in filelist:
 
