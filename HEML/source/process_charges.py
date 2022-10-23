@@ -251,10 +251,12 @@ if __name__ == "__main__" :
         #check that output isn't already there in the processed directory
         output = f'{outdir}{listname[0]}.pqr'
         if os.path.exists(output):
+            print("output file already exists")
             pass
 
         #checks that input file is not empty
         elif(check_if_file_is_empty(i)): 
+            print("input file is empty")
             pass
 
         else:        
