@@ -1,7 +1,8 @@
 from posixpath import split
 from tkinter import E
 import numpy as np
-import glob, os, re
+import os, re
+from glob import glob
 from HEML.utils.data_utils import *
 
 if __name__ == "__main__" :
