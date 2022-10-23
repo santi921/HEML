@@ -6,6 +6,230 @@ from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
+def check_if_file_is_empty(file):
+    if os.stat(file).st_size == 0:
+        return True
+    else:
+        return False
+
+def check_if_dict_has_None(dict):
+    for key, value in dict.items():
+        if value is None:
+            return True
+    return False
+
+def break_up_line(str_process):
+    split_str = str_process.split('-')
+    if (split_str[0] == ''):
+        ret_1 = "-" + split_str[1]
+    else: 
+        ret_1 = split_str[0]
+    return ret_1, "-" + split_str[-1]
+
+def spacefinder(List_String):
+    try:
+        len(List_String) == 11
+    except:
+        print("Does your pdb contain charges? List of strings should have 11 values.")
+
+    slen1 = len(List_String[1])
+    slen2 = len(List_String[2])
+    slen5 = len(List_String[5])
+    slen6 = len(List_String[6])
+    slen7 = len(List_String[7])
+    slen8 = len(List_String[8])
+    slen9 = len(List_String[9])
+    slen10 = len(List_String[10])
+
+    if List_String[0] == "HETATM":
+        backlen1 = 4 - (slen1-1)
+    else:
+        backlen1 = 6 - (slen1-1)
+    if slen2 > 3:
+        backlen2 = 2 - (slen2-3)
+        backlen3 = 3 - (slen2-2)
+    else:
+        backlen2 = 2
+        backlen3 = 3 - (slen2-1)
+    backlen5 = 3 - (slen5-1)
+    backlen6 = 11 - (slen6-1)
+    backlen7 = 7 - (slen7-1)
+    backlen8 = 7 - (slen8-1)
+    backlen9 = 6 - (slen9-1)
+    backlen10 = 6 - (slen10-1)
+
+    outstring = List_String[0] + (" " * backlen1) + List_String[1] + (" " * backlen2) + List_String[2] + (" " * backlen3) \
+        + List_String[3] + " " + List_String[4] + (" " * backlen5) + List_String[5] + (" " * backlen6) + List_String[6] \
+             + (" " * backlen7) + List_String[7]  + (" " * backlen8) + List_String[8]  + (" " * backlen9) + List_String[9] \
+                  + (" " * backlen10) + List_String[10]
+    return outstring
+
+def get_N_positions(file, fe_ID, fe_xyz):
+    print(file)
+    N_ID, N_ID2, N_ID3, N_ID4 = None, None, None, None
+    N1_xyz, N2_xyz, N3_xyz, N4_xyz = None, None, None, None
+
+    with open(file, 'r') as f:
+        readfile = f.readlines()
+
+    for j in readfile:
+        line = j.split()
+
+        shift = 0 
+        if(len(line[0]) > 6):
+                shift = -1
+
+        if 'HETATM' in line[0] and ('NA' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N1_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        if 'HETATM' in line[0] and ('NB' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID2 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N2_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID3 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N3_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID4 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N4_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        
+    # if there are missing N atoms, find all of the nitrogens and assign them to the closest N atom
+    
+    full_N_dict = {}
+    if(N_ID == None or  N_ID2 == None or N_ID3 == None or N_ID4 == None):
+        count = 0 
+        for j in readfile:
+            line = j.split()
+
+            shift = 0 
+            if(len(line[0]) > 6):
+                    shift = -1   
+            
+            heme_id = fe_ID.split(":")[0]
+
+            if 'HETATM' in line[0] and ('N' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == heme_id:
+                try:
+                    full_N_dict[count] = {
+                            "id":f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}', 
+                            "xyz":[float(j[31:38]), float(j[38:45]), float(j[46:54])],
+                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
+                        }
+                except: 
+                    full_N_dict[count] = {
+                            "id": f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' ,
+                            "xyz":[float(line[-5]), float(line[-4]), float(line[-3])],
+                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
+                            }
+                count += 1
+        
+        # sort the dictionary by distance to iron
+        full_N_dict = {k: v for k, v in sorted(full_N_dict.items(), key=lambda item: item[1]['distance_to_iron'])}
+        # get first 4 values of the dictionary
+        full_N_dict = dict(list(full_N_dict.items())[0:4])
+        # assign the N_IDs
+        N_ID = full_N_dict[0]["id"]
+        N_ID2 = full_N_dict[1]["id"]
+        N_ID3 = full_N_dict[2]["id"]
+        N_ID4 = full_N_dict[3]["id"]
+        # assign the N_xyz
+        N1_xyz = full_N_dict[0]["xyz"]
+        N2_xyz = full_N_dict[1]["xyz"]
+        N3_xyz = full_N_dict[2]["xyz"]
+        N4_xyz = full_N_dict[3]["xyz"]   
+
+    assert N_ID != None, "Nitrogens 1 were not found"
+    assert N_ID2 != None, "Nitrogens 2 were not found"
+    assert N_ID3 != None, "Nitrogens 3 were not found"
+    assert N_ID4 != None, "Nitrogens 4 were not found"
+
+    mean_N_xyz =np.mean(np.array([N1_xyz, N2_xyz, N3_xyz, N4_xyz]), axis=0)
+
+    nitrogen_dict = {
+        "mean_N_xyz": mean_N_xyz,
+        "N_ID1": N_ID,
+        "N_ID2": N_ID2,
+        "N_ID3": N_ID3,
+        "N_ID4": N_ID4,
+        "N1_xyz": N1_xyz,
+        "N2_xyz": N2_xyz,
+        "N3_xyz": N3_xyz,
+        "N4_xyz": N4_xyz
+    }
+
+    return nitrogen_dict 
+
+def get_fe_positions(file):
+    with open(file, 'r') as f:
+        readfile = f.readlines()
+
+    for j in readfile:
+        line = j.split()
+        if 'HETATM' in line[0] and ('FE' in line[2] or "FE" in line[1]):
+            shift = 0 
+            if("FE" in line[1]):
+                shift = -1
+            fe_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}'
+            fe_xyz = [line[6+shift], line[7+shift], line[8+shift]]
+            fe_xyz = [float(x) for x in fe_xyz]
+            fe_xyz = np.array(fe_xyz)
+            break
+
+    return fe_ID, fe_xyz
+
+def get_ligand_info(file, fe_xyz):
+    best_crit_dist = 10.0
+    fe_crit_dist = 10.0
+    best_crit = None
+
+    with open(file, 'r') as f:
+        readfile = f.readlines()
+
+    for j in readfile:
+        line = j.split()
+        sg_cond = 'ATOM' in line[0] and 'SG' in line[2] and 'CYS' in line[3]
+        oh_cond = 'ATOM' in line[0] and 'OH' in line[2] and 'TYR' in line[3]
+        nend_cond = 'ATOM' in line[0] and (('NE2' in line[2]) or ("ND1") in line[2]) and 'HIS' in line[3]
+
+        if (sg_cond or oh_cond or nend_cond):
+            crit_ID = f'{line[4]}:{line[5]}:{line[2]}'
+            # catch any clumped elements
+            x = line[6]
+            y = line[7]
+            z = line[8]
+
+            if(len(line[6]) > 8):
+                x, y = break_up_line(x)
+                z = line[7]
+
+            if(len(line[7]) > 8):
+                y, z = break_up_line(y)
+
+            crit_xyz = [x, y, z]
+            crit_xyz = [float(x) for x in crit_xyz]
+            crit_xyz = np.array(crit_xyz)
+            crit_dist = np.linalg.norm(fe_xyz - crit_xyz)
+
+            if (crit_dist < fe_crit_dist and crit_dist < best_crit_dist):
+                best_crit_dist = crit_dist
+                best_crit = crit_ID
+
+    ligand_dict = {
+        "best_crit_dist": best_crit_dist,
+        "best_crit": best_crit
+    }
+
+    return ligand_dict
 
 def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 
@@ -84,6 +308,7 @@ def pull_mats_w_label(dir_dat):
     print(y_count, h_count, c_count)
     return np.array(x), np.array(y)
 
+
 def aug_all(mat, target, xy = True, z = False, mut = False):
     full_aug  = []
     full_aug_target = []
@@ -146,7 +371,6 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
         
     return aug_mat, aug_target
       
-    
 def pca(mat, pca = None, verbose = False, pca_comps = 10): 
     
     mat_transform = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4])
@@ -192,6 +416,8 @@ def unwrap_pca(mat, pca, shape):
     mat = pca.inverse_transform(mat)
     mat = mat.reshape(len(mat), shape[1], shape[2], shape[3], shape[4])
     return mat 
+
+
 
 
     
