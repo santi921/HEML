@@ -56,9 +56,9 @@ def main():
         comp_vect_field = pca_comp.reshape(shape_mat[1], shape_mat[2], shape_mat[3], shape_mat[4])
 
         x, y, z = np.meshgrid(
-                        np.arange(-3, 2.8, 0.3),
-                        np.arange(-3, 2.8, 0.3),
-                        np.arange(-3, 2.8, 0.3)
+                        np.arange(-3, 3.3, 0.3),
+                        np.arange(-3, 3.3, 0.3),
+                        np.arange(-3, 3.3, 0.3)
                         )
 
         u_1, v_1, w_1 = split_and_filter(

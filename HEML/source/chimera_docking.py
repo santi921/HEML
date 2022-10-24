@@ -14,7 +14,7 @@ with open("../../data/het_list.txt") as f:
 #del_list = del_list[0:3] 
 pdb_folder = "/ocean/projects/che160019p/santi92/heme_traj/*"
 out_folder = "/ocean/projects/che160019p/santi92/pdbs_processed_heme/"
-temp_charge_folder = "/ocean/projects/che160019p/santi92//"
+
 #pdb_folder = "../../data/pdbs/"
 #files = os.listdir(pdb_folder)
 files = glob(pdb_folder)

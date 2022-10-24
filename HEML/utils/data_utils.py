@@ -5,12 +5,14 @@ import os
 from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt 
 
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:
         return True
     else:
         return False
+
 
 def check_if_dict_has_None(dict):
     for key, value in dict.items():
@@ -30,6 +32,7 @@ def break_up_line(str_process):
     else: 
         ret_1 = split_str[0]
     return ret_1, "-" + split_str[-1]
+
 
 def spacefinder(List_String):
     try:
@@ -68,6 +71,7 @@ def spacefinder(List_String):
              + (" " * backlen7) + List_String[7]  + (" " * backlen8) + List_String[8]  + (" " * backlen9) + List_String[9] \
                   + (" " * backlen10) + List_String[10]
     return outstring
+
 
 def get_N_positions(file, fe_ID, fe_xyz):
     print(file)
@@ -174,6 +178,7 @@ def get_N_positions(file, fe_ID, fe_xyz):
 
     return nitrogen_dict 
 
+
 def get_fe_positions(file):
     fe_ID, fe_xyz = None, None
     with open(file, 'r') as f:
@@ -192,6 +197,7 @@ def get_fe_positions(file):
             break
 
     return fe_ID, fe_xyz
+
 
 def get_ligand_info(file, fe_xyz):
     best_crit_dist = 10.0
@@ -236,6 +242,7 @@ def get_ligand_info(file, fe_xyz):
     }
 
     return ligand_dict
+
 
 def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 
@@ -291,6 +298,7 @@ def mat_pull(file):
         mat[int(ind/(steps_z*steps_y)), int(ind/steps_z % steps_y), ind%steps_z, 2] = float(line_split[-1])
     return mat  
 
+
 def pull_mats_w_label(dir_dat):
 
     x, y = [], []
@@ -325,6 +333,7 @@ def aug_all(mat, target, xy = True, z = False, mut = False):
         [full_aug_target.append(j) for j in y_aug]
 
     return np.array(full_aug), np.array(full_aug_target)
+
 
 def augment_mat_field(mat, target, xy = True, z = False, mut = False):
     aug_target = []
@@ -376,7 +385,8 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
         aug_target.append(target)
         
     return aug_mat, aug_target
-      
+
+
 def pca(mat, pca = None, verbose = False, pca_comps = 10): 
     
     mat_transform = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4])
@@ -418,12 +428,64 @@ def pca(mat, pca = None, verbose = False, pca_comps = 10):
     
     return mat_transform, pca
 
+
 def unwrap_pca(mat, pca, shape): 
     mat = pca.inverse_transform(mat)
     mat = mat.reshape(len(mat), shape[1], shape[2], shape[3], shape[4])
     return mat 
 
 
+def helmholtz_hodge_decomp_approx(file = '../../data/cpet/efield_cox_1sj21.dat', show = False):
+    Vf = mat_pull(file)
+    NX, NY, NZ = Vf[:,:,:,1].shape
+    #print(NX, NY, NZ)
+    Vfx = Vf[:,:,:,0]
+    Vfy = Vf[:,:,:,1]
+    Vfz = Vf[:,:,:,2]
 
+    vx_f = np.fft.fftn(Vfx)
+    vy_f = np.fft.fftn(Vfy)
+    vz_f = np.fft.fftn(Vfz)
+
+    kx = np.fft.fftfreq(NX).reshape(NX,1,1)
+    ky = np.fft.fftfreq(NY).reshape(NY,1)
+    kz = np.fft.fftfreq(NZ)
+    k2 = kx**2 + ky**2 + kz**2
+    k2[0,0,0] = 1. # to avoid inf. we do not care about the k=0 component
+
+    div_Vf_f = (vx_f * kx +  vy_f * ky + vz_f * kz) #* 1j
+    V_compressive_overk = div_Vf_f / k2
+    V_compressive_x = np.fft.ifftn(V_compressive_overk * kx) #[:,np.newaxis,np.newaxis])
+    V_compressive_y = np.fft.ifftn(V_compressive_overk * ky)
+    V_compressive_z = np.fft.ifftn(V_compressive_overk * kz)
+
+    V_solenoidal_x = Vfx - V_compressive_x
+    V_solenoidal_y = Vfy - V_compressive_y
+    V_solenoidal_z = Vfz - V_compressive_z
+
+    # check if the solenoidal part really divergence-free
+    divVs = np.fft.ifftn((np.fft.fftn(V_solenoidal_x) * kx + np.fft.fftn(V_solenoidal_y) * ky + np.fft.fftn(V_solenoidal_z) * kz) * 1j * 2. * np.pi)
+
+    #print('div_solenoidal max:', abs(divVs).max())
+    # check the power in solenoidal and compressive components
+    #print('variance:')
+    #print( 'solenoidal x,y,z:', V_solenoidal_x.var(), V_solenoidal_y.var(), V_solenoidal_z.var())
+    #print('compressive x,y,z:', V_compressive_x.var(), V_compressive_y.var(), V_compressive_z.var())
+
+    if show:
+        # plot one slice of the decomposed field on X-Y plane
+        X, Y = np.meshgrid(range(NY), range(NX))
+        scale = 1
+        plt.figure()
+        plt.quiver(X, Y, V_solenoidal_x[:,:,0]/scale, V_solenoidal_y[:,:,0]/scale, norm=True)
+        plt.figure()
+        plt.quiver(X, Y, V_compressive_x[:,:,0]/scale, V_compressive_y[:,:,0]/scale, norm=True)
+        plt.ion()
+        plt.show()
+    
+    solenoidal = {"x": V_solenoidal_x.real, "y":V_solenoidal_y.real, "z": V_solenoidal_z.real}
+    compressize = {"x": V_compressive_x.real, "y":V_compressive_y.real, "z": V_compressive_z.real}
+    return solenoidal, compressize
+    
 
     

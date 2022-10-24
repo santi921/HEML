@@ -64,6 +64,7 @@ if __name__ == "__main__" :
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
                 ligand_none = check_if_dict_has_None(ligand_dict)
                 if(not nitro_none and not ligand_none):
+                    
                     fail_cond = False
 
             
@@ -72,6 +73,7 @@ if __name__ == "__main__" :
                         print(f'ERROR: No cysteine/tyrosine/histine ligand found for {i}.\n')
                         fail += 1
                         continue
+
                     else: 
                         print(f'Nitro 1 {nitrogen_dict["N_ID1"]}')
                         print(f'Nitro 2 {nitrogen_dict["N_ID2"]}')
