@@ -10,7 +10,7 @@ def main():
     # for each folder, run the distance mat calculations
     for folder in folders:
         print(folder)
-        topo_files = [f for f in os.listdir(os.path.join(root, folder)) if f.endswith(".top")]
+        topo_files = [os.path.join(root, folder)+"/"+f for f in os.listdir(os.path.join(root, folder)) if f.endswith(".top")]
         # sorts the files in some way
         topo_files.sort(key=lambda i: i.split("_")[0])
 

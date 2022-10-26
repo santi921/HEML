@@ -1,7 +1,6 @@
+import os 
 import pandas as pd 
 import numpy as np 
-from glob import glob 
-import os 
 from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
