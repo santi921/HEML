@@ -31,8 +31,10 @@ def move_proteins_to_folders(top_files_folder = "/ocean/projects/che160019p/sant
 
     # make folders for each protein
     for i in protein_set:
-        os.mkdir(top_files_folder + i)
-        print("made folder {}".format(i))
+        #check if folder exists
+        if not os.path.exists(top_files_folder + i):
+            os.mkdir(top_files_folder + i)
+            print("made folder {}".format(i))
     
     # copy files to folders
     for i in top_files:
