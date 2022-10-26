@@ -499,5 +499,8 @@ def compress(distance_matrix):
     print(f'Estimated number of clusters: {n_clusters_}')
     #get count of a value in a list 
     for i in range(n_clusters_):
-        compressed_dictionary[i] = {"count":labels.count(i), "index_center" : cluster_centers_indices[i]}
+        compressed_dictionary[i] = {
+            "count":str(labels.count(i)), 
+            "index_center" : str(cluster_centers_indices[i])
+            }
     return compressed_dictionary
