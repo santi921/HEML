@@ -3,7 +3,7 @@ from tkinter import E
 import numpy as np
 import os, re
 from glob import glob
-from HEML.utils.data_utils import *
+from HEML.utils.data import *
 
 if __name__ == "__main__" :
     zero_active = True

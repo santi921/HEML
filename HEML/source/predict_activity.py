@@ -6,9 +6,9 @@ from plotly.subplots import make_subplots
 import numpy as np
 import pandas as pd
 import wandb, argparse
-from HEML.utils.data_utils import *
-from HEML.utils.attrib_utils import *
-from HEML.utils.model_utils import *
+from HEML.utils.data import *
+from HEML.utils.attrib import *
+from HEML.utils.model import *
 
 import matplotlib.pyplot as plt
 

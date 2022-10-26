@@ -1,8 +1,8 @@
 from math import radians
 from turtle import color
-from HEML.utils.data_utils import *
-from HEML.utils.attrib_utils import *
-from HEML.utils.model_utils import *
+from HEML.utils.data import *
+from HEML.utils.attrib import *
+from HEML.utils.model import *
 import plotly.io as pio
 
 

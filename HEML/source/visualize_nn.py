@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-from HEML.utils.data_utils import *
+from HEML.utils.data import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, r2_score
 from tensorflow.keras.regularizers import l1 as L1
@@ -12,7 +12,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
 
-from HEML.utils.attrib_utils import *
+from HEML.utils.attrib import *
 
 
 

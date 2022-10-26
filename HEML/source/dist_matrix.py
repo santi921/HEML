@@ -2,10 +2,9 @@
 #!/usr/bin/env python3
 
 import os
-import matplotlib
-import timeit
+from HEML.utils.cpet import make_histograms, construct_distance_matrix
 import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib 
 
 # Customize matplotlib
 matplotlib.rcParams.update({  # Use mathtext, not LaTeX
@@ -18,58 +17,6 @@ matplotlib.rcParams.update({  # Use mathtext, not LaTeX
     'axes.unicode_minus': False,
     'font.size': 16
 })
-
-
-def make_histograms(topo_files):
-    histograms = []
-
-    for topo_file in topo_files:
-
-        distances = []
-        curvatures = []
-
-        with open(topo_file) as topology_data:
-            for line in topology_data:
-                if line.startswith("#"):
-                    continue
-
-                line = line.split(",")
-                distances.append(float(line[0]))
-                curvatures.append(float(line[1]))
-
-        # bins is number of histograms bins in x and y direction (so below is 100x100 bins)
-        # range gives xrange, yrange for the histogram
-        a, b, c, q = plt.hist2d(distances, curvatures, bins=200, range=[[0, 10], [0, 30]], norm=matplotlib.colors.LogNorm(), density=True, cmap='jet')
-
-        NormConstant = 0
-        for j in a:
-            for m in j:
-                NormConstant += m
-
-        actual = []
-        for j in a:
-            actual.append([m/NormConstant for m in j])
-
-        actual = np.array(actual)
-        histograms.append(actual.flatten()) 
-        #plt.show()
-
-    return np.array(histograms)
-
-def distance_numpy(hist1, hist2):
-    a = (hist1-hist2)**2
-    b = hist1+hist2
-    return np.sum(np.divide(a, b, out=np.zeros_like(a), where=b!=0))/2.0
-
-def construct_distance_matrix(histograms):
-    matrix = np.diag(np.zeros(len(histograms)))
-    for i, hist1 in enumerate(histograms):
-        for j,hist2 in enumerate(histograms[i+1:]):
-            j += i+1
-            matrix[i][j] = distance_numpy(hist1, hist2)
-            matrix[j][i] = matrix[i][j]
-
-    return matrix
 
 def main():
     topo_files = [f for f in os.listdir(".") if f.endswith(".top")]

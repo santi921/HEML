@@ -8,9 +8,9 @@ import pandas as pd
 import wandb, argparse
 from boruta import BorutaPy
 from sklearn.inspection import permutation_importance
-from HEML.utils.data_utils import *
-from HEML.utils.attrib_utils import *
-from HEML.utils.model_utils import *
+from HEML.utils.data import *
+from HEML.utils.attrib import *
+from HEML.utils.model import *
 
 from xgboost import XGBClassifier
 
