@@ -50,8 +50,7 @@ def make_histograms(topo_files, plot = False):
 
     for topo_file in topo_files:
 
-        distances = []
-        curvatures = []
+        curvatures, distances = [], []
 
         with open(topo_file) as topology_data:
             for line in topology_data:

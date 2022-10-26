@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt 
+from sklearn.cluster import AffinityPropagation
 
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:
@@ -488,3 +489,16 @@ def helmholtz_hodge_decomp_approx(file = '../../data/cpet/efield_cox_1sj21.dat',
     return solenoidal, compressize
     
 
+def compress(distance_matrix):
+    compressed_dictionary = {}
+    affinity = AffinityPropagation(affinity='precomputed')
+    affinity.fit(distance_matrix)
+    cluster_centers_indices = affinity.cluster_centers_indices_
+    labels = list(affinity.labels_)
+    n_clusters_ = len(cluster_centers_indices)
+
+    print(f'Estimated number of clusters: {n_clusters_}')
+    #get count of a value in a list 
+    for i in range(n_clusters_):
+        compressed_dictionary[i] = {"count":labels.count(i), "index_center" : cluster_centers_indices[i]}
+    return compressed_dictionary
