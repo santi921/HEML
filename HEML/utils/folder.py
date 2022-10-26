@@ -37,8 +37,10 @@ def move_proteins_to_folders(top_files_folder = "/ocean/projects/che160019p/sant
             print("made folder {}".format(i))
     
     # copy files to folders
-    for i in top_files:
+    for ind, i in enumerate(top_files):
         protein_id = i.split("/")[-1].split("_")[protein_loc]
+        if(ind%1000==0): 
+            print("copied {} to {}".format(i, top_files_folder + protein_id))
+
         os.system("cp {} {}".format(i, top_files_folder + protein_id))
-        print("copied {} to {}".format(i, top_files_folder + protein_id))
-    
+        
