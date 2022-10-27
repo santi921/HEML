@@ -10,30 +10,36 @@ def main():
     # for each folder, run the distance mat calculations
     for folder in folders:
         print(folder)
-        topo_files = [os.path.join(root, folder)+"/"+f for f in os.listdir(os.path.join(root, folder)) if f.endswith(".top")]
-        # sorts the files in some way
-        topo_files.sort(key=lambda i: i.split("_")[0])
+        if os.path.exists(os.path.join(root, folder) + "/compressed_distance_matrix.json"):
+            print("compressed already exists")
+            
+        else: 
+            topo_files = [os.path.join(root, folder)+"/"+f for f in os.listdir(os.path.join(root, folder)) if f.endswith(".top")]
+            # sorts the files in some way
+            topo_files.sort(key=lambda i: i.split("_")[0])
 
-        with open(os.path.join(root, folder) + '/topo_file_list.txt', 'w') as file_list:
-            for i in topo_files:
-                file_list.write(f'{i} \n')
+            with open(os.path.join(root, folder) + '/topo_file_list.txt', 'w') as file_list:
+                for i in topo_files:
+                    file_list.write(f'{i} \n')
 
-        histograms = make_histograms(topo_files)
-        distance_matrix = construct_distance_matrix(histograms)
-        
-        with open(os.path.join(root, folder) + "/distance_matrix.dat", 'w') as outputfile:
-            for row in distance_matrix:
-                for col in row:
-                    outputfile.write(f'{col} ')
-                outputfile.write("\n")
+            histograms = make_histograms(topo_files)
+            distance_matrix = construct_distance_matrix(histograms)
+            
+            with open(os.path.join(root, folder) + "/distance_matrix.dat", 'w') as outputfile:
+                for row in distance_matrix:
+                    for col in row:
+                        outputfile.write(f'{col} ')
+                    outputfile.write("\n")
 
-        compress_dictionary = compress(distance_matrix)
+            compress_dictionary = compress(distance_matrix)
 
-        for k, v in compress_dictionary.items():
-            compress_dictionary[k]["name_center"] = topo_files[int(v["index_center"])]
-        
-        # save dinctionary as json file
-        with open(os.path.join(root, folder) + "/compressed_dictionary.json", 'w') as outputfile:
-            json.dump(compress_dictionary, outputfile)
+            for k, v in compress_dictionary.items():
+                compress_dictionary[k]["name_center"] = topo_files[int(v["index_center"])]
+            
+            # save dinctionary as json file
+            # check if file exists
+            
+            with open(os.path.join(root, folder) + "/compressed_dictionary.json", 'w') as outputfile:
+                json.dump(compress_dictionary, outputfile)
 
 main()

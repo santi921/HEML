@@ -21,7 +21,7 @@ def find_files_that_dont_start_with_pro_and_delete(folder):
 
 def move_proteins_to_folders(top_files_folder = "/ocean/projects/che160019p/santi92/cpet/", protein_loc = 3):
     
-    top_files = glob(top_files_folder + "*.top")
+    top_files = glob(top_files_folder + "/pro*.top")
     top_files_sans_folder = [i.split("/")[-1] for i in top_files]
     protein_set = []
     for i in top_files_sans_folder: 
@@ -44,3 +44,8 @@ def move_proteins_to_folders(top_files_folder = "/ocean/projects/che160019p/sant
 
         os.system("cp {} {}".format(i, top_files_folder + protein_id))
         
+def count_files_in_each_subdirectory(folder):
+    subfolders = glob(folder + "/*/")
+    print(subfolders)
+    for i in subfolders:
+        print("{} has {} files".format(i, len(os.listdir(i))))

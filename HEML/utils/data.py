@@ -505,8 +505,3 @@ def compress(distance_matrix):
             }
     return compressed_dictionary
 
-import shutil
-def delete_subdirectories(path):
-    for root, dirs, files in os.walk(path):
-        for dir in dirs:
-            shutil.rmtree(os.path.join(root, dir))
