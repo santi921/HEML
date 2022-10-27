@@ -1,6 +1,7 @@
 import os, json
 from HEML.utils.cpet import make_histograms, construct_distance_matrix
 from HEML.utils.data import compress
+from random import choice
 
 def main():
     root = "/ocean/projects/che160019p/santi92/cpet/"
@@ -8,7 +9,8 @@ def main():
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
 
     # for each folder, run the distance mat calculations
-    for folder in folders:
+    for i in range(folders):
+        folder = choice(folders)
         print(folder)
         if os.path.exists(os.path.join(root, folder) + "/compressed_distance_matrix.json"):
             print("compressed already exists")
