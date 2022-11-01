@@ -16,6 +16,8 @@ heme_names = pd.read_csv("../../../data/protein_data.csv")['name']
 for i in heme_names:
     print(i)
     try:
-        urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../data/pdbs/'+i+'.pdb1')
+        
+        urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../../data/pdbs/'+i+'.pdb1')
+        print("bioassembly")
     except:
-        urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../data/pdbs/'+i+'.pdb')
+        urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../../data/pdbs/'+i+'.pdb')

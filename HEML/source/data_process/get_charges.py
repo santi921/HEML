@@ -3,8 +3,15 @@ import subprocess, os, random
 import numpy as np
 import matplotlib.pyplot as plt
 from glob import glob
-folder_processed = "/ocean/projects/che160019p/santi92/pdbs_processed_heme/*"
-out_folder = "/ocean/projects/che160019p/santi92/heme_charges/"
+
+# hpc files
+#folder_processed = "/ocean/projects/che160019p/santi92/pdbs_processed_heme/*"
+#out_folder = "/ocean/projects/che160019p/santi92/heme_charges/"
+
+# local
+folder_processed = "../../../data/pdbs_processed/*"
+out_folder = "../../../data/charges/"
+
 files = glob(folder_processed)
 
 for ind in range(len(files)):

@@ -13,13 +13,15 @@ if __name__ == "__main__" :
     box_size = 3.0
 
     fail = 0
-    outdir = "/ocean/projects/che160019p/santi92/processed_charges/"
-    outdir_cpet = "/ocean/projects/che160019p/santi92/cpet/"
-    charges_directory = "/ocean/projects/che160019p/santi92/heme_charges/*pqr" 
+    # HPC
+    #outdir = "/ocean/projects/che160019p/santi92/processed_charges/"
+    #outdir_cpet = "/ocean/projects/che160019p/santi92/cpet/"
+    #charges_directory = "/ocean/projects/che160019p/santi92/heme_charges/*pqr" 
 
-    #outdir = "../../data/charge_processed/"
-    #outdir_cpet = "../../data/cpet/"
-    #charges_directory = "../../data/charges/*pqr" 
+    # Local
+    outdir = "../../../data/charge_processed/"
+    outdir_cpet = "../../../data/cpet/"
+    charges_directory = "../../../data/charges/*pqr" 
     
     filelist = glob(charges_directory)
     #print(filelist)

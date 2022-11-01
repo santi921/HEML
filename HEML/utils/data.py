@@ -134,7 +134,7 @@ def spacefinder(List_String):
     return outstring
 
 
-def pdb_to_xyz(file = '../../data/pdbs/1a4e.pdb'):
+def pdb_to_xyz(file):
     with open(file, 'r') as f:
         lines = f.readlines()
     xyz = []
@@ -640,7 +640,7 @@ def connectivity_to_list_of_bonds(connectivity_mat):
     return bonds
 
 
-def get_nodes_and_edges_from_pdb(file = '../../data/pdbs/1a4e.pdb', distance_filter = 5.0):
+def get_nodes_and_edges_from_pdb(file = '../../data/pdbs/1a4e.pdb1', distance_filter = 5.0):
     
     xyz, charge, atom = pdb_to_xyz(file)
     filtered_xyz = filter_xyz_by_distance(xyz, center = [130.581,  41.541,  38.350], distance = distance_filter)
