@@ -2,7 +2,7 @@
 import glob 
 import os
 
-charge_files = glob.glob("../../data/pdbs/*")
+charge_files = glob.glob("../../../data/pdbs/*")
 list = []
 diag_list = []
 
@@ -95,7 +95,7 @@ for thing in standard_res:
     try: list.remove(thing) 
     except: pass    
 
-with open('../../data/het_list.txt', 'w') as f:
+with open('../../../data/het_list.txt', 'w') as f:
     for item in list:
         f.write("%s\n" % item)
 

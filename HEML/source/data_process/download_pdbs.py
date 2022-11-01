@@ -11,11 +11,11 @@ def remove_control_characters(s):
 #with open("heme_list.txt") as f: 
 #    lines = f.readlines()
 #heme_names = [remove_control_characters(line.split(" ")[0]) for line in lines]
-heme_names = pd.read_csv("../../data/protein_data.csv")['name']
+heme_names = pd.read_csv("../../../data/protein_data.csv")['name']
 
 for i in heme_names:
     print(i)
     try:
-        urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../data/pdbs/'+i+'1.pdb')
+        urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../data/pdbs/'+i+'.pdb1')
     except:
         urllib.request.urlretrieve('https://files.rcsb.org/download/' + i + '.pdb', '../../data/pdbs/'+i+'.pdb')

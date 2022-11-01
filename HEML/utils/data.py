@@ -1,4 +1,5 @@
 import os 
+from rdkit import Chem
 import pandas as pd 
 import numpy as np 
 from sklearn.decomposition import PCA
@@ -6,6 +7,66 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt 
 from sklearn.cluster import AffinityPropagation
+from HEML.utils.xyz2mol import xyz2AC_vdW
+from copy import deepcopy
+
+atom_int_dict = {
+    'H': 1,
+    'C': 6,
+    'N': 7,
+    'O': 8,
+    'F': 9,
+    'P': 15,
+    'S': 16,
+    'Cl': 17,
+    'Br': 35,
+    'Fe': 26, 
+    'FE': 26, 
+    'I': 53
+}
+
+int_atom_dict = {
+    1: 'H',
+    6: 'C',
+    7: 'N',
+    8: 'O',
+    9: 'F',
+    15: 'P',
+    16: 'S',
+    17: 'Cl',
+    35: 'Br',
+    26: 'Fe',
+    53: 'I'
+}
+
+atomic_size = {
+    'H': 0.5,
+    'C': 1.7,
+    'N': 1.55,
+    'O': 1.52,
+    'F': 1.47,
+    'P': 1.80,
+    'S': 1.80,
+    'Cl': 1.75,
+    'Br': 1.85,
+    'Fe': 1.80,
+    'I': 1.98
+}
+
+atom_colors = {
+    'H': 'white',
+    'C': 'black',
+    'N': 'blue',
+    'O': 'red',
+    'F': 'orange',
+    'P': 'green',
+    'S': 'yellow',
+    'Cl': 'green',
+    'Br': 'brown',
+    'Fe': 'orange',
+    'I': 'purple'
+}
+
 
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:
@@ -71,6 +132,35 @@ def spacefinder(List_String):
              + (" " * backlen7) + List_String[7]  + (" " * backlen8) + List_String[8]  + (" " * backlen9) + List_String[9] \
                   + (" " * backlen10) + List_String[10]
     return outstring
+
+
+def pdb_to_xyz(file = '../../data/pdbs/1a4e.pdb'):
+    with open(file, 'r') as f:
+        lines = f.readlines()
+    xyz = []
+    charge = []
+    atom = []
+    for line in lines:
+        if line.startswith('ATOM') or line.startswith('HETATM'):
+            xyz.append([float(line[30:38]), float(line[38:46]), float(line[46:54])])
+            #xyz.append([float(i) for i in line.split()[6:9]])
+            charge.append(float(line.split()[-2]))
+            atom.append(atom_int_dict[line.split()[-1]])
+    return xyz, charge, atom
+
+
+def filter_xyz_by_distance(xyz, center = [0,0,0], distance = 5):
+    xyz = np.array(xyz, dtype = float)
+    center = np.array(center, dtype = float)
+    return xyz[np.linalg.norm(xyz - center, axis = 1) < distance]
+
+
+def filter_other_by_distance(xyz, other, center = [0,0,0], distance = 5):
+    xyz = np.array(xyz, dtype = float)
+    center = np.array(center, dtype = float)
+    mask = np.linalg.norm(xyz - center, axis = 1) < distance
+    mask = [i for i in range(len(mask)) if mask[i]]
+    return [other[i] for i in mask]
 
 
 def get_N_positions(file, fe_ID, fe_xyz):
@@ -299,14 +389,14 @@ def mat_pull(file):
     return mat  
 
 
-def pull_mats_w_label(dir_dat):
+def pull_mats_w_label(dir_data = "../../data/protein_data.csv", dir_fields = "../../data/cpet/"):
 
     x, y = [], []
-    df = pd.read_csv("../../data/protein_data.csv")
+    df = pd.read_csv(dir_data)
     y_count, h_count, c_count = 0, 0, 0
     for row in df.iterrows():
         #print(row[1]['name'])
-        cpet_name = "../../data/cpet/efield_cox_" + row[1]['name'] + ".dat"
+        cpet_name = dir_fields + "efield_cox_" + row[1]['name'] + ".dat"
         
         if(os.path.exists(cpet_name)):
             x.append(mat_pull(cpet_name))
@@ -387,12 +477,13 @@ def augment_mat_field(mat, target, xy = True, z = False, mut = False):
     return aug_mat, aug_target
 
 
-def pca(mat, pca = None, verbose = False, pca_comps = 10): 
+def pca(mat, pca = None, pca_comps = 10, verbose = False, write = False): 
     
     mat_transform = mat.reshape(mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4])
     if(pca == None):
         pca = PCA(n_components=pca_comps)
         mat_transform = pca.fit_transform(mat_transform)
+
     else: 
         mat_transform = pca.transform(mat_transform)
 
@@ -412,19 +503,34 @@ def pca(mat, pca = None, verbose = False, pca_comps = 10):
         rows=1, cols=1,
         specs=[[{'type': 'cone'}]
             ])
-    x, y, z = np.meshgrid(np.arange(-3, 2.8, 0.2),
-                        np.arange(-3, 2.8, 0.2),
-                        np.arange(-3, 2.8, 0.2))
+    x, y, z = np.meshgrid(np.arange(-3.0, 3.3, 0.3),
+                        np.arange(-3.0, 3.3, 0.3),
+                        np.arange(-3.0, 3.3, 0.3))
     u = pc0[0][:,:,:,0].flatten()
     v = pc0[0][:,:,:,1].flatten()
     w = pc0[0][:,:,:,2].flatten()
+    
+    comp_vect_field = pc0.reshape(mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4])
+
+    u_1, v_1, w_1 = split_and_filter(
+        comp_vect_field, 
+        cutoff=98, 
+        std_mean=True, 
+        min_max=False
+        )
+        
+
+    vector_scale = 3
     fig.add_trace(
-        go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), u=u, v=v, w=w),
+        go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), u=u_1, v=v_1, w=w_1, sizeref=vector_scale),
         row=1, col=1)
 
-    fig.write_html("out_pca.html")
+
+    if(write):
+        fig.write_html("./out_pca.html")
+
     if(verbose):
-        print(cum_explained_var)
+        print(pca.explained_variance_ratio_)
     
     return mat_transform, pca
 
@@ -505,3 +611,43 @@ def compress(distance_matrix):
             }
     return compressed_dictionary
 
+
+def get_AC(atoms, xyz, covalent_factor=1.4):
+    pt = Chem.GetPeriodicTable()
+    # xyz to distance matrix
+    xyz = np.array(xyz)
+    dist_mat = np.linalg.norm(xyz[:, None, :] - xyz[None, :, :], axis=-1)
+    num_atoms = xyz.shape[0]
+
+    AC = np.zeros((num_atoms, num_atoms), dtype=int)
+    for i in range(num_atoms):
+        a_i = atoms[i]
+        Rcov_i = pt.GetRcovalent(a_i) * covalent_factor
+        for j in range(i + 1, num_atoms):
+            a_j = atoms[j]
+            Rcov_j = pt.GetRcovalent(a_j) * covalent_factor
+            if dist_mat[i, j] <= Rcov_i + Rcov_j:
+                AC[i, j] = 1
+    return AC
+
+
+def connectivity_to_list_of_bonds(connectivity_mat):
+    bonds = []
+    for i in range(len(connectivity_mat)):
+        for j in range(i+1, len(connectivity_mat)):
+            if connectivity_mat[i][j] > 0:
+                bonds.append([i,j])
+    return bonds
+
+
+def get_nodes_and_edges_from_pdb(file = '../../data/pdbs/1a4e.pdb', distance_filter = 5.0):
+    
+    xyz, charge, atom = pdb_to_xyz(file)
+    filtered_xyz = filter_xyz_by_distance(xyz, center = [130.581,  41.541,  38.350], distance = distance_filter)
+    #filtered_charge = filter_other_by_distance(xyz, charge, center = [130.581,  41.541,  38.350], distance = distance_filter)
+    filtered_atom = filter_other_by_distance(xyz, atom, center = [130.581,  41.541,  38.350], distance = distance_filter)
+    connectivity_mat, rdkit_mol = xyz2AC_vdW(filtered_atom, filtered_xyz)
+    connectivity_mat = get_AC(filtered_atom, filtered_xyz, covalent_factor=1.3)
+     
+    bonds = connectivity_to_list_of_bonds(connectivity_mat)
+    return filtered_atom, bonds, filtered_xyz

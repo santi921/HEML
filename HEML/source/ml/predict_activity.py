@@ -22,7 +22,7 @@ class training:
         self.model = model
         
         #df = pd.read_csv("../../data/protein_data.csv")
-        x, y = pull_mats_w_label('./dat')
+        x, y = pull_mats_w_label(dir_data = "../../data/protein_data.csv", dir_fields = "../../data/cpet/")
 
         arr_min, arr_max,  = np.min(x), np.max(x)
         x = (x - arr_min) / (arr_max - arr_min + 1e-18)

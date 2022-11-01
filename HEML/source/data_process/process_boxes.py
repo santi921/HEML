@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def main():
-    files = os.listdir("./charge_processed/")
+    files = os.listdir("../../data/charge_processed/")
     for ind in range(len(files)):
         i = random.choice(files).split("_")[0][:-4]
         print(i)

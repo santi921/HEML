@@ -37,10 +37,7 @@ def main():
 
             for k, v in compress_dictionary.items():
                 compress_dictionary[k]["name_center"] = topo_files[int(v["index_center"])]
-            
-            # save dinctionary as json file
-            # check if file exists
-            
+
             with open(os.path.join(root, folder) + "/compressed_dictionary.json", 'w') as outputfile:
                 json.dump(compress_dictionary, outputfile)
 
