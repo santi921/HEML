@@ -32,3 +32,8 @@ for ind in range(len(files)):
         'TRUE' 
         ])
         
+
+
+# rename all files ending in *pdb1 to *pdb 
+# for i in glob(out_folder + "*pdb1"):
+#     os.rename(i, i[:-1])
