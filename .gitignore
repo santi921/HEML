@@ -10,7 +10,6 @@
 *html
 config*
 debug*
-run*
 conda*
 wandb*
 *tar.xz
