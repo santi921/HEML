@@ -25,7 +25,8 @@ def run_box_calcs(cpet_path, charges_dir):
 
     for i in range(10000):
         file = choice(files_target)
-        protein=file.split("/")[-1][17:]
+        protein=file.split("/")[-1][14:] # works for protein movies
+        
         #.split("_")[-1].split(".")[0]#.split("_")[-1]
         print("protein file: {}".format(protein))
 
@@ -34,7 +35,6 @@ def run_box_calcs(cpet_path, charges_dir):
             print(launch_str)    
             os.system(launch_str)
         print("cpet done running")
-
         os.system("mv {}_0.top {}{}.top".format(protein[:-4], cpet_path, protein[:-4]))
     print("done running cpet")
 
