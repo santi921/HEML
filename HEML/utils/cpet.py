@@ -16,6 +16,7 @@ matplotlib.rcParams.update({  # Use mathtext, not LaTeX
     'font.size': 16
 })
 
+
 def run_box_calcs(cpet_path, charges_dir):
 
     cpet_path = cpet_path

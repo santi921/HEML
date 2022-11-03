@@ -58,7 +58,7 @@ class training:
                     "max_depth":2,
                     "reg_lambda":0.000004975837567403846,
                     "subsample":0.7744313711193004}
-        self.model_obj = XGBClassifier(**model_dict)
+        self.model_obj = XGBClassifier(**model_dict, eval_metric='mlogloss')
 
     def train(self):
         self.make_model()
