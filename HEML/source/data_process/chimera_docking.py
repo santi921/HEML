@@ -27,7 +27,7 @@ files = glob(pdb_folder)
 files_out = glob(out_folder+"*")
 
 #print(random.sample(files, 5000))
-for i in random.sample(files,100):
+for i in random.sample(files,5):
     print("-"* 40)
     # check if file is already processed
     if not os.path.exists(out_folder + i.split("/")[-1]):
@@ -55,9 +55,3 @@ for i in random.sample(files,100):
 
 #files_processed = os.listdir("../../data/pdbs_processed/")
 #for i in files_processed:
-    
-# rename every file ending with .pdb1 to .pdb
-files = os.listdir("./")
-for i in files:
-    if i[-5:] == ".pdb1":
-        os.rename("./" + i, "./" + i[:-1])

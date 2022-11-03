@@ -16,17 +16,12 @@ matplotlib.rcParams.update({  # Use mathtext, not LaTeX
     'font.size': 16
 })
 
-
-def run_topology_calcs(cpet_path, charges_dir):
+def run_box_calcs(cpet_path, charges_dir):
 
     cpet_path = cpet_path
-    files_target = glob(cpet_path + "options_topology*.txt")
+    files_target = glob(cpet_path + "options_field*.txt")
     files_done = os.listdir(cpet_path)
     charges_dir = charges_dir
-
-    #files_target = glob('../../data/cpet/options_topology*.txt')
-    #files_done = os.listdir("../../data/cpet/")
-    #charges_folder = "../../data/charge_processed/"
 
     for i in range(10000):
         file = choice(files_target)
@@ -41,7 +36,30 @@ def run_topology_calcs(cpet_path, charges_dir):
         print("cpet done running")
 
         os.system("mv {}_0.top {}{}.top".format(protein[:-4], cpet_path, protein[:-4]))
-        #pro_1262_movie_2wm4_addh_nohet_fixmer_long_run_2.txt_0.top'
+    print("done running cpet")
+
+
+
+def run_topology_calcs(cpet_path, charges_dir):
+
+    cpet_path = cpet_path
+    files_target = glob(cpet_path + "options_topology*.txt")
+    files_done = os.listdir(cpet_path)
+    charges_dir = charges_dir
+
+    for i in range(10000):
+        file = choice(files_target)
+        protein=file.split("/")[-1][17:]
+        
+        print("protein file: {}".format(protein))
+
+        if(protein+".top" not in files_done):            
+            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), file)
+            print(launch_str)    
+            os.system(launch_str)
+        print("cpet done running")
+
+        os.system("mv {}_0.top {}{}.top".format(protein[:-4], cpet_path, protein[:-4]))
     print("done running cpet")
 
 
