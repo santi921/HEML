@@ -7,4 +7,4 @@ from HEML.utils.cpet import run_box_calcs
 
 run_box_calcs(
     "../../../data/cpet/", 
-    "../../../data/processed_charges/")
+    "../../../data/charge_processed/")
