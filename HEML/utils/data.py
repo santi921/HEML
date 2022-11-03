@@ -389,7 +389,7 @@ def mat_pull(file):
     return mat  
 
 
-def pull_mats_w_label(dir_data = "../../data/protein_data.csv", dir_fields = "../../../data/cpet/"):
+def pull_mats_w_label(dir_data = "../../../data/protein_data.csv", dir_fields = "../../../data/cpet/"):
 
     x, y = [], []
     df = pd.read_csv(dir_data)
