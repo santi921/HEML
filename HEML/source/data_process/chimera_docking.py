@@ -29,28 +29,35 @@ files_out = glob(out_folder+"*")
 #print(random.sample(files, 5000))
 for i in random.sample(files,100):
     print("-"* 40)
-    try:
-        print("pro_" + i.split("/")[-1] + ".pqr" in files_out_charges)
-        #print("pro_" + i.split("/")[-1] + ".pqr")
-        #if(out_folder + "pro_" + i.split("/")[-1] not in files_out):
-        if("pro_" + i.split("/")[-1] + ".pqr" not in files_out_charges):        
-            rc("open " + pdb_folder[:-1] + i.split("/")[-1])
-            rc("delete solvent")
-            rc("addh")
-            [rc("delete :" + j) for j in del_list]
-            #print(i)
-            rc("write #0 " + pdb_folder[:-1] + "pro_" + i.split("/")[-1])
-            print("write #0 " + pdb_folder[:-1] + "pro_" + i.split("/")[-1])
-            rc("close session")
-            print("processed h + solvent")
-            run("chimera --nogui " +  pdb_folder[:-1] + "pro_" + i.split("/")[-1] + " incompleteSideChains.py")
-            run("mv ./temp.pdb " + out_folder + i.split("/")[-1])
-            os.remove(pdb_folder[:-1] + "pro_" + i.split("/")[-1])
-    except: 
-        passrc("stop now")
+    # check if file is already processed
+    if not os.path.exists(out_folder + i.split("/")[-1]):
+        try:
+            print("pro_" + i.split("/")[-1] + ".pqr" in files_out_charges)
+            #print("pro_" + i.split("/")[-1] + ".pqr")
+            #if(out_folder + "pro_" + i.split("/")[-1] not in files_out):
+            if("pro_" + i.split("/")[-1] + ".pqr" not in files_out_charges):        
+                rc("open " + pdb_folder[:-1] + i.split("/")[-1])
+                rc("delete solvent")
+                rc("addh")
+                [rc("delete :" + j) for j in del_list]
+                #print(i)
+                rc("write #0 " + pdb_folder[:-1] + "pro_" + i.split("/")[-1])
+                print("write #0 " + pdb_folder[:-1] + "pro_" + i.split("/")[-1])
+                rc("close session")
+                print("processed h + solvent")
+                run("chimera --nogui " +  pdb_folder[:-1] + "pro_" + i.split("/")[-1] + " incompleteSideChains.py")
+                run("mv ./temp.pdb " + out_folder + i.split("/")[-1])
+                os.remove(pdb_folder[:-1] + "pro_" + i.split("/")[-1])
+        except: 
+            passrc("stop now")
 
 
 
 #files_processed = os.listdir("../../data/pdbs_processed/")
 #for i in files_processed:
     
+# rename every file ending with .pdb1 to .pdb
+files = os.listdir("./")
+for i in files:
+    if i[-5:] == ".pdb1":
+        os.rename("./" + i, "./" + i[:-1])
