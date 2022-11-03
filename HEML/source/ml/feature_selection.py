@@ -29,7 +29,15 @@ class training:
         x, y = pull_mats_w_label()
 
         arr_min, arr_max,  = np.min(x), np.max(x)
-        x = (x - arr_min) / (arr_max - arr_min + 1e-18)
+        #x = (x - arr_min) / (arr_max - arr_min + 1e-18)
+        x_sign = np.sign(x)
+        # getting absolute value of every element
+        x_abs = np.abs(x)
+        # applying log1p
+        x_log1p = np.log1p(x_abs)
+        # getting sign back
+        x = np.multiply(x_log1p, x_sign)
+
         y = [np.argmax(i) for i in y]
 
         self.x = x
