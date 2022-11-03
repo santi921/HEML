@@ -35,9 +35,7 @@ def run_box_calcs(cpet_path, charges_dir):
             print(launch_str)    
             os.system(launch_str)
         print("cpet done running")
-        os.system("mv {}_0.top {}{}.top".format(protein[:-4], cpet_path, protein[:-4]))
     print("done running cpet")
-
 
 
 def run_topology_calcs(cpet_path, charges_dir):

@@ -36,10 +36,10 @@ if __name__ == "__main__" :
         output = f'{outdir}{listname[0]}.pqr'
         if os.path.exists(output):
             print("output file already exists")
-            pass
+            
 
         #checks that input file is not empty
-        elif(check_if_file_is_empty(i)): 
+        if(check_if_file_is_empty(i)): 
             print("input file is empty")
             pass
 
@@ -121,7 +121,7 @@ if __name__ == "__main__" :
                     options.write(f'    show false \n')
                     options.write('    volume box {} {} {} \n'.format(box_size,box_size,box_size))
                     options.write('    density {} {} {} \n'.format(density, density, density))
-                    options.write(f'output {outdir}efield_cox_{file_name}.dat \n')
+                    options.write(f'output {outdir_cpet}efield_cox_{file_name}.dat \n')
                     options.write(f'end \n')                   
                     options.close()
                 else: 
