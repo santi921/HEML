@@ -27,7 +27,7 @@ files = glob(pdb_folder)
 files_out = glob(out_folder+"*")
 
 #print(random.sample(files, 5000))
-for i in random.sample(files,5):
+for i in random.sample(files,500):
     print("-"* 40)
     # check if file is already processed
     if not os.path.exists(out_folder + i.split("/")[-1]):
