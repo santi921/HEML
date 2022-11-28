@@ -18,9 +18,10 @@ def main():
                 compressed_dictionary = json.load(inputfile)
 
             for k, v in compressed_dictionary.items():
-                name_center = compressed_dictionary["index_center"]
+                name_center = compressed_dictionary["name_center"]
                 if not os.path.exists(compressed_folder + name_center):
-                    os.system("cp " + os.path.join(root, folder) + name_center + " " + compressed_folder + name_center)
+                    # get name of center from full path 
+                    os.system("cp " + name_center + " " + compressed_folder + name_center.split("/")[-1])
             
         
     topo_files = [compressed_folder+f for f in os.listdir(os.path.join(root, folder)) if f.endswith(".top")]
