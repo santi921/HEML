@@ -18,7 +18,7 @@ def main():
                 compressed_dictionary = json.load(inputfile)
 
             for k, v in compressed_dictionary.items():
-                name_center = compressed_dictionary["name_center"]
+                name_center = v["name_center"]
                 if not os.path.exists(compressed_folder + name_center):
                     # get name of center from full path 
                     os.system("cp " + name_center + " " + compressed_folder + name_center.split("/")[-1])
