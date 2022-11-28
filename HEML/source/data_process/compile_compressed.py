@@ -7,13 +7,15 @@ def main():
     root = "/ocean/projects/che160019p/santi92/cpet/"
     # create a new folder with all compressed dictionaries
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
-    compressed_folder = root + "/compressed/"
+    merge_dict = {}
+    compressed_folder = root + "/compressed"
     if not os.path.exists(compressed_folder):
         os.mkdir(compressed_folder)
 
     for i in range(len(folders)):
         folder = folders[i]
         if os.path.exists(os.path.join(root, folder) + "/compressed_dictionary.json"):
+
             with open(os.path.join(root, folder) + "/compressed_dictionary.json", 'r') as inputfile:
                 compressed_dictionary = json.load(inputfile)
 
@@ -23,8 +25,11 @@ def main():
                     # get name of center from full path 
                     os.system("cp " + name_center + " " + compressed_folder + name_center.split("/")[-1])
             
+            folder_name = folder.split("_")[0]
+            merge_dict[]
         
-    topo_files = [compressed_folder+f for f in os.listdir(os.path.join(root, folder)) if f.endswith(".top")]
+    topo_files = [compressed_folder+f for f in os.listdir(compressed_folder) if f.endswith(".top")]
+    #topo_files = 
     # sorts the files in some way
     topo_files.sort(key=lambda i: i.split("_")[0])
     with open(compressed_folder + 'topo_file_list.txt', 'w') as file_list:
