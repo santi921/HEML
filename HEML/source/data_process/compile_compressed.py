@@ -8,14 +8,13 @@ def main():
     # create a new folder with all compressed dictionaries
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
     merge_dict = {}
-    compressed_folder = root + "/compressed"
+    compressed_folder = root + "/compressed/"
     if not os.path.exists(compressed_folder):
         os.mkdir(compressed_folder)
 
     for i in range(len(folders)):
         folder = folders[i]
         if os.path.exists(os.path.join(root, folder) + "/compressed_dictionary.json"):
-
             with open(os.path.join(root, folder) + "/compressed_dictionary.json", 'r') as inputfile:
                 compressed_dictionary = json.load(inputfile)
 
@@ -24,9 +23,9 @@ def main():
                 if not os.path.exists(compressed_folder + name_center):
                     # get name of center from full path 
                     os.system("cp " + name_center + " " + compressed_folder + name_center.split("/")[-1])
-            
-            folder_name = folder.split("_")[0]
-            merge_dict[]
+            os.system("cp " + os.path.join(root, folder) + "/compressed_dictionary.json " + compressed_folder + folder + "_compressed_dictionary.json")
+            #folder_name = folder.split("_")[0]
+            #merge_dict[]
         
     topo_files = [compressed_folder+f for f in os.listdir(compressed_folder) if f.endswith(".top")]
     #topo_files = 
