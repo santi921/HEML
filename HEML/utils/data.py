@@ -234,6 +234,8 @@ def get_N_positions(file, fe_ID, fe_xyz):
         
         # sort the dictionary by distance to iron
         full_N_dict = {k: v for k, v in sorted(full_N_dict.items(), key=lambda item: item[1]['distance_to_iron'])}
+        # relabel the keys as 0,1,2,3
+        full_N_dict = {i:full_N_dict[j] for i,j in enumerate(full_N_dict.keys())}
         # get first 4 values of the dictionary
         full_N_dict = dict(list(full_N_dict.items())[0:4])
         # assign the N_IDs
