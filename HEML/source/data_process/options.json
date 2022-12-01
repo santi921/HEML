@@ -1,4 +1,5 @@
 {
+    "pdb_folder": "/ocean/projects/che160019p/santi92/frames/",
     "cpet_folder": "/ocean/projects/che160019p/santi92/cpet/",
     "processed_pdb_folder":"/ocean/projects/che160019p/santi92/pdb_processed/",
     "charges_folder":"/ocean/projects/che160019p/santi92/chargeshemes/",

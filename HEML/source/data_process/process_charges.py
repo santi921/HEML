@@ -13,12 +13,13 @@ if __name__ == "__main__" :
 
     fail = 0
     options = get_options("./options.json")
+
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
     
     filelist = glob(charges_directory+"*pqr")
-    #print(filelist)
+    
     for i in filelist:
 
         # new filename
@@ -104,8 +105,7 @@ if __name__ == "__main__" :
                         else: 
                             outfile.write(j)
 
-                file_name = i.split("charges")[-1][1:].split('.')[0]
-
+                file_name = i.split("/")[-1].split('.')[0]
                 if(box):
                     density = 10            
                     options = open(f'{outdir_cpet}options_field_{file_name}.txt', 'w+')
