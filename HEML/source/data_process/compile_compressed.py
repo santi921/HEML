@@ -4,7 +4,11 @@ from HEML.utils.data import compress
 from random import choice
 
 def main():
-    root = "/ocean/projects/che160019p/santi92/cpet/"
+    #root = "/ocean/projects/che160019p/santi92/cpet/"
+    with open("./options.json") as f:
+        options = json.load(f)
+    root = options["cpet_folder"]
+    
     # create a new folder with all compressed dictionaries
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
     merge_dict = {}

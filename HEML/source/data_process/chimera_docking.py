@@ -1,4 +1,4 @@
-import os, random
+import os, random, json
 from chimera import runCommand as rc
 from os import system as run
 from glob import glob
@@ -12,15 +12,23 @@ with open("../../../data/het_list.txt") as f:
     del_list = [i[0:-1] for i in del_list]
 del_list = del_list[0:3] 
 
+# read json file for folder locations 
+with open("./options.json") as f:
+    options = json.load(f)
+
+pdb_folder = options["pdb_folder"]
+output_folder = options["processed_pdb_folder"]
+charges_folder = options["charges_folder"]
+
 # hpc files
 #pdb_folder = "/ocean/projects/che160019p/santi92/heme_traj/*"
 #out_folder = "/ocean/projects/che160019p/santi92/pdbs_processed_heme/"
 #files_out_charges = os.listdir("/ocean/projects/che160019p/santi92/heme_charges/")
 
 # local hemes
-pdb_folder = "../../../data/pdbs/*"
-out_folder = "../../../data/pdbs_processed/"
-files_out_charges = os.listdir("../../../data/charges/")
+#pdb_folder = "../../../data/pdbs/*"
+#out_folder = "../../../data/pdbs_processed/"
+#files_out_charges = os.listdir("../../../data/charges/")
 
 #files = os.listdir(pdb_folder)
 files = glob(pdb_folder)

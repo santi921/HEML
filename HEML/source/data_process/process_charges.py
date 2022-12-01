@@ -1,7 +1,6 @@
 from posixpath import split
 from tkinter import E
-import numpy as np
-import os, re
+import os, re, json
 from glob import glob
 from HEML.utils.data import *
 
@@ -13,20 +12,15 @@ if __name__ == "__main__" :
     box_size = 3.0
 
     fail = 0
-    # HPC
-    #outdir = "/ocean/projects/che160019p/santi92/processed_charges/"
-    #outdir_cpet = "/ocean/projects/che160019p/santi92/cpet/"
-    #charges_directory = "/ocean/projects/che160019p/santi92/heme_charges/*pqr" 
-
-    # Local
-    outdir = "../../../data/charge_processed/"
-    outdir_cpet = "../../../data/cpet/"
-    charges_directory = "../../../data/charges/*pqr" 
     
-    filelist = glob(charges_directory)
+    with open("./options.json") as f:
+        options = json.load(f)
+    outdir = options["processed_charges_folder"]
+    outdir_cpet = options["cpet_folder"]
+    charges_directory = options["charges_folder"]
+    filelist = glob(charges_directory+"*pqr")
     #print(filelist)
     for i in filelist:
-
 
         # new filename
         filename = os.path.basename(i)

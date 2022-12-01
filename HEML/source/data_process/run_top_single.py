@@ -1,9 +1,11 @@
+import json
 from HEML.utils.cpet import run_topology_calcs
 
-#run_topology_calcs(
-#    "/ocean/projects/che160019p/santi92/protein_field/cpet/", 
-#    "/ocean/projects/che160019p/santi92/protein_field/processed_charges/")
-
-run_topology_calcs(
-    "../../../data/cpet/", 
-    "../../../data/charge_processed/")
+def main():
+    with open("./options.json") as f:
+        options = json.load(f)
+    cpet_folder = options["cpet_folder"]
+    processed_charges_folder = options["processed_charges_folder"]
+    run_topology_calcs(cpet_folder, processed_charges_folder)
+    
+main()
