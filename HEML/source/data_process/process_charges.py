@@ -12,12 +12,11 @@ if __name__ == "__main__" :
     box_size = 3.0
 
     fail = 0
-    
-    with open("./options.json") as f:
-        options = json.load(f)
+    options = get_options("./options.json")
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
+    
     filelist = glob(charges_directory+"*pqr")
     #print(filelist)
     for i in filelist:

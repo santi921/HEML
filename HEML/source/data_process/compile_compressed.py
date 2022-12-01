@@ -1,12 +1,10 @@
 import os, json
 from HEML.utils.cpet import make_histograms, construct_distance_matrix
-from HEML.utils.data import compress
+from HEML.utils.data import compress, get_options
 from random import choice
 
 def main():
-    #root = "/ocean/projects/che160019p/santi92/cpet/"
-    with open("./options.json") as f:
-        options = json.load(f)
+    options = get_options("./options.json")    
     root = options["cpet_folder"]
     
     # create a new folder with all compressed dictionaries

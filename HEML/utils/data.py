@@ -1,4 +1,4 @@
-import os 
+import os, json
 from rdkit import Chem
 import pandas as pd 
 import numpy as np 
@@ -67,6 +67,22 @@ atom_colors = {
     'I': 'purple'
 }
 
+def get_options(options_file = "./options.json"):
+    """
+    Get options from options.json file and create folders if they don't exist.
+    Takes 
+        options_file: path to options.json file
+    Returns
+        options: dictionary of options
+    """
+    with open(options_file) as f:
+        options = json.load(f)
+    for key in options:
+        if "folder" in key:
+            if not os.path.exists(options[key]):
+                os.makedirs(options[key])
+    
+    return options
 
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:

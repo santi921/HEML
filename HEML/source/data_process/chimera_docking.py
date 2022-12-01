@@ -2,6 +2,8 @@ import os, random, json
 from chimera import runCommand as rc
 from os import system as run
 from glob import glob
+from HEML.utils.data import get_options
+
 #from Dockprep import prep
 
 # todo:
@@ -12,10 +14,9 @@ with open("../../../data/het_list.txt") as f:
     del_list = [i[0:-1] for i in del_list]
 del_list = del_list[0:3] 
 
-# read json file for folder locations 
-with open("./options.json") as f:
-    options = json.load(f)
+# read json file for folder locations  
 
+options = get_options("./options.json")
 pdb_folder = options["pdb_folder"]
 output_folder = options["processed_pdb_folder"]
 charges_folder = options["charges_folder"]

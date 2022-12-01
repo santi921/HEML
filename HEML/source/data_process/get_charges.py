@@ -1,13 +1,13 @@
-#get charges - preprocess
 import subprocess, os, random, json
 import numpy as np
 import matplotlib.pyplot as plt
 from glob import glob
+from HEML.utils.data import get_options
+
 
 def main():
 
-    with open("./options.json") as f:
-        options = json.load(f)
+    options = get_options("./options.json")
     folder_processed = options["processed_pdb_folder"]
     out_folder = options["charges_folder"]
     chargefw2_loc = options["chargefw2_loc"]

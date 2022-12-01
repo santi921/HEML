@@ -1,10 +1,9 @@
 from HEML.utils.cpet import run_box_calcs
+from HEML.utils.data import get_options
 
-#run_box_calcs(
-#    "/protein_field/cpet/", 
-#    "/ocean/projects/che160019p/santi92/protein_field/processed_charges/")
-
-
-run_box_calcs(
-    "../../../data/cpet/", 
-    "../../../data/charge_processed/")
+def main():
+    options = get_options("./options.json")
+    cpet_folder = options["cpet_folder"]
+    processed_charges_folder = options["processed_charges_folder"]
+    run_box_calcs(cpet_folder, processed_charges_folder)
+main()
