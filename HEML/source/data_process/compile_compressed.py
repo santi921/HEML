@@ -30,8 +30,6 @@ def main():
             #merge_dict[]
         
     topo_files = [compressed_folder+f for f in os.listdir(compressed_folder) if f.endswith(".top")]
-    #topo_files = 
-    # sorts the files in some way
     topo_files.sort(key=lambda i: i.split("_")[0])
     with open(compressed_folder + 'topo_file_list.txt', 'w') as file_list:
         for i in topo_files:
