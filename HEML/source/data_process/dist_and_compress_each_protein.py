@@ -12,8 +12,9 @@ def main():
 
     # for each folder, run the distance mat calculations
     for i in range(len(folders)):
-        folder = folder[i]
+        folder = folders[i]
         print(folder)
+
         if os.path.exists(os.path.join(root, folder) + "/compressed_distance_matrix.json"):
             print("compressed already exists")
             

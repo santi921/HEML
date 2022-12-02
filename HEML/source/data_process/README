@@ -1,0 +1,8 @@
+typically the order of operations here is 
+0) get pdbs/download_pdbs.py
+0+) python pull_het_ligands
+1) pychimera chimera_docking.py
+2) python get_charges.py
+3) python process_charges.py
+4) python run_cpet_box_calc.py/run_top_single.py
+then whatever post processing you need
