@@ -304,7 +304,7 @@ def get_fe_positions(file):
             fe_xyz = np.array(fe_xyz)
             break
 
-    return fe_ID, fe_xyz
+    return {"id": fe_ID, "xyz": fe_xyz}
 
 
 def get_ligand_info(file, fe_xyz):

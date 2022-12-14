@@ -52,17 +52,16 @@ if __name__ == "__main__" :
 
             try: 
                 
-                fe_id, fe_xyz = get_fe_positions(i)
-                assert fe_id != None
-                print(fe_id, fe_xyz)
-                ligand_dict = get_ligand_info(i, fe_xyz)
-                nitrogen_dict = get_N_positions(i, fe_id, fe_xyz)
+                fe_dict = get_fe_positions(i)
+                assert fe_dict["id"] != None
+                print(fe_dict["id"], fe_dict["xyz"])
+                ligand_dict = get_ligand_info(i, fe_dict["xyz"])
+                nitrogen_dict = get_N_positions(i, fe_dict["id"], fe_dict["xyz"])
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
                 ligand_none = check_if_dict_has_None(ligand_dict)
                 if(not nitro_none and not ligand_none):
                     
                     fail_cond = False
-
             
                     if ligand_dict["best_crit_dist"] > 4.0:
                         print(ligand_dict["best_crit_dist"])
