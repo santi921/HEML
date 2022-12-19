@@ -72,12 +72,12 @@ def write_json(folder, frozen_atoms = []):
         "charges": -2
     }'''
     
-    basic_dict = json.loads(basic_dict)
+    basic_dict_json = json.loads(basic_dict)
 
     if frozen_atoms != []:
-        basic_dict['freeze_atoms'] = frozen_atoms
+        basic_dict_json['freeze_atoms'] = frozen_atoms
 
-    json.dump(basic_dict, folder + "definput.json", indent = 4)
+    json.dump(basic_dict_json, folder + "definput.json", indent = 4)
 
 
 def main():
@@ -97,19 +97,50 @@ def main():
 
             # add h to pdb 
             addh("{}/{}_heme.pdb".format(folder_name, protein_name))
+            addh("{}/{}_oh_heme.pdb".format(folder_name, protein_name))
+            addh("{}/{}_o_heme.pdb".format(folder_name, protein_name))
 
             # convert pdb back to xyz
             os.system("obabel -i pdb ./{}/{}_heme_h.pdb -o xyz -O ./{}/{}_heme_h.xyz".format(folder_name, folder_name, folder_name, folder_name))
+            os.system("obabel -i pdb ./{}/{}_oh_heme_h.pdb -o xyz -O ./{}/{}_oh_heme_h.xyz".format(folder_name, folder_name, folder_name, folder_name))
+            os.system("obabel -i pdb ./{}/{}_o_heme_h.pdb -o xyz -O ./{}/{}_o_heme_h.xyz".format(folder_name, folder_name, folder_name, folder_name))
+
+            # make three folders for o, oh, and normal heme
+
+            if not os.path.exists("{}/o".format(folder_name)):
+                os.makedirs("{}/o".format(folder_name))
+            if not os.path.exists("{}/oh".format(folder_name)):
+                os.makedirs("{}/oh".format(folder_name))
+            if not os.path.exists("{}/normal".format(folder_name)):
+                os.makedirs("{}/normal".format(folder_name))
 
             # convert xyz to coord 
-            os.system("./x2t ./{}/{}_heme_h.xyz > ./{}/coord".format(folder_name, folder_name, folder_name))
-            
+            os.system("./x2t ./{}/{}_heme_h.xyz > ./{}/normal/coord".format(folder_name, folder_name, folder_name))
+            os.system("./x2t ./{}/{}_o_heme_h.xyz > ./{}/o/coord".format(folder_name, folder_name, folder_name))
+            os.system("./x2t ./{}/{}_oh_heme_h.xyz > ./{}/oh/coord".format(folder_name, folder_name, folder_name))
+
             # write json file for turbomole 
-            write_json("{}".format(folder_name), frozen_atoms = [])
+            write_json("{}/o/".format(folder_name), frozen_atoms = [])
+            write_json("{}/oh/".format(folder_name), frozen_atoms = [])
+            write_json("{}/normal/".format(folder_name), frozen_atoms = [])
             
             # run setupphd3.py 
             os.chdir("{}".format(folder_name))
             os.system('setupturbomole.py')
             os.chdir("..")
+
+            os.chdir("{}/normal/".format(folder_name))
+            os.system('setupturbomole.py')
+            os.chdir("../..")
+
+            os.chdir("{}/o/".format(folder_name))
+            os.system('setupturbomole.py')
+            os.chdir("../..")
             
+
+            os.chdir("{}/oh/".format(folder_name))
+            os.system('setupturbomole.py')
+            os.chdir("../..")
+            
+
 main()
