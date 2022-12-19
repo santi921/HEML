@@ -1,8 +1,15 @@
 typically the order of operations here is 
 0) get pdbs/download_pdbs.py
-0+) python pull_het_ligands
+0+) python pull_het_ligands.py
 1) pychimera chimera_docking.py
 2) python get_charges.py
 3) python process_charges.py
 4) python run_cpet_box_calc.py/run_top_single.py
 then whatever post processing you need
+
+
+
+Once you have your list of compressed proteins and the structures you want to compute high-level qm/mm calculations on, run the following: 
+
+1) phd3_process.py --> pulls out heme from MD frame, converts to pdb
+2) addh.py --> adds hydrogens to core heme and then produces input files for phd3/turbomol

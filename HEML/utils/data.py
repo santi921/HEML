@@ -346,7 +346,8 @@ def get_ligand_info(file, fe_xyz):
 
     ligand_dict = {
         "best_crit_dist": best_crit_dist,
-        "best_crit": best_crit
+        "best_crit": best_crit, 
+        "crit_xyz": crit_xyz
     }
 
     return ligand_dict

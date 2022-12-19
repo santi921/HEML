@@ -64,13 +64,13 @@ def get_element_and_xyz(line):
     return {"element":element, "xyz": xyz, "line": line}
     
 
-def extract_heme_and_ligand_from_pdb(root, file): 
+def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False): 
     """
     Extract the heme from the pdb files and save them in a new folder.
     Takes: 
         root: the root directory of the pdb files
     """
-    file_folder = os.path.join(root,file)
+    file_folder = os.path.join(root, file)
     out_list = []
     fe_dict = get_fe_positions(file_folder)
     assert fe_dict["id"] != None
@@ -79,7 +79,6 @@ def extract_heme_and_ligand_from_pdb(root, file):
     
     if(not ligand_none):
         fail_cond = False
-
         if ligand_dict["best_crit_dist"] > 4.0:
             print(ligand_dict["best_crit_dist"])
             print(f'ERROR: No cysteine/tyrosine/histine ligand found for {file_folder}.\n')
@@ -115,6 +114,30 @@ def extract_heme_and_ligand_from_pdb(root, file):
                     anisou_cond = 'ANISOU' in line_split[0]
                     if(ligand_chain_cond and ligand_id_cond and not anisou_cond):
                         out_list.append(get_element_and_xyz(line))
+    
+    if add_oh or add_o:
+        nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
+        mean_xyz = nitrogen_dict["mean_N_xyz"]
+        direction_1 = nitrogen_dict["N1_xyz"] - mean_xyz
+        direction_2 = nitrogen_dict["N2_xyz"] - mean_xyz
+        direction_3 = -1 * (ligand_dict["crit_xyz"] - mean_xyz)
+        cross = np.cross(direction_1, direction_2, )
+        cross /= np.linalg.norm(np.cross(direction_1, direction_2))
+        # project cross in right direction
+        if(np.dot(direction_3, cross) < 0):
+            cross *= -1
+        
+    if add_o:
+        # add oxygen along the cross product
+        oxygen_xyz = mean_xyz + cross * 1.1
+        out_list.append({"element":"O", "xyz": oxygen_xyz})
+
+    if add_oh: 
+        # add oxygen along the cross product
+        oxygen_xyz = mean_xyz + cross * 1.43
+        hydrogen_xyz = mean_xyz + cross * 1.43 + cross * 0.97
+        out_list.append({"element":"H", "xyz": hydrogen_xyz})
+        out_list.append({"element":"O", "xyz": oxygen_xyz})
 
     return out_list            
                     
@@ -137,10 +160,16 @@ def addh(pdb_file):
     rc("close session")
 
 
-def write_dict_to_xyz(folder, name, dict_xyz):
+def write_dict_to_xyz(folder, name, dict_xyz, add_oh = False, add_o = False):
     # write the xyz file
     xyz_file_name = os.path.join(folder, name)
-    xyz_file_name += ".xyz"
+    
+    if add_oh:
+        xyz_file_name += "_oh.xyz"
+    elif add_o:
+        xyz_file_name += "_o.xyz"
+    else:
+        xyz_file_name += ".xyz"
 
     with open(xyz_file_name, "w") as f:
         # iterate over dictionary 
