@@ -1,10 +1,14 @@
 import os 
 from HEML.utils.setup_phd3 import addh, write_dict_to_xyz, extract_heme_and_ligand_from_pdb, get_N_positions
+from HEML.utils.data import get_options
 import numpy as np 
 
 
 
 def main():
+
+    options = get_options("./options.json")
+    root = options["compressed_proteins_folder"]
 
     # get subfolders in current directory
     for protein_name in os.listdir():

@@ -8,7 +8,6 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt 
 from sklearn.cluster import AffinityPropagation
 from HEML.utils.xyz2mol import xyz2AC_vdW
-from copy import deepcopy
 
 atom_int_dict = {
     'H': 1,
@@ -83,6 +82,7 @@ def get_options(options_file = "./options.json"):
                 os.makedirs(options[key])
     
     return options
+
 
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:

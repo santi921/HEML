@@ -15,7 +15,8 @@ def create_folders():
             protein = file.split(".")[0].split("_")[1]
             frame = file.split(".")[0].split("_")[0]
             # Create a folder for the protein
-            os.mkdir(frame + "_" + protein)
+            if not os.path.exists(frame + "_" + protein):
+                os.mkdir(frame + "_" + protein)
             # Move the protein into the folder
             os.rename(file, frame + "_" + protein + "/" + file)
 

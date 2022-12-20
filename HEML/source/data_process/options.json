@@ -4,5 +4,7 @@
     "processed_pdb_folder":"/ocean/projects/che160019p/santi92/pdb_processed/",
     "charges_folder":"/ocean/projects/che160019p/santi92/chargeshemes/",
     "processed_charges_folder":"/ocean/projects/che160019p/santi92/processed_charges/",
-    "chargefw2_loc": "/ocean/projects/che160019p/shared/ChargeFW2/bin/chargefw2"
+    "chargefw2_loc": "/ocean/projects/che160019p/shared/ChargeFW2/bin/chargefw2", 
+    "x2t_loc": "/ocean/projects/che160019p/santi92/heme_cpet/compressed_frames/x2t",
+    "compressed_proteins_folder": "/ocean/projects/che160019p/santi92/compressed_proteins/"
 }
