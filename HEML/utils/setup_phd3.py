@@ -114,6 +114,9 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
                     if(ligand_chain_cond and ligand_id_cond and not anisou_cond):
                         out_list.append(get_element_and_xyz(line))
     
+
+
+
     if add_oh or add_o:
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
         mean_xyz = nitrogen_dict["mean_N_xyz"]
@@ -138,6 +141,11 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         out_list.append({"element":"H", "xyz": hydrogen_xyz})
         out_list.append({"element":"O", "xyz": oxygen_xyz})
     #print(cross)
+    
+    # shift everything to the origin
+    for i in range(1, len(out_list)):
+        out_list[i]["xyz"] -= fe_dict["xyz"]
+
     return out_list            
                     
 
