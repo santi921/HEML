@@ -210,16 +210,9 @@ def main():
     x2t_loc = options["x2t_loc"]
 
     for protein_name in os.listdir(root):
-        if(os.path.isdir(protein_name)):
+        if(os.path.isdir(os.path.join(root,protein_name))):
             print(protein_name)
             folder_name = root + protein_name
-            #check if pdb is in folder
-            #if os.path.exists(os.path.join(folder_name, protein_name + ".pdb")):
-            #    pdb_file = protein_name + ".pdb"
-            #if os.path.exists(os.path.join(folder_name, protein_name + "_movie.pdb")):
-            #    pdb_file = protein_name + "_movie.pdb"
-            #if os.path.exists(os.path.join(folder_name, protein_name + "_todo_process.pdb")):
-            #    pdb_file = protein_name + "_todo_process.pdb"
 
             # add h to pdb 
             addh("{}/{}_heme.pdb".format(folder_name, protein_name))
@@ -260,7 +253,7 @@ def main():
             # add charges to the embedding folders
             # find pqr file in folder
             pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
-            charges_dict = fetch_charges_dict(os.path.join(folder_name + pqr_file))
+            charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file))
             put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/"), charges_dict)
 
 main()
