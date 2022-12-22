@@ -56,7 +56,7 @@ def setup_turbomole(folder_name):
     os.chdir("../../..")
 
 
-def write_json(folder, frozen_atoms = []): 
+def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0): 
     """
     Writes a json file for the turbomole calculation. 
     Takes: 
@@ -66,66 +66,61 @@ def write_json(folder, frozen_atoms = []):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
-    basic_dict = {}
-    basic_dict["geometry"] = {
-        "cartesians": True,
-    }
-    basic_dict["geometry"]["idef"] = {
-        "idef_on": False,
-
-    }
-    basic_dict["geometry"]["ired"] = False
-    basic_dict["geometry"]["iaut"] = {
-        "iaut_on": False,
-    }
-
-    basic_dict["dft"] = {
-        "dft_on": False,
-        "func": "b3lyp",
-        "grid": "m4"
-    }
-
-    basic_dict["scf"] = {
-        "iter": 300,
-        "conv": 5
-    }
-    basic_dict["stp"] = {
-        "itvc": 0,
-        "trad": 0.1
-    }
-
-    basic_dict["open_shell"] = {
-        "open_shell_on": False,
-        "unpaired": 0
-    }
-
-    basic_dict["basis"] = {
-        "all": "def2-SVP",
-        "fe": "def2-TZVP",
-        "n": "def2-TZVP",
-        "s": "def2-TZVP",
-        "o": "def2-TZVP"
+    basic_dict = {
+        "geometry": { 
+            "cartesians": True,
+            "idef": { "idef_on": False },
+            "ired": False,
+            "iaut": { "iaut_on": False, }
+        },
+        "dft": {
+            "dft_on": False,
+            "func": "b3lyp",
+            "grid": "m4"           
+        },
+        "scf": {
+            "iter": 300,
+            "conv": 5
+        },
+        "basis": { "all": "def2-SVP" },
+        "stp": {
+            "itvc": 0,
+            "trad": 0.1
+        },
+        "open_shell": {
+            "open_shell_on": False,
+            "unpaired": 0
+        },
+        "cosmo": 4,
+        "freeze_atoms": [],
+        "calculation": "geo",
+        "geo_iterations": 200,
+        "weight": False,
+        "gcart": None,
+        "denconv": None,
+        "rij": True,
+        "marij": True,
+        "dsp": True,
+        "charge": 0
     }
 
-    basic_dict["cosmo"] = 4
-    basic_dict["freeze_atoms"] = []
-    basic_dict["calculation"] = "geo"
-    basic_dict["geo_iterations"] = 200
-    basic_dict["weight"] = False
-    basic_dict["gcart"] = None 
-    basic_dict["denconv"] = None
-    basic_dict["rij"] = True
-    basic_dict["marij"] = True
-    basic_dict["dsp"] = True
-    basic_dict["charge"] = -2
+    if atoms_present == []:
+        basic_dict["basis"] = {
+            "all": "def2-SVP",
+            "fe": "def2-TZVP",
+            "n": "def2-TZVP",
+            "s": "def2-TZVP",
+            "o": "def2-TZVP"
+        }
 
-    #basic_dict_json = json.loads(basic_dict)
+    if charge != 0:
+        basic_dict["charge"] = charge
 
     if frozen_atoms != []:
         basic_dict['freeze_atoms'] = frozen_atoms
     
     with open(folder + "definput.json", "w") as outfile:
-        json.dump(basic_dict, outfile)
+        json.dump(basic_dict, outfile, indent = 4)
 
 
 def get_options(options_file = "./options.json"):
@@ -171,6 +166,7 @@ def fetch_charges_dict(file_name = 'test.pqr'):
             pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
 
     return pqr_dict
+
 
 def put_charges_in_turbo_files(folder_name, charges_dict): 
     """
