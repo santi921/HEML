@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt 
 from sklearn.cluster import AffinityPropagation
 from HEML.utils.xyz2mol import xyz2AC_vdW
+from copy import deepcopy
 
 atom_int_dict = {
     'H': 1,
@@ -65,6 +66,7 @@ atom_colors = {
     'Fe': 'orange',
     'I': 'purple'
 }
+
 
 def get_options(options_file = "./options.json"):
     """
@@ -670,3 +672,30 @@ def get_nodes_and_edges_from_pdb(file = '../../data/pdbs_processed/1a4e.pdb', di
      
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
     return filtered_atom, bonds, filtered_xyz
+
+
+def fetch_charges_dict(file_name = 'test.pqr'):
+    """
+    Given a list of dictionaries with element and position, traverse a pqr file and get the charges from the file
+    EXCLUDING ELEMENTS IN THE LIST OF DICTIONARIES
+    Takes: 
+        list of dictionaries with element and position
+    Returns:
+        list of dictionaries with element, position and charge
+    """
+    
+    pqr_dict = []
+    # get the lines of the pqr file
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    
+    for line in lines: 
+        x       = float(line[30:38].strip())
+        y       = float(line[38:46].strip())
+        z       = float(line[46:54].strip())
+        charge  = float(line[54:61].strip())
+        radius  = float(line[62:68].strip())    
+        if np.abs(charge) >= 0.01:
+            pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
+
+    return pqr_dict

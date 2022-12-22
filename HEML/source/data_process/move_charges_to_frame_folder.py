@@ -25,8 +25,6 @@ move_charges_into_folder(
     "../charges_2/processed_charges/", 
     "./"
 )
-
-
 #move_charges_into_folder(
 #    "../charges_processed", 
 #    "./"

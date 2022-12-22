@@ -1,6 +1,7 @@
 import os, json, ast
 from chimera import runCommand as rc
 from os import system as run
+import numpy as np 
 
 def addh(pdb_file): 
     """
@@ -155,6 +156,53 @@ def get_options(options_file = "./options.json"):
     return options
 
 
+def fetch_charges_dict(file_name = 'test.pqr'):
+    """
+    Given a list of dictionaries with element and position, traverse a pqr file and get the charges from the file
+    EXCLUDING ELEMENTS IN THE LIST OF DICTIONARIES
+    Takes: 
+        list of dictionaries with element and position
+    Returns:
+        list of dictionaries with element, position and charge
+    """
+    
+    pqr_dict = []
+    # get the lines of the pqr file
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    
+    for line in lines: 
+        x       = float(line[30:38].strip())
+        y       = float(line[38:46].strip())
+        z       = float(line[46:54].strip())
+        charge  = float(line[54:61].strip())
+        radius  = float(line[62:68].strip())    
+        if np.abs(charge) >= 0.01:
+            pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
+
+    return pqr_dict
+
+def put_charges_in_turbo_files(folder_name, charges_dict): 
+    """
+    Traverses subdirectories in embedding folder and puts charges in the turbomole file
+    
+    Takes   
+        folder_name: the folder where the turbomole files are located
+        charges_dict: a dictionary with the charges
+    Returns: Nothing 
+    
+    """
+    # find folder named embedding and go into all subfolders
+    for root, dirs, files in os.walk(folder_name):
+        for file in files:
+            if file.endswith("CONTROL"):
+                # append dictionary to end of file
+                with open(os.path.join(root, file), 'a') as f:
+                    f.write("$point_charges\n")
+                    for charge in charges_dict:
+                        f.write("\t{} {} {} {}".format(charge["position"][0], charge["position"][1], charge["position"][2], charge["charge"]))
+                        #f.write("CHARGE " + str(charge["charge"]) + " " + str(charge["radius"]) + " " + str(charge["position"][0]) + " " + str(charge["position"][1]) + " " + str(charge["position"][2]) + "")
+
 def main():
 
     options = get_options("./options.json")
@@ -163,16 +211,15 @@ def main():
 
     for protein_name in os.listdir(root):
         if(os.path.isdir(protein_name)):
-
             print(protein_name)
             folder_name = root + protein_name
             #check if pdb is in folder
-            if os.path.exists(os.path.join(folder_name, protein_name + ".pdb")):
-                pdb_file = protein_name + ".pdb"
-            if os.path.exists(os.path.join(folder_name, protein_name + "_movie.pdb")):
-                pdb_file = protein_name + "_movie.pdb"
-            if os.path.exists(os.path.join(folder_name, protein_name + "_todo_process.pdb")):
-                pdb_file = protein_name + "_todo_process.pdb"
+            #if os.path.exists(os.path.join(folder_name, protein_name + ".pdb")):
+            #    pdb_file = protein_name + ".pdb"
+            #if os.path.exists(os.path.join(folder_name, protein_name + "_movie.pdb")):
+            #    pdb_file = protein_name + "_movie.pdb"
+            #if os.path.exists(os.path.join(folder_name, protein_name + "_todo_process.pdb")):
+            #    pdb_file = protein_name + "_todo_process.pdb"
 
             # add h to pdb 
             addh("{}/{}_heme.pdb".format(folder_name, protein_name))
@@ -209,4 +256,11 @@ def main():
             setup_turbomole("{}/embedding/o/".format(folder_name))
             setup_turbomole("{}/embedding/oh/".format(folder_name))
             setup_turbomole("{}/embedding/normal/".format(folder_name))
+
+            # add charges to the embedding folders
+            # find pqr file in folder
+            pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
+            charges_dict = fetch_charges_dict(os.path.join(folder_name + pqr_file))
+            put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/"), charges_dict)
+
 main()

@@ -1,12 +1,11 @@
 import os 
-from HEML.utils.setup_phd3 import addh, write_dict_to_xyz, extract_heme_and_ligand_from_pdb, get_N_positions
-from HEML.utils.data import get_options
+from HEML.utils.setup_phd3 import addh, write_dict_to_xyz, extract_heme_and_ligand_from_pdb
+from HEML.utils.data import get_options, write_charges_from_pdb
 import numpy as np 
 
 
 
 def main():
-
     options = get_options("./options.json")
     root = options["compressed_proteins_folder"]
 
@@ -29,6 +28,10 @@ def main():
             dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_oh = False, add_o = True)
             # write xyz to file - write xyz
             xyz_file_name = write_dict_to_xyz(folder_name, protein_name, dict_xyz, add_oh = False, add_o = True)
+            # write pqr file 
+            pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
+
+
             #convert xyz to pdb
             os.system("obabel -i xyz {} -o pdb -O ./{}/{}_heme.pdb". format(xyz_file_name, protein_name, protein_name))
 
