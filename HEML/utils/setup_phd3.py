@@ -97,6 +97,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
                     heme_cond = line[17:20] == "HEM"
                     heme_chain_cond = line[21] == fe_dict["id"].split(":")[0]
                     hetero_cond = 'HETATM' in line.split()[0]
+                    ligand_id_cond = line[22:26].strip() == fe_dict["id"].split(":")[1].strip()
 
                     if(heme_cond and heme_chain_cond and hetero_cond):
                         out_list.append(get_element_and_xyz(line))
@@ -108,7 +109,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
 
                 if (sg_cond or oh_cond or nend_cond):
                     ligand_chain_cond = line[21] == ligand_dict["best_crit"].split(":")[0]
-                    ligand_id_cond = line[22:26].strip() == ligand_dict["best_crit"].split(":")[0].strip()
+                    ligand_id_cond = line[22:26].strip() == ligand_dict["best_crit"].split(":")[1].strip()
                     anisou_cond = 'ANISOU' in line_split[0]
                     if(ligand_chain_cond and ligand_id_cond and not anisou_cond):
                         out_list.append(get_element_and_xyz(line))
@@ -136,7 +137,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         hydrogen_xyz = mean_xyz + cross * 1.43 + cross * 0.97
         out_list.append({"element":"H", "xyz": hydrogen_xyz})
         out_list.append({"element":"O", "xyz": oxygen_xyz})
-    print(cross)
+    #print(cross)
     return out_list            
                     
 
