@@ -118,7 +118,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
         mean_xyz = nitrogen_dict["mean_N_xyz"]
         direction_1 = nitrogen_dict["N1_xyz"] - mean_xyz
-        direction_2 = nitrogen_dict["N2_xyz"] - mean_xyz
+        direction_2 = nitrogen_dict["N3_xyz"] - mean_xyz
         direction_3 = -1 * (ligand_dict["crit_xyz"] - mean_xyz)
         cross = np.cross(direction_1, direction_2)
         cross /= np.linalg.norm(np.cross(direction_1, direction_2))
@@ -173,7 +173,6 @@ def write_dict_to_xyz(folder, name, dict_xyz, add_oh = False, add_o = False):
     with open(xyz_file_name, "w") as f:
         # iterate over dictionary 
         f.write(str(len(dict_xyz)) + "\n\n")
-
         for i in dict_xyz: 
             f.write("{} {}  {}  {}\n".format(i["element"], i["xyz"][0], i["xyz"][1], i["xyz"][2]))
             
