@@ -117,7 +117,7 @@ def write_json(folder, frozen_atoms = []):
     basic_dict["rij"] = True
     basic_dict["marij"] = True
     basic_dict["dsp"] = True
-    basic_dict["charges"] = -2
+    basic_dict["charge"] = -2
 
     #basic_dict_json = json.loads(basic_dict)
 
