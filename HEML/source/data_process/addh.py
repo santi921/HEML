@@ -119,21 +119,11 @@ def write_json(folder, frozen_atoms = []):
     basic_dict["dsp"] = True
     basic_dict["charges"] = -2
 
-    basic_dict_json = json.loads(basic_dict)
+    #basic_dict_json = json.loads(basic_dict)
 
     if frozen_atoms != []:
-        basic_dict_json['freeze_atoms'] = frozen_atoms
-    # remove unicode from json
-    dict_no_unicode = {}
-    for key, value in basic_dict_json.items():
-        if value is dict :
-            dict_no_unicode[key] = {}
-            for key2, value2 in value.items():
-                dict_no_unicode[key][key2] = str(value2)
-        else:
-            dict_no_unicode[key] = str(value)
-
-    dict = dict_no_unicode
+        basic_dict['freeze_atoms'] = frozen_atoms
+    
     with open(folder + "definput.json", "w") as outfile:
         json.dump(dict, outfile)
 
