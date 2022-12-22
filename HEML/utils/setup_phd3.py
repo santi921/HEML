@@ -91,14 +91,15 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
             line_split = line.split()
 
             if 'HETATM' in line_split:
-                
                 shift = 0 
                 heme_cond = line[17:20] == "HEM"
                 heme_chain_cond = line[21] == fe_dict["id"].split(":")[0]
-                heme_id_cond = line[22:26].strip() == fe_dict["id"].split(":")[1].strip()
+                #heme_id_cond = line[22:26].strip() == fe_dict["id"].split(":")[0].strip()
                 hetero_cond = 'HETATM' in line.split()[0]
-                print(heme_cond, heme_id_cond, heme_chain_cond, hetero_cond)
-                if(heme_cond and heme_id_cond and heme_chain_cond and hetero_cond):
+                #print(line[17:20], line[21], line[22:26].strip(), line.split()[0])
+                #print(heme_cond, heme_chain_cond, hetero_cond)
+                if(heme_cond): print(line)
+                if(heme_cond and heme_chain_cond and hetero_cond):
                     out_list.append(get_element_and_xyz(line))
             
             if(len(line_split) > 3):
@@ -120,7 +121,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         direction_1 = nitrogen_dict["N1_xyz"] - mean_xyz
         direction_2 = nitrogen_dict["N2_xyz"] - mean_xyz
         direction_3 = -1 * (ligand_dict["crit_xyz"] - mean_xyz)
-        cross = np.cross(direction_1, direction_2, )
+        cross = np.cross(direction_1, direction_2)
         cross /= np.linalg.norm(np.cross(direction_1, direction_2))
         # project cross in right direction
         if(np.dot(direction_3, cross) < 0):
@@ -137,7 +138,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         hydrogen_xyz = mean_xyz + cross * 1.43 + cross * 0.97
         out_list.append({"element":"H", "xyz": hydrogen_xyz})
         out_list.append({"element":"O", "xyz": oxygen_xyz})
-
+    print(cross)
     return out_list            
                     
 
