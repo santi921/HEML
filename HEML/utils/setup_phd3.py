@@ -90,24 +90,25 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         for line in f:
             line_split = line.split()
 
-            if 'HETATM' in line_split:
-                shift = 0 
-                heme_cond = line[17:20] == "HEM"
-                heme_chain_cond = line[21] == fe_dict["id"].split(":")[0]
-                hetero_cond = 'HETATM' in line.split()[0]
-
-                if(heme_cond and heme_chain_cond and hetero_cond):
-                    out_list.append(get_element_and_xyz(line))
-            
             if(len(line_split) > 3):
+
+                if 'HETATM' in line_split:
+                    shift = 0 
+                    heme_cond = line[17:20] == "HEM"
+                    heme_chain_cond = line[21] == fe_dict["id"].split(":")[0]
+                    hetero_cond = 'HETATM' in line.split()[0]
+
+                    if(heme_cond and heme_chain_cond and hetero_cond):
+                        out_list.append(get_element_and_xyz(line))
+            
+
                 sg_cond = 'CYS' in line_split[3]
                 oh_cond = 'TYR' in line_split[3]
                 nend_cond = 'HIS' in line_split[3]
 
                 if (sg_cond or oh_cond or nend_cond):
-                    
                     ligand_chain_cond = line[21] == ligand_dict["best_crit"].split(":")[0]
-                    ligand_id_cond = line[22:26].strip() == ligand_dict["best_crit"].split(":")[1].strip()
+                    ligand_id_cond = line[22:26].strip() == ligand_dict["best_crit"].split(":")[0].strip()
                     anisou_cond = 'ANISOU' in line_split[0]
                     if(ligand_chain_cond and ligand_id_cond and not anisou_cond):
                         out_list.append(get_element_and_xyz(line))
