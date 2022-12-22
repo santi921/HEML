@@ -125,7 +125,7 @@ def write_json(folder, frozen_atoms = []):
         basic_dict['freeze_atoms'] = frozen_atoms
     
     with open(folder + "definput.json", "w") as outfile:
-        json.dump(dict, outfile)
+        json.dump(basic_dict, outfile)
 
 
 def get_options(options_file = "./options.json"):
