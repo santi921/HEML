@@ -13,9 +13,7 @@ def main():
     for protein_name in os.listdir(root):
         if(os.path.isdir(os.path.join(root,protein_name))):
             print(protein_name)
-            
             folder_name = os.path.join(root, protein_name)
-            
             #check if pdb is in folder
             if os.path.exists(os.path.join(folder_name, protein_name + ".pdb")):
                 pdb_file = protein_name + ".pdb"
@@ -43,7 +41,6 @@ def main():
             # write xyz to file - write xyz
             xyz_file_name = write_dict_to_xyz(folder_name, protein_name, dict_xyz, add_o = False, add_oh = True)
             #convert xyz to pdb
-
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name), folder_name, protein_name+ "_oh"))
 
             # write vanilla
