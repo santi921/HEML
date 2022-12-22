@@ -71,8 +71,8 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         root: the root directory of the pdb files
     """
     file_folder = os.path.join(root, file)
-    out_list = []
     fe_dict = get_fe_positions(file_folder)
+    out_list = [{"element":"Fe", "xyz": fe_dict["xyz"], "line": ""}]
     assert fe_dict["id"] != None
     ligand_dict = get_ligand_info(file_folder, fe_dict["xyz"])
     ligand_none = check_if_dict_has_None(ligand_dict)
@@ -94,11 +94,8 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
                 shift = 0 
                 heme_cond = line[17:20] == "HEM"
                 heme_chain_cond = line[21] == fe_dict["id"].split(":")[0]
-                #heme_id_cond = line[22:26].strip() == fe_dict["id"].split(":")[0].strip()
                 hetero_cond = 'HETATM' in line.split()[0]
-                #print(line[17:20], line[21], line[22:26].strip(), line.split()[0])
-                #print(heme_cond, heme_chain_cond, hetero_cond)
-                if(heme_cond): print(line)
+
                 if(heme_cond and heme_chain_cond and hetero_cond):
                     out_list.append(get_element_and_xyz(line))
             
