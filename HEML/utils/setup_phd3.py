@@ -88,19 +88,18 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
     #iterate lines of pdb file
     with open(file_folder, "r") as f:
         for line in f:
-            
-            if 'HETATM' in line.split()[0]:
+            line_split = line.split()
+
+            if 'HETATM' in line_split:
                 
                 shift = 0 
                 heme_cond = line[17:20] == "HEM"
                 heme_chain_cond = line[21] == fe_dict["id"].split(":")[0]
                 heme_id_cond = line[22:26].strip() == fe_dict["id"].split(":")[1].strip()
                 hetero_cond = 'HETATM' in line.split()[0]
-
+                print(heme_cond, heme_id_cond, heme_chain_cond, hetero_cond)
                 if(heme_cond and heme_id_cond and heme_chain_cond and hetero_cond):
                     out_list.append(get_element_and_xyz(line))
-            
-            line_split = line.split()
             
             if(len(line_split) > 3):
                 sg_cond = 'CYS' in line_split[3]

@@ -74,7 +74,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
             "iaut": { "iaut_on": False, }
         },
         "dft": {
-            "dft_on": False,
+            "dft_on": True,
             "func": "b3lyp",
             "grid": "m4"           
         },
@@ -222,12 +222,12 @@ def main():
             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
             # write json file for turbomole 
-            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [])
-            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [])
-            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [])
-            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [])
-            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [])
-            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [])
+            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [], charge=-2)
+            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [], charge=-2)
+            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [], charge=-2)
+            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [], charge=-2)
+            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [], charge=-2)
+            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [], charge=-2)
         
             setup_turbomole("{}/no_charges/o/".format(folder_name))
             setup_turbomole("{}/no_charges/oh/".format(folder_name))
