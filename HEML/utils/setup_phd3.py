@@ -57,7 +57,7 @@ def get_element_and_xyz(line):
         y, z = break_up_line(y)
     
     xyz = [x, y, z]
-    xyz = [float(x) for x in xyz]
+    xyz = [float(i) for i in xyz]
     xyz = np.array(xyz)
     element = line.split()[-1]
 
@@ -126,12 +126,11 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         dot_12 = np.dot(direction_1, direction_2)
         dot_13 = np.dot(direction_1, direction_3)
         dot_23 = np.dot(direction_2, direction_3)
-        if(dot_12 > dot_13 and dot_12 > dot_23):
-            direction_3 = direction_1
-        elif(dot_13 > dot_12 and dot_13 > dot_23):
-            direction_2 = direction_1
-        else:
-            direction_1 = direction_2
+
+        if(dot_23 < dot_13 and dot_23 < dot_12):
+            direction_1 = direction_3
+        if(dot_13 < dot_12 and dot_13 < dot_23):
+            direction_2 = direction_3
             
         direction_1 /= np.linalg.norm(direction_1)
         direction_2 /= np.linalg.norm(direction_2)
