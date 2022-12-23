@@ -189,12 +189,12 @@ def write_dict_to_xyz(folder, name, dict_xyz, add_oh = False, add_o = False):
     elif add_o:
         xyz_file_name += "_o.xyz"
     else:
-        xyz_file_name += ".xyz"
+        xyz_file_name += "_heme.xyz"
 
     with open(xyz_file_name, "w") as f:
         # iterate over dictionary 
         f.write(str(len(dict_xyz)) + "\n\n")
         for i in dict_xyz: 
-            f.write("{} {}  {}  {}\n".format(i["element"], i["xyz"][0], i["xyz"][1], i["xyz"][2]))
+            f.write("{} {:.3f}  {:.3f}  {:.3f}\n".format(i["element"], i["xyz"][0], i["xyz"][1], i["xyz"][2]))
             
     return xyz_file_name
