@@ -126,11 +126,12 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         dot_12 = np.dot(direction_1, direction_2)
         dot_13 = np.dot(direction_1, direction_3)
         dot_23 = np.dot(direction_2, direction_3)
-
-        if(dot_23 < dot_13 and dot_23 < dot_12):
+        
+        if(dot_23 > dot_13 and dot_23 > dot_12):
             direction_1 = direction_3
-        if(dot_13 < dot_12 and dot_13 < dot_23):
+        if(dot_13 > dot_12 and dot_13 > dot_23):
             direction_2 = direction_3
+
             
         direction_1 /= np.linalg.norm(direction_1)
         direction_2 /= np.linalg.norm(direction_2)
@@ -138,9 +139,8 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         cross = np.cross(direction_1, direction_2)
         cross /= np.linalg.norm(cross)
         #project cross in right direction
-        if(np.dot(direction_3, cross) < 0):
+        if(np.dot(ligand_dict['crit_xyz'], cross) > 0):
             cross *= -1
-
         
     if add_o:
         # add oxygen along the cross product
