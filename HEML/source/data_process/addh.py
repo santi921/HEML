@@ -70,8 +70,12 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
         "geometry": { 
             "cartesians": True,
             "idef": { "idef_on": False },
+            "freeze_stretch": ["4,5"],
             "ired": False,
-            "iaut": { "iaut_on": False, }
+            "iaut": { 
+                "iaut_on": False, 
+                "bonds": ["4,5"]    
+            }
         },
         "dft": {
             "dft_on": True,
@@ -88,8 +92,8 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
             "trad": 0.1
         },
         "open_shell": {
-            "open_shell_on": False,
-            "unpaired": 0
+            "open_shell_on": True,
+            "unpaired": 1
         },
         "cosmo": 4,
         "freeze_atoms": [],
@@ -112,12 +116,25 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
             "s": "def2-TZVP",
             "o": "def2-TZVP"
         }
-
+    else:
+        basic_dict["basis"]["all"] = "def2-SVP"
+        for atom in atoms_present:
+            if atom["element"] == "Fe" or atom["element"] == "fe":
+                basic_dict["basis"]["fe"] = "def2-TZVP"
+            elif atom["element"] == "N" or atom["element"] == "n":
+                basic_dict["basis"]["n"] = "def2-TZVP"
+            elif atom["element"] == "S" or atom["element"] == "s":
+                basic_dict["basis"]["s"] = "def2-TZVP"
+            elif atom["element"] == "O" or atom["element"] == "o":
+                basic_dict["basis"]["o"] = "def2-TZVP"
+            else: 
+                basic_dict["basis"][atom] = "def2-SVP"
     if charge != 0:
         basic_dict["charge"] = charge
 
     if frozen_atoms != []:
         basic_dict['freeze_atoms'] = frozen_atoms
+    
     
     with open(folder + "definput.json", "w") as outfile:
         json.dump(basic_dict, outfile, indent = 4)
@@ -167,6 +184,22 @@ def fetch_charges_dict(file_name = 'test.pqr'):
 
     return pqr_dict
 
+
+def get_elements(file_name): 
+    """
+    Open xyz and get all the elements in the file
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        elements: a list of elements
+    """
+    elements = []
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if line[0:2].isalpha():
+            elements.append(line.split()[0])
+    return elements
 
 def put_charges_in_turbo_files(folder_name, charges_dict): 
     """
@@ -221,13 +254,16 @@ def main():
             os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
+            # get element types from xyz file
+            elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
+
             # write json file for turbomole 
-            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [], charge=-2)
-            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [], charge=-2)
-            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [], charge=-2)
-            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [], charge=-2)
-            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [], charge=-2)
-            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [], charge=-2)
+            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
+            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
+            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [], charge=-2,atoms_present=elements)
+            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [], charge=-3,atoms_present=elements)
+            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [], charge=-3,atoms_present=elements)
+            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [], charge=-2,atoms_present=elements)
         
             setup_turbomole("{}/no_charges/o/".format(folder_name))
             setup_turbomole("{}/no_charges/oh/".format(folder_name))
