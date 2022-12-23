@@ -121,13 +121,28 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
         mean_xyz = nitrogen_dict["mean_N_xyz"]
         direction_1 = nitrogen_dict["N1_xyz"] - mean_xyz
-        direction_2 = nitrogen_dict["N3_xyz"] - mean_xyz
+        direction_2 = nitrogen_dict["N2_xyz"] - mean_xyz
+        direction_3 = nitrogen_dict["N3_xyz"] - mean_xyz
+        # compute cross and take the two most orthogonal directions
+        dot_12 = np.dot(direction_1, direction_2)
+        dot_13 = np.dot(direction_1, direction_3)
+        dot_23 = np.dot(direction_2, direction_3)
+        if(dot_12 > dot_13 and dot_12 > dot_23):
+            direction_3 = direction_1
+        elif(dot_13 > dot_12 and dot_13 > dot_23):
+            direction_2 = direction_1
+        else:
+            direction_1 = direction_2
+            
+        direction_1 /= np.linalg.norm(direction_1)
+        direction_2 /= np.linalg.norm(direction_2)
         direction_3 = -1 * (ligand_dict["crit_xyz"] - mean_xyz)
         cross = np.cross(direction_1, direction_2)
-        cross /= np.linalg.norm(np.cross(direction_1, direction_2))
-        # project cross in right direction
+        cross /= np.linalg.norm(cross)
+        #project cross in right direction
         if(np.dot(direction_3, cross) < 0):
             cross *= -1
+
         
     if add_o:
         # add oxygen along the cross product
@@ -145,9 +160,8 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
     # shift everything to the origin
     for i in range(1, len(out_list)):
         out_list[i]["xyz"] -= fe_dict["xyz"]
-
-    return out_list            
-                    
+    
+    return out_list                    
 
 def addh(pdb_file): 
     """
