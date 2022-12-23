@@ -70,6 +70,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
     Takes: 
         root: the root directory of the pdb files
     """
+    direction_1, direction_2, cross = [], [] , []
     file_folder = os.path.join(root, file)
     fe_dict = get_fe_positions(file_folder)
     out_list = [{"element":"Fe", "xyz": fe_dict["xyz"], "line": ""}]
@@ -157,11 +158,11 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         out_list.append({"element":"O", "xyz": oxygen_xyz})
     #print(cross)
     
-    # shift everything to the origin
-    for i in range(len(out_list)):
-        out_list[i]["xyz"] -= fe_dict["xyz"]
+    #shift everything to the origin
+    for i in range(0, len(out_list)):
+        out_list[i]["xyz"] = out_list[i]["xyz"] - fe_dict["xyz"]
     
-    return out_list                    
+    return out_list                           
 
 def addh(pdb_file): 
     """
