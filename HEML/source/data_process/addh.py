@@ -75,7 +75,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
         },
         "dft": {
             "dft_on": True,
-            "func": "b3lyp",
+            "func": "tpss",
             "grid": "m4"           
         },
         "scf": {
