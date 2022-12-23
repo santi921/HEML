@@ -119,13 +119,13 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
     else:
         basic_dict["basis"]["all"] = "def2-SVP"
         for atom in atoms_present:
-            if atom["element"] == "Fe" or atom["element"] == "fe":
+            if atom == "Fe" or atom == "fe":
                 basic_dict["basis"]["fe"] = "def2-TZVP"
-            elif atom["element"] == "N" or atom["element"] == "n":
+            elif atom == "N" or atom == "n":
                 basic_dict["basis"]["n"] = "def2-TZVP"
-            elif atom["element"] == "S" or atom["element"] == "s":
+            elif atom == "S" or atom == "s":
                 basic_dict["basis"]["s"] = "def2-TZVP"
-            elif atom["element"] == "O" or atom["element"] == "o":
+            elif atom == "O" or atom == "o":
                 basic_dict["basis"]["o"] = "def2-TZVP"
             else: 
                 basic_dict["basis"][atom] = "def2-SVP"
@@ -197,7 +197,7 @@ def get_elements(file_name):
     with open(file_name, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        if line[0:2].isalpha():
+        if line[0:2].strip().isalpha():
             elements.append(line.split()[0])
     return elements
 
