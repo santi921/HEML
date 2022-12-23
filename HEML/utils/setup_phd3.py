@@ -158,7 +158,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
     #print(cross)
     
     # shift everything to the origin
-    for i in range(1, len(out_list)):
+    for i in range(0, len(out_list)):
         out_list[i]["xyz"] -= fe_dict["xyz"]
     
     return out_list                    
