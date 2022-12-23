@@ -146,14 +146,14 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
     if add_o:
         # add oxygen along the cross product
         oxygen_xyz = mean_xyz + cross * 1.1
-        out_list.append({"element":"O", "xyz": oxygen_xyz})
+        out_list.append({"element":"O", "xyz": np.around(oxygen_xyz, 3), "line": ""})
 
     if add_oh: 
         # add oxygen along the cross product
         oxygen_xyz = mean_xyz + cross * 1.43
         hydrogen_xyz = mean_xyz + cross * 1.43 + cross * 0.97
-        out_list.append({"element":"H", "xyz": hydrogen_xyz})
-        out_list.append({"element":"O", "xyz": oxygen_xyz})
+        out_list.append({"element":"H", "xyz": np.around(hydrogen_xyz, 3), "line": ""})
+        out_list.append({"element":"O", "xyz": np.around(oxygen_xyz, 3) , "line": ""})
     
     #shift everything to the origin
     for i in range(0, len(out_list)):
