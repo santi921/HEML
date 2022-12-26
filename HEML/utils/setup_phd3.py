@@ -179,7 +179,7 @@ def addh(pdb_file):
     rc("close session")
 
 
-def xtb_sanitize_and_save(xyz_dict, folder, name, add_oh = False, add_o = False):
+def xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_oh = False, add_o = False):
     """
     Takes position dictionary and runs xtb, returns dictionary with new positions
     
