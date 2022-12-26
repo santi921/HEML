@@ -131,9 +131,10 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
                 basic_dict["basis"][atom.lower()] = "def2-SVP"
     if charge != 0:
         basic_dict["charge"] = charge
-        if charge == -3 or charge == -1: 
+        if charge == -2: 
             basic_dict["open_shell"]["open_shell_on"] = True
-
+            basic_dict["open_shell"]["unpaired"] = 1
+        
     if frozen_atoms != []:
         basic_dict['freeze_atoms'] = frozen_atoms
     
