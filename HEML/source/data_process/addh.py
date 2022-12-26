@@ -131,7 +131,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
                 basic_dict["basis"][atom.lower()] = "def2-SVP"
     if charge != 0:
         basic_dict["charge"] = charge
-        if charge == 3 or charge == 1: 
+        if charge == -3 or charge == -1: 
             basic_dict["open_shell"]["open_shell_on"] = True
 
     if frozen_atoms != []:
@@ -262,10 +262,10 @@ def main():
             # write json file for turbomole 
             write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
             write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
-            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [], charge=-2,atoms_present=elements)
-            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [], charge=-3,atoms_present=elements)
-            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [], charge=-3,atoms_present=elements)
-            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [], charge=-2,atoms_present=elements)
+            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [], charge=-2, atoms_present=elements)
+            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
+            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
+            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [], charge=-2, atoms_present=elements)
         
             setup_turbomole("{}/no_charges/o/".format(folder_name))
             setup_turbomole("{}/no_charges/oh/".format(folder_name))
