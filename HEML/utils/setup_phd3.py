@@ -206,9 +206,9 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
     elements = [atom_element_to_number[i["element"]] for i in dict_xyz]
 
     atoms = Atoms(numbers=elements, positions=positions)
-    atoms.calc = XTB(method="GFN2-xTB", solvent="none", accuracy=0.01)
+    atoms.calc = XTB(method="GFN2-xTB", solvent="none", accuracy=0.1)
     opt = LBFGS(atoms, trajectory='./temp.traj')
-    opt.run(fmax=0.0001)
+    opt.run(fmax=0.001)
     traj_file = read("temp.traj")
 
     xyz_file_name = os.path.join(folder, name)
