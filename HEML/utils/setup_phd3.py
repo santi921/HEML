@@ -77,6 +77,22 @@ def get_element_and_xyz(line):
     return {"element":element, "xyz": xyz, "line": line}
     
 
+def check_if_collisions(out_list, xyz):
+    """
+    for list of dictionaries, check if there are any collisions to xyz array
+    Takes 
+        out_list: list of dictionaries
+        xyz: array of xyz coordinates
+    Returns 
+        True if there is a collision
+        False if there is no collision
+    """
+    for i in out_list:
+        if np.linalg.norm(i["xyz"] - xyz) < 0.5:
+            return True
+
+    return False
+
 def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False): 
     """
     Extract the heme from the pdb files and save them in a new folder.
@@ -154,6 +170,9 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
         #project cross in right direction
         if(np.dot(ligand_dict['crit_xyz'], cross) > 0):
             cross *= -1
+        # check if there are collisions and project other way otherwise
+        if(check_if_collisions(out_list, mean_xyz + cross * 1.65)):
+            cross *= -1
         
     if add_o:
         # add oxygen along the cross product
@@ -206,9 +225,9 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
     elements = [atom_element_to_number[i["element"]] for i in dict_xyz]
 
     atoms = Atoms(numbers=elements, positions=positions)
-    atoms.calc = XTB(method="GFN2-xTB", solvent="none", accuracy=0.1)
+    atoms.calc = XTB(method="GFN2-xTB", solvent="None", accuracy=0.1)
     opt = LBFGS(atoms, trajectory='./temp.traj')
-    opt.run(fmax=0.001)
+    opt.run(fmax=0.01)
     traj_file = read("temp.traj")
 
     xyz_file_name = os.path.join(folder, name)
