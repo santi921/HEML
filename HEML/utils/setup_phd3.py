@@ -179,6 +179,37 @@ def addh(pdb_file):
     rc("close session")
 
 
+def xtb_sanitize_and_save(xyz_dict, folder, name, add_oh = False, add_o = False):
+    """
+    Takes position dictionary and runs xtb, returns dictionary with new positions
+    
+    """
+    from ase.atoms import Atoms
+    from ase.io import read, write
+    from xtb.ase.calculator import XTB
+    from ase.optimize.lbfgs import LBFGS
+
+    positions = [i["xyz"] for i in xyz_dict]
+    elements = [i["element"] for i in xyz_dict]
+
+    atoms = Atoms(numbers=elements, positions=positions)
+    atoms.calc = XTB(method="GFN2-xTB", solvent="none", accuracy=0.01)
+    opt = LBFGS(atoms, trajectory='./temp.traj')
+    opt.run(fmax=0.0001)
+    traj_file = read("temp.traj")
+
+    xyz_file_name = os.path.join(folder, name)
+
+    if add_oh:
+        xyz_file_name += "_oh.xyz"
+    elif add_o:
+        xyz_file_name += "_o.xyz"
+    else:
+        xyz_file_name += "_heme.xyz"
+
+    write(traj_file, xyz_file_name, format="xyz")
+    return xyz_file_name
+
 def write_dict_to_xyz(folder, name, dict_xyz, add_oh = False, add_o = False):
     # write the xyz file
     xyz_file_name = os.path.join(folder, name)
