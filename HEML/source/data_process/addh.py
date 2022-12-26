@@ -92,8 +92,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
             "trad": 0.1
         },
         "open_shell": {
-            "open_shell_on": True,
-            "unpaired": 1
+            "open_shell_on": False,
         },
         "cosmo": 4,
         "freeze_atoms": [],
