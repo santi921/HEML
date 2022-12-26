@@ -179,7 +179,7 @@ def addh(pdb_file):
     rc("close session")
 
 
-def xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_oh = False, add_o = False):
+def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False):
     """
     Takes position dictionary and runs xtb, returns dictionary with new positions
     
@@ -189,8 +189,8 @@ def xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_oh = False, ad
     from xtb.ase.calculator import XTB
     from ase.optimize.lbfgs import LBFGS
 
-    positions = [i["xyz"] for i in xyz_dict]
-    elements = [i["element"] for i in xyz_dict]
+    positions = [i["xyz"] for i in dict_xyz]
+    elements = [i["element"] for i in dict_xyz]
 
     atoms = Atoms(numbers=elements, positions=positions)
     atoms.calc = XTB(method="GFN2-xTB", solvent="none", accuracy=0.01)
