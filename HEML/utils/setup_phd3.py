@@ -239,7 +239,7 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
     else:
         xyz_file_name += "_heme.xyz"
 
-    write(traj_file, xyz_file_name, format="xyz")
+    write(filename = xyz_file_name, images=traj_file, format="xyz")
     return xyz_file_name
 
 def write_dict_to_xyz(folder, name, dict_xyz, add_oh = False, add_o = False):
