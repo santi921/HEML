@@ -2,6 +2,19 @@ import os, random
 from HEML.utils.data import *
 from glob import glob
 
+atom_element_to_number = {
+    "H": 1,
+    "C": 6,
+    "N": 7,
+    "O": 8,
+    "F": 9,
+    "P": 15,
+    "S": 16,
+    "Cl": 17,
+    "Br": 35,
+    "I": 53,
+    "Fe": 26
+}
 def create_folders():
     """Create a folder for each protein in the current directory and move the
         protein into the folder.    
@@ -190,7 +203,7 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
     from ase.optimize.lbfgs import LBFGS
 
     positions = [i["xyz"] for i in dict_xyz]
-    elements = [i["element"] for i in dict_xyz]
+    elements = [atom_element_to_number[i["element"]] for i in dict_xyz]
 
     atoms = Atoms(numbers=elements, positions=positions)
     atoms.calc = XTB(method="GFN2-xTB", solvent="none", accuracy=0.01)
