@@ -15,6 +15,8 @@ atom_element_to_number = {
     "I": 53,
     "Fe": 26
 }
+
+
 def create_folders():
     """Create a folder for each protein in the current directory and move the
         protein into the folder.    
@@ -53,7 +55,7 @@ def move_charges_into_folder(charges_root, compressed_frame_folder):
             os.system("cp " + os.path.join(charges_root, frame + "_" + protein + "_movie.pqr") + " " + os.path.join(compressed_frame_folder, i))
 
 
-def get_element_and_xyz(line):
+def get_element_and_xyz(line, freeze = False):
     
     line_split = line.split()
     shift = 0 
@@ -73,7 +75,8 @@ def get_element_and_xyz(line):
     xyz = [float(i) for i in xyz]
     xyz = np.array(xyz)
     element = line.split()[-1]
-
+    if freeze:
+        return {"element":element, "xyz": xyz, "line": line, "freeze": True}
     return {"element":element, "xyz": xyz, "line": line}
     
 
@@ -93,12 +96,18 @@ def check_if_collisions(out_list, xyz):
 
     return False
 
-def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False): 
+
+def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, freeze = False): 
     """
     Extract the heme from the pdb files and save them in a new folder.
     Takes: 
         root: the root directory of the pdb files
+        file: the name of the pdb file
+        add_oh: if True, add an -OH to the heme
+        add_o: if True, add an oxygen to the ligand
+        freeze: if True, mark atoms to be frozen
     """
+
     direction_1, direction_2, cross = [], [] , []
     file_folder = os.path.join(root, file)
     fe_dict = get_fe_positions(file_folder)
@@ -130,7 +139,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
                     ligand_id_cond = line[22:26].strip() == fe_dict["id"].split(":")[1].strip()
 
                     if(heme_cond and heme_chain_cond and hetero_cond):
-                        out_list.append(get_element_and_xyz(line))
+                        out_list.append(get_element_and_xyz(line, freeze = False))
             
 
                 sg_cond = 'CYS' in line_split[3]
@@ -142,8 +151,20 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
                     ligand_id_cond = line[22:26].strip() == ligand_dict["best_crit"].split(":")[1].strip()
                     anisou_cond = 'ANISOU' in line_split[0]
                     if(ligand_chain_cond and ligand_id_cond and not anisou_cond):
-                        out_list.append(get_element_and_xyz(line))
+                        out_list.append(get_element_and_xyz(line, freeze = freeze))
     
+    if freeze: 
+        # got through the list and freeze the four carbons furthest away from the iron
+        # get the four furthest carbons, not on ligand already
+        carbon_list = []
+        for i in out_list:
+            # check that i doesnt have a true 
+            if i["element"] == "C" and i["freeze"] == False:
+                carbon_list.append(i)
+        carbon_list = sorted(carbon_list, key = lambda x: np.linalg.norm(x["xyz"] - fe_dict["xyz"]))
+        carbon_list = carbon_list[-4:]
+        for i in carbon_list:
+            i["freeze"] = True
 
     if add_oh or add_o:
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
@@ -177,14 +198,14 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False):
     if add_o:
         # add oxygen along the cross product
         oxygen_xyz = mean_xyz + cross * 1.65
-        out_list.append({"element":"O", "xyz": np.around(oxygen_xyz, 3), "line": ""})
+        out_list.append({"element":"O", "xyz": np.around(oxygen_xyz, 3), "line": "", "freeze": freeze})
 
     if add_oh: 
         # add oxygen along the cross product
         oxygen_xyz = mean_xyz + cross * 1.8
         hydrogen_xyz = mean_xyz + cross * 1.8 + cross * 0.97
-        out_list.append({"element":"H", "xyz": np.around(hydrogen_xyz, 3), "line": ""})
-        out_list.append({"element":"O", "xyz": np.around(oxygen_xyz, 3) , "line": ""})
+        out_list.append({"element":"H", "xyz": np.around(hydrogen_xyz, 3), "line": "", "freeze": freeze})
+        out_list.append({"element":"O", "xyz": np.around(oxygen_xyz, 3) , "line": "", "freeze": freeze})
     
     #shift everything to the origin
     for i in range(0, len(out_list)):
@@ -211,23 +232,27 @@ def addh(pdb_file):
     rc("close session")
 
 
-def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False):
+def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False, fixed_list = []):
     """
     Takes position dictionary and runs xtb, returns dictionary with new positions
     
     """
     from ase.atoms import Atoms
+    from ase.constraints import FixAtoms
     from ase.io import read, write
     from xtb.ase.calculator import XTB
     from ase.optimize.lbfgs import LBFGS
 
     positions = [i["xyz"] for i in dict_xyz]
     elements = [atom_element_to_number[i["element"]] for i in dict_xyz]
-
-    atoms = Atoms(numbers=elements, positions=positions)
-    atoms.calc = XTB(method="GFN2-xTB", solvent="None", accuracy=0.1)
+    fixed = [i["fixed"] for i in dict_xyz]
+    
+    atoms = Atoms(numbers=elements, 
+                    positions=positions,
+                    constraint=FixAtoms(mask=fixed))
+    atoms.calc = XTB(method="GFN2-xTB", solvent="None", accuracy=0.05)
     opt = LBFGS(atoms, trajectory='./temp.traj')
-    opt.run(fmax=0.1)
+    opt.run(fmax=0.05)
     traj_file = read("temp.traj")
 
     xyz_file_name = os.path.join(folder, name)
@@ -241,6 +266,7 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
 
     write(filename = xyz_file_name, images=traj_file, format="xyz")
     return xyz_file_name
+
 
 def write_dict_to_xyz(folder, name, dict_xyz, add_oh = False, add_o = False):
     # write the xyz file
