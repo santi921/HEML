@@ -75,9 +75,8 @@ def get_element_and_xyz(line, freeze = False):
     xyz = [float(i) for i in xyz]
     xyz = np.array(xyz)
     element = line.split()[-1]
-    if freeze:
-        return {"element":element, "xyz": xyz, "line": line, "freeze": True}
-    return {"element":element, "xyz": xyz, "line": line}
+
+    return {"element":element, "xyz": xyz, "line": line, "freeze": False}
     
 
 def check_if_collisions(out_list, xyz):
