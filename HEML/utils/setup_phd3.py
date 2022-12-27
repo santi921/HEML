@@ -111,7 +111,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
     direction_1, direction_2, cross = [], [] , []
     file_folder = os.path.join(root, file)
     fe_dict = get_fe_positions(file_folder)
-    out_list = [{"element":"Fe", "xyz": fe_dict["xyz"], "line": ""}]
+    out_list = [{"element":"Fe", "xyz": fe_dict["xyz"], "line": "", "freeze": False}]
     assert fe_dict["id"] != None
     ligand_dict = get_ligand_info(file_folder, fe_dict["xyz"])
     ligand_none = check_if_dict_has_None(ligand_dict)
