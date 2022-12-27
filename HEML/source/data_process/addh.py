@@ -203,6 +203,7 @@ def get_elements(file_name):
             elements.append(line.split()[0])
     return elements
 
+
 def put_charges_in_turbo_files(folder_name, charges_dict): 
     """
     Traverses subdirectories in embedding folder and puts charges in the turbomole file
@@ -218,6 +219,13 @@ def put_charges_in_turbo_files(folder_name, charges_dict):
         for file in files:
             if file.endswith("control"):
                 print("editing control file with charges from pqr dictionary")
+                # remove last line of file - the $end
+                with open(os.path.join(root, file), 'r') as f:
+                    lines = f.readlines()
+                with open(os.path.join(root, file), 'w') as f:
+                    for line in lines[:-1]:
+                        f.write(line)
+
                 # append dictionary to end of file
                 with open(os.path.join(root, file), 'a') as f:
                     f.write("$point_charges\n")
@@ -225,6 +233,8 @@ def put_charges_in_turbo_files(folder_name, charges_dict):
                         f.write("\t{} {} {} {}\n".format(charge["position"][0], charge["position"][1], charge["position"][2], charge["charge"]))
                         #f.write("CHARGE " + str(charge["charge"]) + " " + str(charge["radius"]) + " " + str(charge["position"][0]) + " " + str(charge["position"][1]) + " " + str(charge["position"][2]) + "")
                     f.write("$end\n")
+
+
 def main():
 
     options = get_options("./options.json")
@@ -280,6 +290,8 @@ def main():
             pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
             charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file))
             print("-"*20 + "charges fetched" + "-"*20)
-            put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/"), charges_dict)
+            put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/oh/"), charges_dict)
+            put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/o/"), charges_dict)
+            put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
 
 main()
