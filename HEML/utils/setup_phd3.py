@@ -232,7 +232,7 @@ def addh(pdb_file):
     rc("close session")
 
 
-def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False, fixed_list = []):
+def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False):
     """
     Takes position dictionary and runs xtb, returns dictionary with new positions
     

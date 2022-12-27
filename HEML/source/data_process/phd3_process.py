@@ -23,19 +23,19 @@ def main():
                 pdb_file = protein_name + "_todo_process.pdb"
 
             # write with =O
-            dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_oh = False, add_o = True)
+            dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_oh = False, add_o = True, freeze=True)
             xyz_file_name_1 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_oh = False, add_o = True)
             # write xyz to file - write xyz
             #xyz_file_name_1 = write_dict_to_xyz(folder_name, protein_name, dict_xyz, add_oh = False, add_o = True)
             
             # write with -OH
-            dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_o = False, add_oh = True)
+            dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_o = False, add_oh = True, freeze = False)
             xyz_file_name_2 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_o = False, add_oh = True)
             # write xyz to file - write xyz
             #xyz_file_name_2 = write_dict_to_xyz(folder_name, protein_name, dict_xyz, add_o = False, add_oh = True)            
 
             # write vanilla =O
-            dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_o = True, add_oh = False)
+            dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_o = True, add_oh = False, freeze = False)
             xyz_file_name_3 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_o = True, add_oh = False)
             # write xyz to file - write xyz
             #xyz_file_name_3 = write_dict_to_xyz(folder_name, protein_name, dict_xyz, add_o = True, add_oh = False)            
