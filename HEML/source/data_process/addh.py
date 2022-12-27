@@ -177,9 +177,9 @@ def fetch_charges_dict(file_name = 'test.pqr'):
     
     for line in lines: 
         x       = float(line[30:38].strip())
-        y       = float(line[38:46].strip())
-        z       = float(line[46:54].strip())
-        charge  = float(line[54:61].strip())
+        y       = float(line[39:46].strip())
+        z       = float(line[47:54].strip())
+        charge  = float(line[55:61].strip())
         radius  = float(line[62:68].strip())    
         if np.abs(charge) >= 0.01:
             pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
@@ -216,14 +216,15 @@ def put_charges_in_turbo_files(folder_name, charges_dict):
     # find folder named embedding and go into all subfolders
     for root, dirs, files in os.walk(folder_name):
         for file in files:
-            if file.endswith("CONTROL"):
+            if file.endswith("control"):
+                print("editing control file with charges from pqr dictionary")
                 # append dictionary to end of file
                 with open(os.path.join(root, file), 'a') as f:
                     f.write("$point_charges\n")
                     for charge in charges_dict:
-                        f.write("\t{} {} {} {}".format(charge["position"][0], charge["position"][1], charge["position"][2], charge["charge"]))
+                        f.write("\t{} {} {} {}\n".format(charge["position"][0], charge["position"][1], charge["position"][2], charge["charge"]))
                         #f.write("CHARGE " + str(charge["charge"]) + " " + str(charge["radius"]) + " " + str(charge["position"][0]) + " " + str(charge["position"][1]) + " " + str(charge["position"][2]) + "")
-
+                    f.write("$end\n")
 def main():
 
     options = get_options("./options.json")
@@ -278,6 +279,7 @@ def main():
             # find pqr file in folder
             pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
             charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file))
+            print("-"*20 + "charges fetched" + "-"*20)
             put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/"), charges_dict)
 
 main()
