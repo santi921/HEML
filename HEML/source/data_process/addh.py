@@ -235,6 +235,88 @@ def put_charges_in_turbo_files(folder_name, charges_dict):
                     f.write("$end\n")
 
 
+def get_frozen_atoms(file_name):
+    """
+    get the two carbons most out of the plane to freeze
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        frozen_atoms: a binary list of frozen atoms
+    """
+    frozen_atoms, nitrogen_xy, carbon_xyz = [], [], []
+
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    # go through all the lines and find nitrogens
+    for line in lines:
+        if line[0:2].strip().isalpha():
+            if line.split()[0] == "N":
+                nitrogen_xyz.append(
+                    [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+                    )
+            if line.split()[0] == "Fe":
+                fe_xyz = [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+            if line.split()[0] == "C":
+                carbon_xyz.append(
+                    [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+                    )
+            
+    # find the four nitrogens closest to the iron
+    nitrogen_xyz = np.array(nitrogen_xyz)
+    fe_xyz = np.array(fe_xyz)
+    distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
+    closest_nitrogens = np.argsort(distances)[:4]
+    closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
+    mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
+    # use the mean nitrogen to find the two most out of plane
+    
+    mean_xyz = mean_nitrogen_xyz
+    direction_1 = closest_nitrogens[0] - mean_nitrogen_xyz
+    direction_2 = closest_nitrogens[1] - mean_nitrogen_xyz
+    direction_3 = closest_nitrogens[2] - mean_nitrogen_xyz
+    # compute cross and take the two most orthogonal directions
+    dot_12 = np.dot(direction_1, direction_2)
+    dot_13 = np.dot(direction_1, direction_3)
+    dot_23 = np.dot(direction_2, direction_3)
+
+    if(dot_23 > dot_13 and dot_23 > dot_12):
+        direction_1 = direction_3
+    if(dot_13 > dot_12 and dot_13 > dot_23):
+        direction_2 = direction_3
+
+        
+    direction_1 /= np.linalg.norm(direction_1)
+    direction_2 /= np.linalg.norm(direction_2)
+    cross = np.cross(direction_1, direction_2)
+
+    # find the two most out of plane carbons
+    carbon_xyz = np.array(carbon_xyz)
+    
+    # find the two most out of plane carbons
+    dot_list = [np.dot(i[0] - mean_xyz, cross) for i in carbon_xyz]
+    dot_list = np.array(dot_list)
+    most_out_of_plane = np.argsort(dot_list)[::-1][:2]
+    # get distances to iron
+    distances = np.linalg.norm(carbon_xyz - fe_xyz, axis = 1)
+    # get four carbons furthest from iron
+    furthest_carbons = np.argsort(distances)[::-1][:4]
+
+
+    # add the two most out of plane carbons to the frozen atoms list
+    for i in range(len(lines)):
+        if lines[i][0:2].strip().isalpha():
+            if lines[i].split()[0] == "C":
+                if i in most_out_of_plane or i in furthest_carbons:
+                    frozen_atoms.append(True)
+                else:
+                    frozen_atoms.append(False)
+            else:
+                frozen_atoms.append(False)
+
+    return frozen_atoms
+    
+
+
 def main():
 
     options = get_options("./options.json")
@@ -268,15 +350,18 @@ def main():
             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
             # get element types from xyz file
+            frozen_atoms_oh = get_frozen_atoms("{} {}/{}_o_heme_h.xyz".format(x2t_loc, folder_name, protein_name))
+            frozen_atoms_o = get_frozen_atoms("{} {}/{}_oh_heme_h.xyz".format(x2t_loc, folder_name, protein_name))
+            
             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
-
+            
             # write json file for turbomole 
-            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
-            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
-            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [], charge=-2, atoms_present=elements)
-            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
-            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [], charge=-3, atoms_present=elements)
-            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [], charge=-2, atoms_present=elements)
+            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-3, atoms_present=elements)
+            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [frozen_atoms_oh], charge=-3, atoms_present=elements)
+            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-2, atoms_present=elements)
+            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-3, atoms_present=elements)
+            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [frozen_atoms_oh], charge=-3, atoms_present=elements)
+            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-2, atoms_present=elements)
         
             setup_turbomole("{}/no_charges/o/".format(folder_name))
             setup_turbomole("{}/no_charges/oh/".format(folder_name))

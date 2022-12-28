@@ -244,7 +244,7 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
 
     positions = [i["xyz"] for i in dict_xyz]
     elements = [atom_element_to_number[i["element"]] for i in dict_xyz]
-    fixed = [i["fixed"] for i in dict_xyz]
+    fixed = [i["frozen"] for i in dict_xyz]
     
     atoms = Atoms(numbers=elements, 
                     positions=positions,
