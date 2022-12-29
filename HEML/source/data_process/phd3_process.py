@@ -10,7 +10,7 @@ def main():
     root = options["compressed_proteins_folder"]
     num_files = len(os.listdir(root))
     # get subfolders in current directory
-    for ind,protein_name in len(os.listdir(root)):
+    for ind, protein_name in enumerate(os.listdir(root)):
         if(os.path.isdir(os.path.join(root,protein_name))):
             print(protein_name)
             folder_name = os.path.join(root, protein_name)
@@ -39,5 +39,5 @@ def main():
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name_1), folder_name, protein_name))
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name_2), folder_name, protein_name+ "_oh"))
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name_3), folder_name, protein_name+ "_o"))
-            print("Processed {} out of {}".format(ind, num_files))
+            print("Processed {} out of {}".format(int(ind), int(num_files)))
 main()
