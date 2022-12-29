@@ -285,7 +285,7 @@ def addh(pdb_file):
     rc("close session")
 
 
-def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False):
+def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False, traj_name = False):
     """
     Takes position dictionary and runs xtb, returns dictionary with new positions
     
@@ -304,7 +304,10 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False)
                     positions=positions,
                     constraint=FixAtoms(mask=fixed))
     atoms.calc = XTB(method="GFN2-xTB", solvent="None", accuracy=0.08)
-    opt = LBFGS(atoms, trajectory='./temp.traj')
+    if traj_name == False: 
+        opt = LBFGS(atoms, trajectory='./temp.traj')
+    else: 
+        opt = LBFGS(atoms, trajectory=traj_name)
     opt.run(fmax=0.08)
     traj_file = read("temp.traj")
 

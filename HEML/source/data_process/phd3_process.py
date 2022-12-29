@@ -23,16 +23,16 @@ def main():
 
             # write with =O
             dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_oh = False, add_o = True, freeze=True)
-            xyz_file_name_1 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_oh = False, add_o = True)
+            xyz_file_name_1 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_oh = False, add_o = True, traj_name = protein_name)
             # write xyz to file - write xyz
             
             # write with -OH
             dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_o = False, add_oh = True, freeze = True)
-            xyz_file_name_2 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_o = False, add_oh = True)
+            xyz_file_name_2 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_o = False, add_oh = True, traj_name = protein_name)
             
             # write vanilla =O
             dict_xyz = extract_heme_and_ligand_from_pdb(folder_name, pdb_file, add_o = True, add_oh = False, freeze = True)
-            xyz_file_name_3 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_o = True, add_oh = False)
+            xyz_file_name_3 = xtb_sanitize_and_save(folder_name, protein_name,dict_xyz, add_o = True, add_oh = False, traj_name = protein_name)
             
             #convert xyz to pdb
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name_1), folder_name, protein_name))
