@@ -76,6 +76,10 @@ def get_element_and_xyz(line, freeze = False):
     xyz = [float(i) for i in xyz]
     xyz = np.array(xyz)
     element = line.split()[-1]
+    if element == 'C' and freeze: 
+        freeze = True
+    else:
+        freeze = False
 
     return {"element":element, "xyz": xyz, "line": line, "freeze": freeze}
     
@@ -150,7 +154,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
                     ligand_id_cond = line[22:26].strip() == ligand_dict["best_crit"].split(":")[1].strip()
                     anisou_cond = 'ANISOU' in line_split[0]
                     if(ligand_chain_cond and ligand_id_cond and not anisou_cond):
-                        out_list.append(get_element_and_xyz(line, freeze = False))
+                        out_list.append(get_element_and_xyz(line, freeze = True))
     
     if freeze: 
         # got through the list and freeze the four carbons furthest away from the iron
@@ -160,12 +164,14 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
             # check that i doesnt have a true 
             if i["element"] == "C" and i["freeze"] == False:
                 carbon_list.append(i)
+
         carbon_list = [np.linalg.norm(x["xyz"] - fe_dict["xyz"]) for x in carbon_list]
         #get index of four largest values
         carbon_list = np.argsort(carbon_list)[-4:]
         
         for i in carbon_list:
-            i["freeze"] = True
+            out_list[i]["freeze"] = True
+
 
     if add_oh or add_o:
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
