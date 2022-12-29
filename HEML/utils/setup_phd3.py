@@ -101,6 +101,41 @@ def check_if_collisions(out_list, xyz):
     return False
 
 
+def get_cross_vector(file_name): 
+
+    # find the four nitrogens closest to the iron
+    fe_info = get_fe_positions(file_name)
+    fe_xyz = fe_info["xyz"]
+    fe_ID = fe_info["id"]
+    nitrogen_xyz = get_N_positions(file_name, fe_ID, fe_xyz)
+
+    distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
+    closest_nitrogens = np.argsort(distances)[:4]
+    closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
+    mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
+    # use the mean nitrogen to find the two most out of plane
+
+    mean_xyz = mean_nitrogen_xyz
+    direction_1 = closest_nitrogens[0] - mean_nitrogen_xyz
+    direction_2 = closest_nitrogens[1] - mean_nitrogen_xyz
+    direction_3 = closest_nitrogens[2] - mean_nitrogen_xyz
+    # compute cross and take the two most orthogonal directions
+    dot_12 = np.dot(direction_1, direction_2)
+    dot_13 = np.dot(direction_1, direction_3)
+    dot_23 = np.dot(direction_2, direction_3)
+
+    if(dot_23 > dot_13 and dot_23 > dot_12):
+        direction_1 = direction_3
+    if(dot_13 > dot_12 and dot_13 > dot_23):
+        direction_2 = direction_3
+
+
+    direction_1 /= np.linalg.norm(direction_1)
+    direction_2 /= np.linalg.norm(direction_2)
+    cross = np.cross(direction_1, direction_2)
+    return cross 
+
+
 def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, freeze = False): 
     """
     Extract the heme from the pdb files and save them in a new folder.
@@ -157,15 +192,23 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
                         out_list.append(get_element_and_xyz(line, freeze = True))
     
     if freeze: 
+        cross = get_cross_vector(fe_xyz)
+        
+        # find the two most out of plane carbons
+        dot_list = [np.dot(i[0] - mean_xyz, cross) for i in carbon_xyz]
+        dot_list = np.array(dot_list)
+
         # got through the list and freeze the four carbons furthest away from the iron
         # get the four furthest carbons, not on ligand already
         carbon_list = []
         for i in out_list:
             # check that i doesnt have a true 
-            if i["element"] == "C" and i["freeze"] == False:
+            if i["element"] == "C" and i["freeze"] == False and dot_list:
                 carbon_list.append(i)
 
         carbon_list = [np.linalg.norm(x["xyz"] - fe_dict["xyz"]) for x in carbon_list]
+        
+        
         #get index of four largest values
         carbon_list = np.argsort(carbon_list)[-4:]
         

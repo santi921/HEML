@@ -238,6 +238,134 @@ def put_charges_in_turbo_files(folder_name, charges_dict):
                     f.write("$end\n")
 
 
+def get_N_positions(file, fe_ID, fe_xyz):
+    print(file)
+    N_ID, N_ID2, N_ID3, N_ID4 = None, None, None, None
+    N1_xyz, N2_xyz, N3_xyz, N4_xyz = None, None, None, None
+
+    with open(file, 'r') as f:
+        readfile = f.readlines()
+
+    for j in readfile:
+        line = j.split()
+
+        shift = 0 
+        if(len(line[0]) > 6):
+                shift = -1
+
+        if 'HETATM' in line[0] and ('NA' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N1_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        if 'HETATM' in line[0] and ('NB' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID2 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N2_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID3 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N3_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
+            N_ID4 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            try:
+                N4_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
+            except: 
+                N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
+        
+    # if there are missing N atoms, find all of the nitrogens and assign them to the closest N atom
+    
+    full_N_dict = {}
+    if(N_ID == None or  N_ID2 == None or N_ID3 == None or N_ID4 == None):
+        count = 0 
+        for j in readfile:
+            line = j.split()
+
+            shift = 0 
+            if(len(line[0]) > 6):
+                    shift = -1   
+            
+            heme_id = fe_ID.split(":")[0]
+
+            if 'HETATM' in line[0] and ('N' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == heme_id:
+                try:
+                    full_N_dict[count] = {
+                            "id":f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}', 
+                            "xyz":[float(j[31:38]), float(j[38:45]), float(j[46:54])],
+                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
+                        }
+                except: 
+                    full_N_dict[count] = {
+                            "id": f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' ,
+                            "xyz":[float(line[-5]), float(line[-4]), float(line[-3])],
+                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
+                            }
+                count += 1
+        
+        # sort the dictionary by distance to iron
+        full_N_dict = {k: v for k, v in sorted(full_N_dict.items(), key=lambda item: item[1]['distance_to_iron'])}
+        # relabel the keys as 0,1,2,3
+        full_N_dict = {i:full_N_dict[j] for i,j in enumerate(full_N_dict.keys())}
+        # get first 4 values of the dictionary
+        full_N_dict = dict(list(full_N_dict.items())[0:4])
+        # assign the N_IDs
+        N_ID = full_N_dict[0]["id"]
+        N_ID2 = full_N_dict[1]["id"]
+        N_ID3 = full_N_dict[2]["id"]
+        N_ID4 = full_N_dict[3]["id"]
+        # assign the N_xyz
+        N1_xyz = full_N_dict[0]["xyz"]
+        N2_xyz = full_N_dict[1]["xyz"]
+        N3_xyz = full_N_dict[2]["xyz"]
+        N4_xyz = full_N_dict[3]["xyz"]   
+
+    assert N_ID != None, "Nitrogens 1 were not found"
+    assert N_ID2 != None, "Nitrogens 2 were not found"
+    assert N_ID3 != None, "Nitrogens 3 were not found"
+    assert N_ID4 != None, "Nitrogens 4 were not found"
+
+    mean_N_xyz =np.mean(np.array([N1_xyz, N2_xyz, N3_xyz, N4_xyz]), axis=0)
+
+    nitrogen_dict = {
+        "mean_N_xyz": mean_N_xyz,
+        "N_ID1": N_ID,
+        "N_ID2": N_ID2,
+        "N_ID3": N_ID3,
+        "N_ID4": N_ID4,
+        "N1_xyz": N1_xyz,
+        "N2_xyz": N2_xyz,
+        "N3_xyz": N3_xyz,
+        "N4_xyz": N4_xyz
+    }
+
+    return nitrogen_dict 
+
+
+def get_fe_positions(file):
+    fe_ID, fe_xyz = None, None
+    with open(file, 'r') as f:
+        readfile = f.readlines()
+
+    for j in readfile:
+        line = j.split()
+        if 'HETATM' in line[0] and ('FE' in line[2] or "FE" in line[1]):
+            shift = 0 
+            if("FE" in line[1]):
+                shift = -1
+            fe_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}'
+            fe_xyz = [line[6+shift], line[7+shift], line[8+shift]]
+            fe_xyz = [float(x) for x in fe_xyz]
+            fe_xyz = np.array(fe_xyz)
+            break
+
+    return {"id": fe_ID, "xyz": fe_xyz}
+
+
 def get_frozen_atoms(file_name):
     """
     get the two carbons most out of the plane to freeze
@@ -257,8 +385,8 @@ def get_frozen_atoms(file_name):
                 nitrogen_xyz.append(
                     [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
                     )
-            if line.split()[0] == "Fe":
-                fe_xyz = [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+            #if line.split()[0] == "Fe":
+            #    fe_xyz = [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
             
             if line.split()[0] == "C":
                 carbon_xyz.append(
@@ -266,18 +394,22 @@ def get_frozen_atoms(file_name):
                     )
             
     # find the four nitrogens closest to the iron
-    nitrogen_xyz = np.array(nitrogen_xyz)
-    fe_xyz = np.array(fe_xyz)
-    distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
-    closest_nitrogens = np.argsort(distances)[:4]
-    closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
-    mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
+    fe_info = get_fe_positions(file_name)
+    fe_xyz = fe_info["xyz"]
+    fe_ID = fe_info["id"]
+    nitrogen_info = get_N_positions(file_name, fe_ID, fe_xyz)
+
+    #distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
+    #closest_nitrogens = np.argsort(distances)[:4]
+    #closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
+    #mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
+    
     # use the mean nitrogen to find the two most out of plane
     
-    mean_xyz = mean_nitrogen_xyz
-    direction_1 = closest_nitrogens[0] - mean_nitrogen_xyz
-    direction_2 = closest_nitrogens[1] - mean_nitrogen_xyz
-    direction_3 = closest_nitrogens[2] - mean_nitrogen_xyz
+    mean_xyz = nitrogen_info["mean_N_xyz"]
+    direction_1 = nitrogen_info["N1_xyz"] - nitrogen_info["mean_N_xyz"]
+    direction_2 = nitrogen_info["N2_xyz"] - nitrogen_info["mean_N_xyz"]
+    direction_3 = nitrogen_info["N3_xyz"] - nitrogen_info["mean_N_xyz"]
     # compute cross and take the two most orthogonal directions
     dot_12 = np.dot(direction_1, direction_2)
     dot_13 = np.dot(direction_1, direction_3)

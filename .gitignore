@@ -18,6 +18,7 @@ wandb*
 *coord
 *control
 *input
+*traj
 *json
 *dat
 x2t
