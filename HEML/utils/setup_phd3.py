@@ -150,6 +150,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
     direction_1, direction_2, cross = [], [] , []
     file_folder = os.path.join(root, file)
     fe_dict = get_fe_positions(file_folder)
+    n_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
     out_list = [{"element":"Fe", "xyz": fe_dict["xyz"], "line": "", "freeze": False}]
     assert fe_dict["id"] != None
     ligand_dict = get_ligand_info(file_folder, fe_dict["xyz"])
@@ -194,14 +195,14 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
     if freeze: 
         cross = get_cross_vector(file_folder)
         
-        carbon_xyz = []
+        carbon_list, carbon_xyz = [], []
         for i in out_list:
             if i["element"] == "C": carbon_xyz.append(i["xyz"])
 
-        dot_list = [np.dot(i[0] - mean_xyz, cross) for i in carbon_xyz]
+        dot_list = [np.dot(i[0] - n_dict["mean_N_xyz"], cross) for i in carbon_xyz]
         dot_list = np.array(dot_list)        
         
-        carbon_list = []
+
         for i in out_list:
             if i["element"] == "C" and i["freeze"] == False and dot_list[len(carbon_list)] < 3.5:
                 carbon_list.append(i)
