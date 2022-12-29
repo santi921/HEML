@@ -133,6 +133,7 @@ def get_cross_vector(file_name):
     direction_1 /= np.linalg.norm(direction_1)
     direction_2 /= np.linalg.norm(direction_2)
     cross = np.cross(direction_1, direction_2)
+    cross = cross / np.linalg.norm(cross)
     return cross 
 
 
@@ -208,13 +209,13 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
         
 
         for i in out_list:
-            if i["element"] == "C" and i["freeze"] == False and dot_list[len(carbon_list)] < 2.5:
+            if i["element"] == "C" and i["freeze"] == False and dot_list[len(carbon_list)] < 3.5:
                 carbon_list.append(i)
 
-        carbon_list = [np.linalg.norm(x["xyz"] - fe_dict["xyz"]) for x in carbon_list]
+        carbon_list = [np.linalg.norm(x["xyz"] - out_list[0]["xyz"]) for x in carbon_list]
         #get index of four largest values
         carbon_list = np.argsort(carbon_list)[-4:]
-        carbon_list = [18, 25, 11, 33]
+        #carbon_list = [18, 25, 11, 33]
         for i in carbon_list:
             out_list[i]["freeze"] = True
 
