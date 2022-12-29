@@ -3,6 +3,8 @@ from chimera import runCommand as rc
 from os import system as run
 import numpy as np 
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 def addh(pdb_file): 
     """
@@ -257,6 +259,7 @@ def get_frozen_atoms(file_name):
                     )
             if line.split()[0] == "Fe":
                 fe_xyz = [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+            
             if line.split()[0] == "C":
                 carbon_xyz.append(
                     [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
