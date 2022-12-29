@@ -2,6 +2,7 @@ import os, random
 from HEML.utils.data import *
 from glob import glob
 
+
 atom_element_to_number = {
     "H": 1,
     "C": 6,
@@ -116,7 +117,6 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
     ligand_none = check_if_dict_has_None(ligand_dict)
     
     if(not ligand_none):
-        fail_cond = False
         if ligand_dict["best_crit_dist"] > 4.0:
             print(ligand_dict["best_crit_dist"])
             print(f'ERROR: No cysteine/tyrosine/histine ligand found for {file_folder}.\n')

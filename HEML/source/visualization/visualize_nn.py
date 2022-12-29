@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from HEML.utils.attrib import *
 
 
-
 def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 
     arr_mean, arr_std, arr_min, arr_max  = np.mean(mat), np.std(mat), np.min(mat), np.max(mat)
@@ -47,8 +46,6 @@ def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 
 
 if __name__ == "__main__":
-
-
     dense = True
     gradcam = False
     pca_tf = True

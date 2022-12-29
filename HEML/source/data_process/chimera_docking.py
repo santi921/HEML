@@ -3,6 +3,7 @@ from chimera import runCommand as rc
 from os import system as run
 from glob import glob
 
+
 def get_options(options_file = "./options.json"):
     """
     Get options from options.json file and create folders if they don't exist.
@@ -19,7 +20,6 @@ def get_options(options_file = "./options.json"):
                 os.makedirs(options[key])
     
     return options
-#from Dockprep import prep
 
 
 def main():
@@ -60,7 +60,6 @@ def main():
                 run("chimera --nogui " +  pdb_folder[:-1] + "pro_" + i.split("/")[-1] + " incompleteSideChains.py")
                 run("mv ./temp.pdb " + output_folder + i.split("/")[-1])
                 os.remove(pdb_folder + "pro_" + i.split("/")[-1])
-
 
 
 main()

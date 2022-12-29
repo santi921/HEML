@@ -43,6 +43,7 @@ def move_proteins_to_folders(top_files_folder = "/ocean/projects/che160019p/sant
             print("copied {} to {}".format(i, top_files_folder + protein_id))
 
         os.system("cp {} {}".format(i, top_files_folder + protein_id))
+   
         
 def count_files_in_each_subdirectory(folder):
     subfolders = glob(folder + "/*/")

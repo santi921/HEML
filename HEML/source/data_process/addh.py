@@ -3,6 +3,7 @@ from chimera import runCommand as rc
 from os import system as run
 import numpy as np 
 
+
 def addh(pdb_file): 
     """
     Add hydrogens to the pdb files and overwrite the olds files.
@@ -301,21 +302,20 @@ def get_frozen_atoms(file_name):
     # get four carbons furthest from iron
     furthest_carbons = np.argsort(distances)[::-1][:4]
 
-
+    carbon_ind = 0 
     # add the two most out of plane carbons to the frozen atoms list
     for i in range(len(lines)):
         if lines[i][0:2].strip().isalpha():
             if lines[i].split()[0] == "C":
-                if i in most_out_of_plane or i in furthest_carbons:
+                if carbon_ind in most_out_of_plane or carbon_ind in furthest_carbons:
                     frozen_atoms.append(True)
                 else:
                     frozen_atoms.append(False)
+                carbon_ind +=1
             else:
                 frozen_atoms.append(False)
-
     return frozen_atoms
     
-
 
 def main():
 
@@ -323,7 +323,7 @@ def main():
     root = options["compressed_proteins_folder"]
     x2t_loc = options["x2t_loc"]
 
-    for protein_name in os.listdir(root):
+    for ind, protein_name in enumerate(os.listdir(root)):
         if(os.path.isdir(os.path.join(root,protein_name))):
             print(protein_name)
             folder_name = root + protein_name
@@ -378,5 +378,6 @@ def main():
             put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/oh/"), charges_dict)
             put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/o/"), charges_dict)
             put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
+            print("done with {} of {}".format(ind, len(os.listdir(root))))
 
 main()

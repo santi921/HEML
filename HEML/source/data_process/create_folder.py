@@ -1,5 +1,6 @@
 import os 
 
+
 def create_folders():
     """Create a folder for each protein in the current directory and move the
         protein into the folder.    
@@ -19,5 +20,6 @@ def create_folders():
                 os.mkdir(frame + "_" + protein)
             # Move the protein into the folder
             os.rename(file, frame + "_" + protein + "/" + file)
+
 
 create_folders()

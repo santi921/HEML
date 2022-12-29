@@ -72,4 +72,5 @@ def main():
                 outputfile.write(f'{col} ')
             outputfile.write("\n")
     
+    
 main()

@@ -125,4 +125,5 @@ def main():
     fig.write_html("../../reporting/pca_components2.html")
     pio.write_image(fig, 'filename.pdf', scale=2, width=800, height=800)
 
+
 main()

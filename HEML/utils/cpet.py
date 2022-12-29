@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
+
 matplotlib.rcParams.update({  # Use mathtext, not LaTeX
     'text.usetex': False,
     # Use the Computer modern font

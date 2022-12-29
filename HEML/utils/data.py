@@ -10,6 +10,7 @@ from sklearn.cluster import AffinityPropagation
 from HEML.utils.xyz2mol import xyz2AC_vdW
 from copy import deepcopy
 
+
 atom_int_dict = {
     'H': 1,
     'C': 6,
@@ -25,6 +26,7 @@ atom_int_dict = {
     'I': 53
 }
 
+
 int_atom_dict = {
     1: 'H',
     6: 'C',
@@ -39,6 +41,7 @@ int_atom_dict = {
     53: 'I'
 }
 
+
 atomic_size = {
     'H': 0.5,
     'C': 1.7,
@@ -52,6 +55,7 @@ atomic_size = {
     'Fe': 1.80,
     'I': 1.98
 }
+
 
 atom_colors = {
     'H': 'white',
@@ -386,7 +390,7 @@ def split_and_filter(mat, cutoff = 95, min_max = True, std_mean = False):
 
     return u, v, w
 
-# ./cpet/efield_cox_5o4k.dat
+
 def mat_pull(file):
 
     with open(file) as f: 

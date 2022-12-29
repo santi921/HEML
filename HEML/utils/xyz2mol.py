@@ -137,6 +137,7 @@ def valences_not_too_large(BO, valences):
 
     return True
 
+
 def charge_is_OK(BO, AC, charge, DU, atomic_valence_electrons, atoms, valences,
                  allow_charged_fragments=True):
     # total charge
@@ -164,6 +165,7 @@ def charge_is_OK(BO, AC, charge, DU, atomic_valence_electrons, atoms, valences,
                 q_list.append(q)
 
     return (charge == Q)
+
 
 def BO_is_OK(BO, AC, charge, DU, atomic_valence_electrons, atoms, valences,
     allow_charged_fragments=True):

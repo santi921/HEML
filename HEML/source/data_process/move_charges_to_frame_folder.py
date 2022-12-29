@@ -1,4 +1,6 @@
 import os 
+
+
 def move_charges_into_folder(charges_root, compressed_frame_folder):
     """Move the charges into the folder of the frame.
     Takes: 
@@ -20,6 +22,7 @@ def move_charges_into_folder(charges_root, compressed_frame_folder):
             # move the charges file into the folder
             os.system("cp " + os.path.join(charges_root, frame + "_" + protein + suffix) + " " + os.path.join(compressed_frame_folder, i + "/" + i +"_charges.pqr"))
         else: print(i + " not found")
+
 
 move_charges_into_folder(
     "../charges_2/processed_charges/", 

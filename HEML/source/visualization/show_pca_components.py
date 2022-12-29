@@ -74,5 +74,4 @@ def main():
     pio.write_image(fig, 'filename.pdf', scale=2, width=800, height=800)
 
 
-
 main()

@@ -176,6 +176,8 @@ def get_gradients(img_input, model, top_pred_idx):
 
     grads = tape.gradient(top_class, images)
     return grads
+
+
 def get_integrated_gradients(img_input, top_pred_idx, model, baseline=None, num_steps=50):
     import tensorflow as tf
 
@@ -227,6 +229,8 @@ def get_integrated_gradients(img_input, top_pred_idx, model, baseline=None, num_
     # 5. Calculate integrated gradients and return
     integrated_grads = (img_input - baseline) * avg_grads
     return integrated_grads
+
+
 def random_baseline_integrated_gradients(
     img_input, model, top_pred_idx, num_steps=50, num_runs=2
 ):
@@ -265,8 +269,6 @@ def random_baseline_integrated_gradients(
     return tf.reduce_mean(integrated_grads, axis=0)
 
 
-
-# grad-cam
 def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None):
     from tensorflow import keras
     import tensorflow as tf

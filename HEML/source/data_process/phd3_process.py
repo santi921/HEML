@@ -4,7 +4,6 @@ from HEML.utils.data import get_options
 import numpy as np 
 
 
-
 def main():
     options = get_options("./options.json")
     root = options["compressed_proteins_folder"]
@@ -40,4 +39,6 @@ def main():
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name_2), folder_name, protein_name+ "_oh"))
             os.system("obabel -i xyz {} -o pdb -O {}/{}_heme.pdb". format(os.path.join(folder_name, xyz_file_name_3), folder_name, protein_name+ "_o"))
             print("Processed {} out of {}".format(int(ind), int(num_files)))
+
+
 main()
