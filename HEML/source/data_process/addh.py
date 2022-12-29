@@ -243,7 +243,7 @@ def get_frozen_atoms(file_name):
     Returns:
         frozen_atoms: a binary list of frozen atoms
     """
-    frozen_atoms, nitrogen_xy, carbon_xyz = [], [], []
+    frozen_atoms, nitrogen_xyz, carbon_xyz = [], [], []
 
     with open(file_name, 'r') as f:
         lines = f.readlines()
@@ -350,8 +350,8 @@ def main():
             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
             # get element types from xyz file
-            frozen_atoms_oh = get_frozen_atoms("{} {}/{}_o_heme_h.xyz".format(x2t_loc, folder_name, protein_name))
-            frozen_atoms_o = get_frozen_atoms("{} {}/{}_oh_heme_h.xyz".format(x2t_loc, folder_name, protein_name))
+            frozen_atoms_oh = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
+            frozen_atoms_o = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
             
             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
             
