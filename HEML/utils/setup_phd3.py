@@ -107,18 +107,18 @@ def get_cross_vector(file_name):
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
     fe_ID = fe_info["id"]
-    nitrogen_xyz = get_N_positions(file_name, fe_ID, fe_xyz)
+    nitrogen_info = get_N_positions(file_name, fe_ID, fe_xyz)
 
-    distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
-    closest_nitrogens = np.argsort(distances)[:4]
-    closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
-    mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
+    #distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
+    #closest_nitrogens = np.argsort(distances)[:4]
+    #closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
+    #mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
     # use the mean nitrogen to find the two most out of plane
 
-    mean_xyz = mean_nitrogen_xyz
-    direction_1 = closest_nitrogens[0] - mean_nitrogen_xyz
-    direction_2 = closest_nitrogens[1] - mean_nitrogen_xyz
-    direction_3 = closest_nitrogens[2] - mean_nitrogen_xyz
+    mean_xyz = nitrogen_info["mean_N_xyz"]
+    direction_1 = nitrogen_info["N1_xyz"] - nitrogen_info["mean_N_xyz"]
+    direction_2 = nitrogen_info["N2_xyz"] - nitrogen_info["mean_N_xyz"]
+    direction_3 = nitrogen_info["N3_xyz"] - nitrogen_info["mean_N_xyz"]
     # compute cross and take the two most orthogonal directions
     dot_12 = np.dot(direction_1, direction_2)
     dot_13 = np.dot(direction_1, direction_3)
