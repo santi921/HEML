@@ -192,23 +192,21 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
                         out_list.append(get_element_and_xyz(line, freeze = True))
     
     if freeze: 
-        cross = get_cross_vector(fe_xyz)
+        cross = get_cross_vector(file_folder)
         
-        # find the two most out of plane carbons
-        dot_list = [np.dot(i[0] - mean_xyz, cross) for i in carbon_xyz]
-        dot_list = np.array(dot_list)
+        carbon_xyz = []
+        for i in out_list:
+            if i["element"] == "C": carbon_xyz.append(i["xyz"])
 
-        # got through the list and freeze the four carbons furthest away from the iron
-        # get the four furthest carbons, not on ligand already
+        dot_list = [np.dot(i[0] - mean_xyz, cross) for i in carbon_xyz]
+        dot_list = np.array(dot_list)        
+        
         carbon_list = []
         for i in out_list:
-            # check that i doesnt have a true 
-            if i["element"] == "C" and i["freeze"] == False and dot_list:
+            if i["element"] == "C" and i["freeze"] == False and dot_list[len(carbon_list)] < 3.5:
                 carbon_list.append(i)
 
         carbon_list = [np.linalg.norm(x["xyz"] - fe_dict["xyz"]) for x in carbon_list]
-        
-        
         #get index of four largest values
         carbon_list = np.argsort(carbon_list)[-4:]
         
