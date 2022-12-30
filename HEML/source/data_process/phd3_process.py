@@ -5,7 +5,7 @@ import numpy as np
 
 
 def main():
-    options = get_options("./options.json")
+    options = get_options("./options_local.json")
     root = options["compressed_proteins_folder"]
     num_files = len(os.listdir(root))
     # get subfolders in current directory

@@ -205,20 +205,27 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
             if i["element"] == "C": carbon_xyz.append(i["xyz"])
 
         dot_list = [np.dot(i[0] - n_dict["mean_N_xyz"], cross) for i in carbon_xyz]
-        dot_list = np.array(dot_list)        
+        dot_list = np.array(dot_list) / np.linalg.norm(cross)
         
-
-        for i in out_list:
-            if i["element"] == "C" and i["freeze"] == False and dot_list[len(carbon_list)] < 3.5:
-                carbon_list.append(i)
+        carbon_ind = 0
+        carbon_inds = []
+        for ind, i in enumerate(out_list):
+            if i["element"] == "C":
+                if i["freeze"] == False and dot_list[carbon_ind] < 0.6:
+                    carbon_list.append(i)
+                    carbon_inds.append(ind)
+                carbon_ind += 1
 
         carbon_list = [np.linalg.norm(x["xyz"] - out_list[0]["xyz"]) for x in carbon_list]
+        #print(dot_list)
         #get index of four largest values
         carbon_list = np.argsort(carbon_list)[-4:]
+        carbon_list = [carbon_inds[i] for i in carbon_list]
+        #print(carbon_list)
         #carbon_list = [18, 25, 11, 33]
-        for i in carbon_list:
-            out_list[i]["freeze"] = True
-
+        for ind in carbon_list:
+            out_list[ind]["freeze"] = True
+            print(out_list[ind])
 
     if add_oh or add_o:
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])
@@ -308,9 +315,13 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False,
     if traj_name == False: 
         opt = LBFGS(atoms, trajectory='./temp.traj')
     else: 
-        opt = LBFGS(atoms, trajectory=traj_name)
-    opt.run(fmax=0.08)
-    traj_file = read("temp.traj")
+        opt = LBFGS(atoms, trajectory=traj_name + ".traj")
+    opt.run(fmax=0.1)
+    if traj_name == False:
+        traj_file = read("temp.traj")
+    else: 
+        traj_file = read(traj_name + ".traj")
+        
 
     xyz_file_name = os.path.join(folder, name)
 
@@ -321,7 +332,7 @@ def xtb_sanitize_and_save(folder, name, dict_xyz, add_oh = False, add_o = False,
     else:
         xyz_file_name += "_heme.xyz"
 
-    write(filename = xyz_file_name, images=traj_file, format="xyz")
+    write(filename = xyz_file_name, images=traj_file , format="xyz")
     return xyz_file_name
 
 
