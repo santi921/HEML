@@ -355,7 +355,7 @@ def get_fe_positions(file):
 
     for j in readfile:
         line = j.split()
-        if 'HETATM' in line[0] and ('FE' in line[2] or "FE" in line[1]):
+        if 'HETATM' in line[0] and ('FE' in line[2] or "FE" in line[1] or 'Fe' in line[2] or "Fe" in line[1]):
             shift = 0 
             if("FE" in line[1]):
                 shift = -1
@@ -402,6 +402,7 @@ def get_cross_vector(file_name):
     cross = cross / np.linalg.norm(cross)
     return cross 
 
+
 def get_carbon_xyz_from_file(file_name):
     """
     get the xyz coordinates of the carbons in the file
@@ -422,6 +423,7 @@ def get_carbon_xyz_from_file(file_name):
                         )
                     ind.append(line_ind-2)
     return carbon_xyz, ind
+
 
 def get_frozen_atoms(file_name):
     """
