@@ -254,25 +254,27 @@ def get_N_positions(file, fe_ID, fe_xyz):
                 shift = -1
 
         if 'HETATM' in line[0] and ('NA' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            N_ID = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
+
             try:
                 N1_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
             except: 
                 N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
         if 'HETATM' in line[0] and ('NB' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID2 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            N_ID2 = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
             try:
                 N2_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
             except: 
                 N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
         if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID3 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            N_ID3 = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
             try:
                 N3_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
             except: 
                 N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
         if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID4 = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' 
+            N_ID4 = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
+
             try:
                 N4_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
             except: 
@@ -295,13 +297,13 @@ def get_N_positions(file, fe_ID, fe_xyz):
             if 'HETATM' in line[0] and ('N' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == heme_id:
                 try:
                     full_N_dict[count] = {
-                            "id":f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}', 
+                            "id": str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift])),
                             "xyz":[float(j[31:38]), float(j[38:45]), float(j[46:54])],
                             "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
                         }
                 except: 
                     full_N_dict[count] = {
-                            "id": f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}' ,
+                            "id": str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift])),
                             "xyz":[float(line[-5]), float(line[-4]), float(line[-3])],
                             "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
                             }
@@ -456,7 +458,7 @@ def get_frozen_atoms(file_name):
     # combine the two lists
     frozen_atom_ind = np.concatenate((furthest_ind, most_out_of_plane_ind))
     return_list = [ind_carbons[i] for i in frozen_atom_ind]
-    
+
     return return_list
     
 
