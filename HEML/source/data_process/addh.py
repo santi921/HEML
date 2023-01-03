@@ -359,7 +359,7 @@ def get_fe_positions(file):
             shift = 0 
             if("FE" in line[1]):
                 shift = -1
-            fe_ID = f'{line[4+shift]}:{line[5+shift]}:{line[2+shift]}'
+            fe_ID = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
             fe_xyz = [line[6+shift], line[7+shift], line[8+shift]]
             fe_xyz = [float(x) for x in fe_xyz]
             fe_xyz = np.array(fe_xyz)
