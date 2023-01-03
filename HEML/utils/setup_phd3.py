@@ -225,7 +225,7 @@ def extract_heme_and_ligand_from_pdb(root, file, add_oh = False, add_o = False, 
         #carbon_list = [18, 25, 11, 33]
         for ind in carbon_list:
             out_list[ind]["freeze"] = True
-            print(out_list[ind])
+            #print(out_list[ind])
 
     if add_oh or add_o:
         nitrogen_dict = get_N_positions(file_folder, fe_dict["id"], fe_dict["xyz"])

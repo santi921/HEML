@@ -365,34 +365,8 @@ def get_fe_positions(file):
 
     return {"id": fe_ID, "xyz": fe_xyz}
 
+def get_cross_vector(file_name): 
 
-def get_frozen_atoms(file_name):
-    """
-    get the two carbons most out of the plane to freeze
-    Takes:
-        file_name: the name of the xyz file
-    Returns:
-        frozen_atoms: a binary list of frozen atoms
-    """
-    frozen_atoms, nitrogen_xyz, carbon_xyz = [], [], []
-
-    with open(file_name, 'r') as f:
-        lines = f.readlines()
-    # go through all the lines and find nitrogens
-    for line in lines:
-        if line[0:2].strip().isalpha():
-            if line.split()[0] == "N":
-                nitrogen_xyz.append(
-                    [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
-                    )
-            #if line.split()[0] == "Fe":
-            #    fe_xyz = [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
-            
-            if line.split()[0] == "C":
-                carbon_xyz.append(
-                    [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
-                    )
-            
     # find the four nitrogens closest to the iron
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
@@ -403,9 +377,8 @@ def get_frozen_atoms(file_name):
     #closest_nitrogens = np.argsort(distances)[:4]
     #closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
     #mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
-    
     # use the mean nitrogen to find the two most out of plane
-    
+
     mean_xyz = nitrogen_info["mean_N_xyz"]
     direction_1 = nitrogen_info["N1_xyz"] - nitrogen_info["mean_N_xyz"]
     direction_2 = nitrogen_info["N2_xyz"] - nitrogen_info["mean_N_xyz"]
@@ -420,36 +393,71 @@ def get_frozen_atoms(file_name):
     if(dot_13 > dot_12 and dot_13 > dot_23):
         direction_2 = direction_3
 
-        
+
     direction_1 /= np.linalg.norm(direction_1)
     direction_2 /= np.linalg.norm(direction_2)
     cross = np.cross(direction_1, direction_2)
+    cross = cross / np.linalg.norm(cross)
+    return cross 
 
-    # find the two most out of plane carbons
-    carbon_xyz = np.array(carbon_xyz)
+def get_carbon_xyz_from_file(file_name):
+    """
+    get the xyz coordinates of the carbons in the file
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        carbon_xyz: a list of the xyz coordinates of the carbons
+    """
+    carbon_xyz, ind = [], []
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+        # go through all the lines and find nitrogens
+        for line_ind, line in enumerate(lines):
+            if line[0:2].strip().isalpha():
+                if line.split()[0] == "C":
+                    carbon_xyz.append(
+                        [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+                        )
+                    ind.append(line_ind-2)
+    return carbon_xyz, ind
+
+def get_frozen_atoms(file_name):
+    """
+    get the two carbons most out of the plane to freeze
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        frozen_atoms: a binary list of frozen atoms
+    """
+
     
-    # find the two most out of plane carbons
-    dot_list = [np.dot(i[0] - mean_xyz, cross) for i in carbon_xyz]
-    dot_list = np.array(dot_list)
-    most_out_of_plane = np.argsort(dot_list)[::-1][:2]
-    # get distances to iron
-    distances = np.linalg.norm(carbon_xyz - fe_xyz, axis = 1)
-    # get four carbons furthest from iron
-    furthest_carbons = np.argsort(distances)[::-1][:4]
+    carbon_xyz, ind_carbons = get_carbon_xyz_from_file(file_name)
+    print("getting cross vector") 
+    cross = get_cross_vector(file_name)
+    fe_dict = get_fe_positions(file_name)
+    n_dict = get_N_positions(file_name, fe_dict["id"], fe_dict["xyz"])
+    mean_xyz = n_dict["mean_N_xyz"]
 
-    carbon_ind = 0 
-    # add the two most out of plane carbons to the frozen atoms list
-    for i in range(len(lines)):
-        if lines[i][0:2].strip().isalpha():
-            if lines[i].split()[0] == "C":
-                if carbon_ind in most_out_of_plane or carbon_ind in furthest_carbons:
-                    frozen_atoms.append(True)
-                else:
-                    frozen_atoms.append(False)
-                carbon_ind +=1
-            else:
-                frozen_atoms.append(False)
-    return frozen_atoms
+    dot_list = [np.dot(i[0] - n_dict["mean_N_xyz"], cross) for i in carbon_xyz]
+    dot_list = np.array(dot_list) / np.linalg.norm(cross)
+
+    # filter for coplanar carbons    
+    carbon_planar_ind = [] # the indices of the coplanar carbons
+    for ind, i in enumerate(carbon_xyz):
+        if dot_list[ind] < 0.5:
+            carbon_planar_ind.append(ind)
+
+    # get the four furthest, in plane carbons
+    carbon_planar_xyz = np.array(carbon_xyz)[carbon_planar_ind]
+    distances = np.linalg.norm(carbon_planar_xyz - mean_xyz, axis = 1)
+    
+    furthest_ind = np.argsort(distances)[::-1][:4]
+    most_out_of_plane_ind = np.argsort(dot_list)[::-1][:2]
+    # combine the two lists
+    frozen_atom_ind = np.concatenate((furthest_ind, most_out_of_plane_ind))
+    return_list = [ind_carbons[i] for i in frozen_atom_ind]
+    
+    return return_list
     
 
 def main():
@@ -484,10 +492,9 @@ def main():
             os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
-            # get element types from xyz file
+            # get some info from xyz
             frozen_atoms_oh = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
             frozen_atoms_o = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
-            
             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
             
             # write json file for turbomole 
