@@ -341,11 +341,11 @@ def get_carbon_xyz_from_file(file_name):
         # go through all the lines and find nitrogens
         for line_ind, line in enumerate(lines):
             if line[0:2].strip().isalpha():
-                if line.split()[0] == "C":
+                if line.split()[0] == "C" or line.split()[0] == "c":
                     carbon_xyz.append(
                         [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
                         )
-                    ind.append(line_ind-2)
+                    ind.append(line_ind-1)
     return carbon_xyz, ind
 
 
@@ -388,6 +388,7 @@ def get_frozen_atoms(file_name):
     return return_list
     
 
+
 def main():
 
     options = get_options("./options.json")
@@ -398,7 +399,6 @@ def main():
         if(os.path.isdir(os.path.join(root,protein_name))):
             print(protein_name)
             folder_name = root + protein_name
-
             # add h to pdb 
             addh("{}/{}_heme.pdb".format(folder_name, protein_name))
             addh("{}/{}_oh_heme.pdb".format(folder_name, protein_name))
@@ -421,8 +421,8 @@ def main():
             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
             # get some info from xyz
-            frozen_atoms_oh = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
-            frozen_atoms_o = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+            frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+            frozen_atoms_o = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
             frozen_atoms_heme = get_frozen_atoms("{}/{}_heme_h.xyz".format(folder_name, protein_name))
 
             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
