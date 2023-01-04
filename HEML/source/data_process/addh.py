@@ -302,7 +302,7 @@ def get_cross_vector(file_name):
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
     fe_ID = fe_info["id"]
-    nitrogen_info = get_N_positions(file_name,, fe_xyz)
+    nitrogen_info = get_N_positions(file_name, fe_xyz)
 
 
     
@@ -364,8 +364,8 @@ def get_frozen_atoms(file_name):
     cross = get_cross_vector(file_name)
     fe_dict = get_fe_positions(file_name)
     n_dict = get_N_positions(file_name, fe_dict["xyz"])
+    
     mean_xyz = n_dict["mean_N_xyz"]
-
     dot_list = [np.dot(i[0] - n_dict["mean_N_xyz"], cross) for i in carbon_xyz]
     dot_list = np.array(dot_list) / np.linalg.norm(cross)
 
@@ -423,15 +423,17 @@ def main():
             # get some info from xyz
             frozen_atoms_oh = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
             frozen_atoms_o = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+            frozen_atoms_heme = get_frozen_atoms("{}/{}_heme_h.xyz".format(folder_name, protein_name))
+
             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
             
             # write json file for turbomole 
             write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
             write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
-            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-2, atoms_present=elements)
+            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
             write_json("{}/embedding/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
             write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
-            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-2, atoms_present=elements)
+            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
         
             setup_turbomole("{}/no_charges/o/".format(folder_name))
             setup_turbomole("{}/no_charges/oh/".format(folder_name))
