@@ -131,6 +131,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
                 basic_dict["basis"]["o"] = "def2-TZVP"
             else: 
                 basic_dict["basis"][atom.lower()] = "def2-SVP"
+
     if charge != 0:
         basic_dict["charge"] = charge
         if charge == -2: 
@@ -238,111 +239,41 @@ def put_charges_in_turbo_files(folder_name, charges_dict):
                     f.write("$end\n")
 
 
-def get_N_positions(file, fe_ID, fe_xyz):
-    print(file)
-    N_ID, N_ID2, N_ID3, N_ID4 = None, None, None, None
-    N1_xyz, N2_xyz, N3_xyz, N4_xyz = None, None, None, None
+def get_N_positions(file, fe_xyz):
 
+    N_xyz_list = []
     with open(file, 'r') as f:
         readfile = f.readlines()
 
     for j in readfile:
         line = j.split()
+        if ('N' in line or "n" in line):
+            N_xyz_list.append([float(line[1]), float(line[2]), float(line[3])])
 
-        shift = 0 
-        if(len(line[0]) > 6):
-                shift = -1
-
-        if 'HETATM' in line[0] and ('NA' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
-
-            try:
-                N1_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
-            except: 
-                N1_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
-        if 'HETATM' in line[0] and ('NB' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID2 = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
-            try:
-                N2_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
-            except: 
-                N2_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
-        if 'HETATM' in line[0] and ('NC' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID3 = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
-            try:
-                N3_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
-            except: 
-                N3_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
-        if 'HETATM' in line[0] and ('ND' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == fe_ID.split(":")[0]:
-            N_ID4 = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
-
-            try:
-                N4_xyz = [float(j[31:38]), float(j[38:45]), float(j[46:54])]
-            except: 
-                N4_xyz = [float(line[-5]), float(line[-4]), float(line[-3])]
         
-    # if there are missing N atoms, find all of the nitrogens and assign them to the closest N atom
+    # get distances of N atoms to the Fe atom
+    N_dist = [np.linalg.norm(np.array(i) - np.array(fe_xyz)) for i in N_xyz_list]
+    # get the indices of the N atoms closest to the Fe atom
+    N_indices = np.argsort(N_dist)[:4]
+    # get the xyz coordinates of the N atoms closest to the Fe atom
+    N_xyz = [N_xyz_list[i] for i in N_indices]
+    # get distance of N atoms to the Fe atom
+    N_dist = [N_dist[i] for i in N_indices]
+
     
-    full_N_dict = {}
-    if(N_ID == None or  N_ID2 == None or N_ID3 == None or N_ID4 == None):
-        count = 0 
-        for j in readfile:
-            line = j.split()
-
-            shift = 0 
-            if(len(line[0]) > 6):
-                    shift = -1   
-            
-            heme_id = fe_ID.split(":")[0]
-
-            if 'HETATM' in line[0] and ('N' in line[2+shift] and 'HEM' or 'HEC' in line[3+shift]) and line[4+shift] == heme_id:
-                try:
-                    full_N_dict[count] = {
-                            "id": str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift])),
-                            "xyz":[float(j[31:38]), float(j[38:45]), float(j[46:54])],
-                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
-                        }
-                except: 
-                    full_N_dict[count] = {
-                            "id": str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift])),
-                            "xyz":[float(line[-5]), float(line[-4]), float(line[-3])],
-                            "distance_to_iron": np.linalg.norm(np.array([float(j[31:38]), float(j[38:45]), float(j[46:54])]) - np.array(fe_xyz))
-                            }
-                count += 1
-        
-        # sort the dictionary by distance to iron
-        full_N_dict = {k: v for k, v in sorted(full_N_dict.items(), key=lambda item: item[1]['distance_to_iron'])}
-        # relabel the keys as 0,1,2,3
-        full_N_dict = {i:full_N_dict[j] for i,j in enumerate(full_N_dict.keys())}
-        # get first 4 values of the dictionary
-        full_N_dict = dict(list(full_N_dict.items())[0:4])
-        # assign the N_IDs
-        N_ID = full_N_dict[0]["id"]
-        N_ID2 = full_N_dict[1]["id"]
-        N_ID3 = full_N_dict[2]["id"]
-        N_ID4 = full_N_dict[3]["id"]
-        # assign the N_xyz
-        N1_xyz = full_N_dict[0]["xyz"]
-        N2_xyz = full_N_dict[1]["xyz"]
-        N3_xyz = full_N_dict[2]["xyz"]
-        N4_xyz = full_N_dict[3]["xyz"]   
-
-    assert N_ID != None, "Nitrogens 1 were not found"
-    assert N_ID2 != None, "Nitrogens 2 were not found"
-    assert N_ID3 != None, "Nitrogens 3 were not found"
-    assert N_ID4 != None, "Nitrogens 4 were not found"
-
-    mean_N_xyz =np.mean(np.array([N1_xyz, N2_xyz, N3_xyz, N4_xyz]), axis=0)
+    # assign the N_IDs
+    mean_N_xyz = np.mean(np.array(N_xyz), axis=0)
 
     nitrogen_dict = {
         "mean_N_xyz": mean_N_xyz,
-        "N_ID1": N_ID,
-        "N_ID2": N_ID2,
-        "N_ID3": N_ID3,
-        "N_ID4": N_ID4,
-        "N1_xyz": N1_xyz,
-        "N2_xyz": N2_xyz,
-        "N3_xyz": N3_xyz,
-        "N4_xyz": N4_xyz
+        "N_ID1": N_indices[0],
+        "N_ID2": N_indices[1],
+        "N_ID3": N_indices[2],
+        "N_ID4": N_indices[3],
+        "N1_xyz": N_xyz[0],
+        "N2_xyz": N_xyz[1],
+        "N3_xyz": N_xyz[2],
+        "N4_xyz": N_xyz[3]
     }
 
     return nitrogen_dict 
@@ -355,17 +286,15 @@ def get_fe_positions(file):
 
     for j in readfile:
         line = j.split()
-        if 'HETATM' in line[0] and ('FE' in line[2] or "FE" in line[1] or 'Fe' in line[2] or "Fe" in line[1]):
-            shift = 0 
-            if("FE" in line[1]):
-                shift = -1
-            fe_ID = str("{}:{}:{}".format(line[4+shift], line[5+shift], line[2+shift]))
-            fe_xyz = [line[6+shift], line[7+shift], line[8+shift]]
+        if ('FE' in line or "Fe" in line):
+            fe_ID = "0"
+            fe_xyz = [line[1], line[2], line[3]]
             fe_xyz = [float(x) for x in fe_xyz]
             fe_xyz = np.array(fe_xyz)
             break
 
     return {"id": fe_ID, "xyz": fe_xyz}
+
 
 def get_cross_vector(file_name): 
 
@@ -373,15 +302,10 @@ def get_cross_vector(file_name):
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
     fe_ID = fe_info["id"]
-    nitrogen_info = get_N_positions(file_name, fe_ID, fe_xyz)
+    nitrogen_info = get_N_positions(file_name,, fe_xyz)
 
-    #distances = np.linalg.norm(nitrogen_xyz - fe_xyz, axis = 1)
-    #closest_nitrogens = np.argsort(distances)[:4]
-    #closest_nitrogens_xyz = nitrogen_xyz[closest_nitrogens]
-    #mean_nitrogen_xyz = np.mean(closest_nitrogens_xyz, axis = 0)
-    # use the mean nitrogen to find the two most out of plane
 
-    mean_xyz = nitrogen_info["mean_N_xyz"]
+    
     direction_1 = nitrogen_info["N1_xyz"] - nitrogen_info["mean_N_xyz"]
     direction_2 = nitrogen_info["N2_xyz"] - nitrogen_info["mean_N_xyz"]
     direction_3 = nitrogen_info["N3_xyz"] - nitrogen_info["mean_N_xyz"]
@@ -439,7 +363,7 @@ def get_frozen_atoms(file_name):
     print("getting cross vector") 
     cross = get_cross_vector(file_name)
     fe_dict = get_fe_positions(file_name)
-    n_dict = get_N_positions(file_name, fe_dict["id"], fe_dict["xyz"])
+    n_dict = get_N_positions(file_name, fe_dict["xyz"])
     mean_xyz = n_dict["mean_N_xyz"]
 
     dot_list = [np.dot(i[0] - n_dict["mean_N_xyz"], cross) for i in carbon_xyz]
@@ -502,12 +426,12 @@ def main():
             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
             
             # write json file for turbomole 
-            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-3, atoms_present=elements)
-            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = [frozen_atoms_oh], charge=-3, atoms_present=elements)
-            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-2, atoms_present=elements)
-            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-3, atoms_present=elements)
-            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = [frozen_atoms_oh], charge=-3, atoms_present=elements)
-            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = [frozen_atoms_o], charge=-2, atoms_present=elements)
+            write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
+            write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
+            write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-2, atoms_present=elements)
+            write_json("{}/embedding/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
+            write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
+            write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-2, atoms_present=elements)
         
             setup_turbomole("{}/no_charges/o/".format(folder_name))
             setup_turbomole("{}/no_charges/oh/".format(folder_name))
