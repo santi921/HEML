@@ -58,6 +58,12 @@ def setup_turbomole(folder_name):
     os.system('setupturbomole.py -t')
     os.chdir("../../..")
 
+def submit_turbomole(folder_name, n = 4, t = 24):
+    os.chdir(folder_name)   
+    os.system("submitturbomole.py -n {} -t {}".format(n, t))
+    os.system("sbatch ./submit.sh")
+    os.chdir("../../..")
+
 
 def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0): 
     """
@@ -451,7 +457,17 @@ def main():
                 put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/oh/"), charges_dict)
                 put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/o/"), charges_dict)
                 put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
+                
                 print("done with {} of {}".format(ind, len(os.listdir(root))))
+
+                submit_turbomole("{}/no_charges/o/".format(folder_name), t = 24, n = 4)
+                submit_turbomole("{}/no_charges/oh/".format(folder_name), t = 24, n = 4)
+                submit_turbomole("{}/no_charges/normal/".format(folder_name), t = 24, n = 4)
+                submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
+                submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
+                submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
+
+
             except:
                 print("error with {}".format(protein_name))
                 continue

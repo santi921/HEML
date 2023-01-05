@@ -60,6 +60,7 @@ atomic_valence[32] = [4]
 atomic_valence[35] = [1]
 atomic_valence[53] = [1]
 
+
 atomic_valence_electrons = {}
 atomic_valence_electrons[1] = 1
 atomic_valence_electrons[5] = 3

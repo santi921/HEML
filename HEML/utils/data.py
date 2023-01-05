@@ -450,7 +450,7 @@ def aug_all(mat, target, xy = True, z = False, mut = False):
     return np.array(full_aug), np.array(full_aug_target)
 
 
-def augment_mat_field(mat, target, xy = True, z = False, mut = False):
+def augment_mat_field(mat, target, xy = True, z = False):
     aug_target = []
     aug_mat = []
 
