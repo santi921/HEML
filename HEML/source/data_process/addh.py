@@ -58,9 +58,19 @@ def setup_turbomole(folder_name):
     os.system('setupturbomole.py -t')
     os.chdir("../../..")
 
+
 def submit_turbomole(folder_name, n = 4, t = 24):
     os.chdir(folder_name)   
     os.system("submitturbomole.py -n {} -t {}".format(n, t))
+    # open the submit.sh file and change the number of nodes and the time
+    with open("submit.sh", "r") as f:
+        lines = f.readlines()
+        lines[5] = "#SBATCH -q regular\n"
+        lines[6] = "#SBATCH -C knl\n"
+
+    with open("submit.sh", "w") as f:
+        f.writelines(lines)
+
     os.system("sbatch ./submit.sh")
     os.chdir("../../..")
 
@@ -458,7 +468,6 @@ def main():
                 put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/o/"), charges_dict)
                 put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
                 
-                print("done with {} of {}".format(ind, len(os.listdir(root))))
 
                 submit_turbomole("{}/no_charges/o/".format(folder_name), t = 24, n = 4)
                 submit_turbomole("{}/no_charges/oh/".format(folder_name), t = 24, n = 4)
@@ -467,6 +476,7 @@ def main():
                 submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
                 submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
 
+                print("done with {} of {}".format(ind, len(os.listdir(root))))
 
             except:
                 print("error with {}".format(protein_name))
