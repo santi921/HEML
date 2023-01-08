@@ -376,7 +376,7 @@ def get_frozen_atoms(file_name):
 
     
     carbon_xyz, ind_carbons = get_carbon_xyz_from_file(file_name)
-    print("getting cross vector") 
+    
     cross = get_cross_vector(file_name)
     fe_dict = get_fe_positions(file_name)
     n_dict = get_N_positions(file_name, fe_dict["xyz"])
@@ -402,6 +402,7 @@ def get_frozen_atoms(file_name):
     return_list = [ind_carbons[i] for i in frozen_atom_ind]
 
     return return_list
+   
     
 def check_submitted(folder):
     """
@@ -412,6 +413,20 @@ def check_submitted(folder):
         True if the protein has been submitted, False otherwise
     
     """
+
+    # check if there's a .sh file and a slurm* file 
+    sh_file = False
+    slurm_file = False
+
+    for file in os.listdir():
+        if file.endswith(".sh"):
+            sh_file = True
+        if file.startswith("slurm-"):
+            slurm_file = True
+    
+    if sh_file and slurm_file:
+        return True
+    return False
 
 
 def main():
@@ -480,9 +495,9 @@ def main():
                     put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
                     
                     if submit_tf:
-                        submit_turbomole("{}/no_charges/o/".format(folder_name), t = 24, n = 4)
-                        submit_turbomole("{}/no_charges/oh/".format(folder_name), t = 24, n = 4)
-                        submit_turbomole("{}/no_charges/normal/".format(folder_name), t = 24, n = 4)
+                        #submit_turbomole("{}/no_charges/o/".format(folder_name), t = 24, n = 4)
+                        #submit_turbomole("{}/no_charges/oh/".format(folder_name), t = 24, n = 4)
+                        #submit_turbomole("{}/no_charges/normal/".format(folder_name), t = 24, n = 4)
                         submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
                         submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
                         submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
@@ -494,4 +509,6 @@ def main():
             except:
                 print("error with {}".format(protein_name))
                 continue
+
+
 main()
