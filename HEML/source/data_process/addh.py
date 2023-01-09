@@ -393,7 +393,8 @@ def get_frozen_atoms(file_name):
 
     # get the four furthest, in plane carbons
     carbon_planar_xyz = np.array(carbon_xyz)[carbon_planar_ind]
-    distances = np.linalg.norm(carbon_planar_xyz - mean_xyz, axis = 1)
+    diff = carbon_planar_xyz - mean_xyz
+    distances = np.apply_along_axis(np.linalg.norm, 1, diff)
     
     furthest_ind = np.argsort(distances)[::-1][:4]
     most_out_of_plane_ind = np.argsort(dot_list)[::-1][:2]
