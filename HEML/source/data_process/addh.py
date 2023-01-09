@@ -66,7 +66,7 @@ def submit_turbomole(folder_name, n = 4, t = 24):
     with open("submit.sh", "r") as f:
         lines = f.readlines()
         lines[5] = "#SBATCH -q RM-shared\n" # bridges2
-        
+
         #lines[5] = "#SBATCH -q regular\n" # cori
         #lines[6] = "#SBATCH -C knl\n" # cori
 
@@ -122,7 +122,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
         "weight": False,
         "gcart": None,
         "denconv": None,
-        "rij": True,
+        "rij": False,
         "marij": True,
         "dsp": True,
         "charge": 0
@@ -434,6 +434,7 @@ def check_submitted(folder):
 
 def main():
     submit_tf = False
+    only_submit = False
     options = get_options("./options.json")
     root = options["compressed_proteins_folder"]
     x2t_loc = options["x2t_loc"]
@@ -445,61 +446,62 @@ def main():
                 folder_name = root + protein_name
                 # check if the protein has been submitted to sbatch 
                 if not check_submitted(folder_name):
-                    # add h to pdb 
-                    addh("{}/{}_heme.pdb".format(folder_name, protein_name))
-                    addh("{}/{}_oh_heme.pdb".format(folder_name, protein_name))
-                    addh("{}/{}_o_heme.pdb".format(folder_name, protein_name))
+                    if not only_submit: 
+                        # add h to pdb 
+                        addh("{}/{}_heme.pdb".format(folder_name, protein_name))
+                        addh("{}/{}_oh_heme.pdb".format(folder_name, protein_name))
+                        addh("{}/{}_o_heme.pdb".format(folder_name, protein_name))
 
-                    # convert pdb back to xyz
-                    os.system("obabel -i pdb {}/{}_heme_h.pdb -o xyz -O {}/{}_heme_h.xyz".format(folder_name, protein_name, folder_name, protein_name))
-                    os.system("obabel -i pdb {}/{}_oh_heme_h.pdb -o xyz -O {}/{}_oh_heme_h.xyz".format(folder_name, protein_name, folder_name, protein_name))
-                    os.system("obabel -i pdb {}/{}_o_heme_h.pdb -o xyz -O {}/{}_o_heme_h.xyz".format(folder_name, protein_name, folder_name, protein_name))
+                        # convert pdb back to xyz
+                        os.system("obabel -i pdb {}/{}_heme_h.pdb -o xyz -O {}/{}_heme_h.xyz".format(folder_name, protein_name, folder_name, protein_name))
+                        os.system("obabel -i pdb {}/{}_oh_heme_h.pdb -o xyz -O {}/{}_oh_heme_h.xyz".format(folder_name, protein_name, folder_name, protein_name))
+                        os.system("obabel -i pdb {}/{}_o_heme_h.pdb -o xyz -O {}/{}_o_heme_h.xyz".format(folder_name, protein_name, folder_name, protein_name))
 
-                    # make three folders for o, oh, and normal heme
-                    create_folders(folder_name)
-                    
-                    # convert xyz to coord 
-                    os.system("{} {}/{}_heme_h.xyz > {}/no_charges/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                    os.system("{} {}/{}_o_heme_h.xyz > {}/no_charges/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                    os.system("{} {}/{}_oh_heme_h.xyz > {}/no_charges/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                    os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                    os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                    os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                        # make three folders for o, oh, and normal heme
+                        create_folders(folder_name)
+                        
+                        # convert xyz to coord 
+                        os.system("{} {}/{}_heme_h.xyz > {}/no_charges/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                        os.system("{} {}/{}_o_heme_h.xyz > {}/no_charges/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                        os.system("{} {}/{}_oh_heme_h.xyz > {}/no_charges/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                        os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                        os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                        os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
 
-                    # get some info from xyz
-                    frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
-                    frozen_atoms_o = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
-                    frozen_atoms_heme = get_frozen_atoms("{}/{}_heme_h.xyz".format(folder_name, protein_name))
+                        # get some info from xyz
+                        frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+                        frozen_atoms_o = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
+                        frozen_atoms_heme = get_frozen_atoms("{}/{}_heme_h.xyz".format(folder_name, protein_name))
 
-                    elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
-                    
-                    # write json file for turbomole 
-                    write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
-                    write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
-                    write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
-                    write_json("{}/embedding/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
-                    write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
-                    write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
+                        elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
+                        
+                        # write json file for turbomole 
+                        write_json("{}/no_charges/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
+                        write_json("{}/no_charges/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
+                        write_json("{}/no_charges/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
+                        write_json("{}/embedding/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
+                        write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
+                        write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
 
-                    #setup_turbomole("{}/no_charges/o/".format(folder_name))
-                    #setup_turbomole("{}/no_charges/oh/".format(folder_name))
-                    #setup_turbomole("{}/no_charges/normal/".format(folder_name))
-                    print("-" * 30)
-                    setup_turbomole("{}/embedding/o/".format(folder_name))
-                    print("-" * 30)
-                    setup_turbomole("{}/embedding/oh/".format(folder_name))
-                    print("-" * 30)
-                    setup_turbomole("{}/embedding/normal/".format(folder_name))
-                    print("-" * 30)
-                    # add charges to the embedding folders
-                    # find pqr file in folder
-                    pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
-                    charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file))
-                    print("-"*20 + "charges fetched" + "-"*20)
-                    put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/oh/"), charges_dict)
-                    put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/o/"), charges_dict)
-                    put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
-                    
+                        #setup_turbomole("{}/no_charges/o/".format(folder_name))
+                        #setup_turbomole("{}/no_charges/oh/".format(folder_name))
+                        #setup_turbomole("{}/no_charges/normal/".format(folder_name))
+                        print("-" * 30)
+                        setup_turbomole("{}/embedding/o/".format(folder_name))
+                        print("-" * 30)
+                        setup_turbomole("{}/embedding/oh/".format(folder_name))
+                        print("-" * 30)
+                        setup_turbomole("{}/embedding/normal/".format(folder_name))
+                        print("-" * 30)
+                        # add charges to the embedding folders
+                        # find pqr file in folder
+                        pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
+                        charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file))
+                        print("-"*20 + "charges fetched" + "-"*20)
+                        put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/oh/"), charges_dict)
+                        put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/o/"), charges_dict)
+                        put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/normal/"), charges_dict)
+                        
                     if submit_tf:
                         #submit_turbomole("{}/no_charges/o/".format(folder_name), t = 24, n = 4)
                         #submit_turbomole("{}/no_charges/oh/".format(folder_name), t = 24, n = 4)
@@ -510,8 +512,14 @@ def main():
 
                     else: 
                         print("not submitting calculations")
+
                     print("done with {} of {}".format(ind, len(os.listdir(root))))
-                    
+                
+                if only_submit: 
+                    submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
+                    submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
+                    submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
+
             except:
                 print("error with {}".format(protein_name))
                 continue
