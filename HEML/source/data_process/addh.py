@@ -65,8 +65,10 @@ def submit_turbomole(folder_name, n = 4, t = 24):
     # open the submit.sh file and change the number of nodes and the time
     with open("submit.sh", "r") as f:
         lines = f.readlines()
-        lines[5] = "#SBATCH -q regular\n"
-        lines[6] = "#SBATCH -C knl\n"
+        lines[5] = "#SBATCH -q RM-shared\n" # bridges2
+        
+        #lines[5] = "#SBATCH -q regular\n" # cori
+        #lines[6] = "#SBATCH -C knl\n" # cori
 
     with open("submit.sh", "w") as f:
         f.writelines(lines)
@@ -419,7 +421,7 @@ def check_submitted(folder):
     sh_file = False
     slurm_file = False
 
-    for file in os.listdir():
+    for file in os.listdir(folder):
         if file.endswith(".sh"):
             sh_file = True
         if file.startswith("slurm-"):
@@ -478,14 +480,17 @@ def main():
                     write_json("{}/embedding/o/".format(folder_name), frozen_atoms = frozen_atoms_o, charge=-3, atoms_present=elements)
                     write_json("{}/embedding/oh/".format(folder_name), frozen_atoms = frozen_atoms_oh, charge=-3, atoms_present=elements)
                     write_json("{}/embedding/normal/".format(folder_name), frozen_atoms = frozen_atoms_heme, charge=-2, atoms_present=elements)
-                
-                    setup_turbomole("{}/no_charges/o/".format(folder_name))
-                    setup_turbomole("{}/no_charges/oh/".format(folder_name))
-                    setup_turbomole("{}/no_charges/normal/".format(folder_name))
-                    setup_turbomole("{}/embedding/o/".format(folder_name))
-                    setup_turbomole("{}/embedding/oh/".format(folder_name))
-                    setup_turbomole("{}/embedding/normal/".format(folder_name))
 
+                    #setup_turbomole("{}/no_charges/o/".format(folder_name))
+                    #setup_turbomole("{}/no_charges/oh/".format(folder_name))
+                    #setup_turbomole("{}/no_charges/normal/".format(folder_name))
+                    print("-" * 30)
+                    setup_turbomole("{}/embedding/o/".format(folder_name))
+                    print("-" * 30)
+                    setup_turbomole("{}/embedding/oh/".format(folder_name))
+                    print("-" * 30)
+                    setup_turbomole("{}/embedding/normal/".format(folder_name))
+                    print("-" * 30)
                     # add charges to the embedding folders
                     # find pqr file in folder
                     pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
