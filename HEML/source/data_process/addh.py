@@ -59,8 +59,16 @@ def setup_turbomole(folder_name):
     os.chdir("../../..")
 
 
-def submit_turbomole(folder_name, n = 4, t = 24):
+def submit_turbomole(folder_name, n = 4, t = 24, check_if_done = True):
     os.chdir(folder_name)   
+    # check if file called GEO_OPT_CONVERGED exists
+    
+    if check_if_done:
+        if os.path.exists("GEO_OPT_CONVERGED"):
+            os.chdir("../../..")
+            return
+
+
     os.system("submitturbomole.py -n {} -t {}".format(n, t))
     # open the submit.sh file and change the number of nodes and the time
     with open("submit.sh", "r") as f:
