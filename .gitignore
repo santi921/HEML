@@ -26,3 +26,5 @@ x2t
 *tar.xz
 *out
 *basis*
+*tar.gz
+data/compressed_frames/*
