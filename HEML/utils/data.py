@@ -89,6 +89,32 @@ def get_options(options_file = "./options.json"):
     
     return options
 
+def create_folders(folder_name):
+    """
+    Creates the folders for the turbomole calculations.
+    Takes:
+        folder_name: the folder where the folders should be created
+    """
+
+    if not os.path.exists("{}/no_charges".format(folder_name)):
+        os.makedirs("{}/no_charges".format(folder_name))
+    if not os.path.exists("{}/embedding".format(folder_name)):
+        os.makedirs("{}/embedding".format(folder_name))
+
+    if not os.path.exists("{}/embedding/o".format(folder_name)):
+        os.makedirs("{}/embedding/o".format(folder_name))
+    if not os.path.exists("{}/embedding/oh".format(folder_name)):
+        os.makedirs("{}/embedding/oh".format(folder_name))
+    if not os.path.exists("{}/embedding/normal".format(folder_name)):
+        os.makedirs("{}/embedding/normal".format(folder_name))
+
+    if not os.path.exists("{}/no_charges/o".format(folder_name)):
+        os.makedirs("{}/no_charges/o".format(folder_name))
+    if not os.path.exists("{}/no_charges/oh".format(folder_name)):
+        os.makedirs("{}/no_charges/oh".format(folder_name))
+    if not os.path.exists("{}/no_charges/normal".format(folder_name)):
+        os.makedirs("{}/no_charges/normal".format(folder_name))
+
 
 def check_if_file_is_empty(file):
     if os.stat(file).st_size == 0:
@@ -703,3 +729,146 @@ def fetch_charges_dict(file_name = 'test.pqr'):
             pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
 
     return pqr_dict
+
+
+def get_elements(file_name): 
+    """
+    Open xyz and get all the elements in the file
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        elements: a list of elements
+    """
+    elements = []
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if line[0:2].strip().isalpha():
+            elements.append(line.split()[0])
+    return elements
+
+
+
+def put_charges_in_turbo_files(folder_name, charges_dict): 
+    """
+    Traverses subdirectories in embedding folder and puts charges in the turbomole file
+    
+    Takes   
+        folder_name: the folder where the turbomole files are located
+        charges_dict: a dictionary with the charges
+    Returns: Nothing 
+    
+    """
+    # find folder named embedding and go into all subfolders
+    for root, dirs, files in os.walk(folder_name):
+        for file in files:
+            if file.endswith("control"):
+                print("editing control file with charges from pqr dictionary")
+                # remove last line of file - the $end
+                with open(os.path.join(root, file), 'r') as f:
+                    lines = f.readlines()
+                with open(os.path.join(root, file), 'w') as f:
+                    for line in lines[:-1]:
+                        f.write(line)
+
+                # append dictionary to end of file
+                with open(os.path.join(root, file), 'a') as f:
+                    f.write("$point_charges\n")
+                    for charge in charges_dict:
+                        f.write("\t{} {} {} {}\n".format(charge["position"][0], charge["position"][1], charge["position"][2], charge["charge"]))
+                        #f.write("CHARGE " + str(charge["charge"]) + " " + str(charge["radius"]) + " " + str(charge["position"][0]) + " " + str(charge["position"][1]) + " " + str(charge["position"][2]) + "")
+                    f.write("$end\n")
+
+
+def get_frozen_atoms(file_name):
+    """
+    get the two carbons most out of the plane to freeze
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        frozen_atoms: a binary list of frozen atoms
+    """
+
+    
+    carbon_xyz, ind_carbons = get_carbon_xyz_from_file(file_name)
+    
+    cross = get_cross_vector(file_name)
+    fe_dict = get_fe_positions(file_name)
+    n_dict = get_N_positions(file_name, fe_dict["xyz"])
+    
+    mean_xyz = n_dict["mean_N_xyz"]
+    dot_list = [np.dot(i[0] - n_dict["mean_N_xyz"], cross) for i in carbon_xyz]
+    dot_list = np.array(dot_list) / np.linalg.norm(cross)
+
+    # filter for coplanar carbons    
+    carbon_planar_ind = [] # the indices of the coplanar carbons
+    for ind, i in enumerate(carbon_xyz):
+        if dot_list[ind] < 0.5:
+            carbon_planar_ind.append(ind)
+
+    # get the four furthest, in plane carbons
+    carbon_planar_xyz = np.array(carbon_xyz)[carbon_planar_ind]
+    diff = carbon_planar_xyz - mean_xyz
+    distances = np.apply_along_axis(np.linalg.norm, 1, diff)
+    
+    furthest_ind = np.argsort(distances)[::-1][:4]
+    most_out_of_plane_ind = np.argsort(dot_list)[::-1][:2]
+    # combine the two lists
+    frozen_atom_ind = np.concatenate((furthest_ind, most_out_of_plane_ind))
+    return_list = [ind_carbons[i] for i in frozen_atom_ind]
+
+    return return_list
+
+
+def get_carbon_xyz_from_file(file_name):
+    """
+    get the xyz coordinates of the carbons in the file
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        carbon_xyz: a list of the xyz coordinates of the carbons
+    """
+    carbon_xyz, ind = [], []
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+        # go through all the lines and find nitrogens
+        for line_ind, line in enumerate(lines):
+            if line[0:2].strip().isalpha():
+                if line.split()[0] == "C" or line.split()[0] == "c":
+                    carbon_xyz.append(
+                        [float(line.split()[1]), float(line.split()[2]), float(line.split()[3])]
+                        )
+                    ind.append(line_ind-1)
+    return carbon_xyz, ind
+
+
+def get_cross_vector(file_name): 
+
+    # find the four nitrogens closest to the iron
+    fe_info = get_fe_positions(file_name)
+    fe_xyz = fe_info["xyz"]
+    fe_ID = fe_info["id"]
+    nitrogen_info = get_N_positions(file_name, fe_xyz)
+
+
+    
+    direction_1 = nitrogen_info["N1_xyz"] - nitrogen_info["mean_N_xyz"]
+    direction_2 = nitrogen_info["N2_xyz"] - nitrogen_info["mean_N_xyz"]
+    direction_3 = nitrogen_info["N3_xyz"] - nitrogen_info["mean_N_xyz"]
+    # compute cross and take the two most orthogonal directions
+    dot_12 = np.dot(direction_1, direction_2)
+    dot_13 = np.dot(direction_1, direction_3)
+    dot_23 = np.dot(direction_2, direction_3)
+
+    if(dot_23 > dot_13 and dot_23 > dot_12):
+        direction_1 = direction_3
+    if(dot_13 > dot_12 and dot_13 > dot_23):
+        direction_2 = direction_3
+
+
+    direction_1 /= np.linalg.norm(direction_1)
+    direction_2 /= np.linalg.norm(direction_2)
+    cross = np.cross(direction_1, direction_2)
+    cross = cross / np.linalg.norm(cross)
+    return cross 
+
