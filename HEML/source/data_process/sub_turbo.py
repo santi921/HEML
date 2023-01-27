@@ -34,6 +34,7 @@ def submit_turbomole(folder_name, check_if_done = True):
     if check_if_done:
         if os.path.exists("GEO_OPT_CONVERGED"):
             os.chdir("../../..")
+            print("calculation is complete, not resubmitting")
             return
 
     os.system("sbatch ./submit.sh")
@@ -226,6 +227,21 @@ def write_launch_sbatch(folder, time = 24, cpus=4, submit_tf = False):
         os.system("sbatch " + folder + "launch.sh")
         
 
+def add_frozen_atoms(folder, frozen_atoms):
+    """
+    Adds the frozen atoms to the coord file at corresponding positions 
+    Takes:
+        folder: the folder of the protein
+        frozen_atoms: a list of frozen atoms
+    
+    """  
+    # iterate through atom and add " f" to end of line corresponding to frozen atom line 
+    with open(folder + "coord", "r") as infile:
+        lines = infile.readlines()
+        for atom in frozen_atoms:
+            lines[atom+1] = lines[atom+1][:-1] + " f"
+
+
 def main():
     submit_tf = False
     only_submit = False
@@ -245,6 +261,7 @@ def main():
                 if not check_submitted(folder_name):
                     if cleanup_tf: 
                         clean_up(folder_name, filter="GEO_OPT_FAILED")
+                        
                         if not only_submit: 
                             # add h to pdb 
                           
@@ -252,9 +269,9 @@ def main():
                             create_folders(folder_name)
                             
                             # convert xyz to coord 
-                            os.system("{} {}/{}_heme_h.xyz > {}/no_charges/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                            os.system("{} {}/{}_o_heme_h.xyz > {}/no_charges/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                            os.system("{} {}/{}_oh_heme_h.xyz > {}/no_charges/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                            #os.system("{} {}/{}_heme_h.xyz > {}/no_charges/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                            #os.system("{} {}/{}_o_heme_h.xyz > {}/no_charges/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                            #os.system("{} {}/{}_oh_heme_h.xyz > {}/no_charges/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
                             os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
                             os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
                             os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
@@ -265,7 +282,11 @@ def main():
                             frozen_atoms_heme = get_frozen_atoms("{}/{}_heme_h.xyz".format(folder_name, protein_name))
 
                             elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
-                            
+                            #add frozen atoms to coord files
+                            add_frozen_atoms("{}/embedding/oh/coord".format(folder_name), frozen_atoms_oh)
+                            add_frozen_atoms("{}/embedding/o/coord".format(folder_name), frozen_atoms_o)
+                            add_frozen_atoms("{}/embedding/normal/coord".format(folder_name), frozen_atoms_heme)
+
                             if embedd_tf:
 
                                 define_and_submit_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements, submit=False, charge=-3)
