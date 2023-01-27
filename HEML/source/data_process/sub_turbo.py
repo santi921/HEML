@@ -1,9 +1,7 @@
 import os, json
 import numpy as np 
-
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
-
 from turbomoleio.input.define import DefineRunner
 
 from HEML.utils.data import (
@@ -60,7 +58,7 @@ def define_and_submit_turbomoleio(
     dp = get_dictionary(frozen_atoms, atoms_present, charge)
     dr = DefineRunner(parameters=dp)
     dr.run_full()
-    os.system(f'sed -i "s/scforbitalshift  closedshell=.05/scforbitalshift  closedshell=.3 /" {folder_name}/control')
+    os.system(f'sed -i /"s/scforbitalshift  closedshell=.05/scforbitalshift  closedshell=.3 /" {folder_name}/control')
     if submit: submit_turbomole(folder_name, n, t, check_if_done)
 
 
@@ -255,13 +253,22 @@ def main():
     for ind, protein_name in enumerate(os.listdir(root)):
         if(os.path.isdir(os.path.join(root,protein_name))):
             print(protein_name)
+            clean_up(folder_name, filter="GEO_OPT_FAILED")
+            create_folders(folder_name)
+            os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+            os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+            os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+            # get some info from xyz
+            frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+            frozen_atoms_o = get_frozen_atoms("{}/{}_o_heme_h.xyz".format(folder_name, protein_name))
+            frozen_atoms_heme = get_frozen_atoms("{}/{}_heme_h.xyz".format(folder_name, protein_name))
+
             try: 
                 folder_name = root + protein_name
                 # check if the protein has been submitted to sbatch 
                 if not check_submitted(folder_name):
                     if cleanup_tf: 
                         clean_up(folder_name, filter="GEO_OPT_FAILED")
-                        
                         if not only_submit: 
                             # add h to pdb 
                           
