@@ -7,11 +7,24 @@ from turbomoleio.input.define import DefineRunner
 from HEML.utils.data import (
     create_folders, 
     get_options, 
-    fetch_charges_dict, 
-    get_elements,
-    put_charges_in_turbo_files, 
-    get_frozen_atoms
+    put_charges_in_turbo_files
 )
+
+def get_elements(file_name): 
+    """
+    Open xyz and get all the elements in the file
+    Takes:
+        file_name: the name of the xyz file
+    Returns:
+        elements: a list of elements
+    """
+    elements = []
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if line[0:2].strip().isalpha():
+            elements.append(line.split()[0])
+    return elements
 
 
 def setup_turbomole(folder_name):
@@ -383,6 +396,33 @@ def get_frozen_atoms(file_name):
 
     return return_list
 
+def fetch_charges_dict(file_name = 'test.pqr'):
+    """
+    Given a list of dictionaries with element and position, traverse a pqr file and get the charges from the file
+    EXCLUDING ELEMENTS IN THE LIST OF DICTIONARIES
+    Takes: 
+        list of dictionaries with element and position
+    Returns:
+        list of dictionaries with element, position and charge
+    """
+    
+    pqr_dict = []
+    # get the lines of the pqr file
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
+    
+    for line in lines: 
+        x       = float(line[30:38].strip())
+        y       = float(line[39:46].strip())
+        z       = float(line[47:54].strip())
+        charge  = float(line[55:61].strip())
+        radius  = float(line[62:68].strip())    
+        if np.abs(charge) >= 0.01:
+            pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
+
+    return pqr_dict
+
+
 def main():
     submit_tf = False
     only_submit = False
@@ -424,9 +464,9 @@ def main():
                             #os.system("{} {}/{}_heme_h.xyz > {}/no_charges/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
                             #os.system("{} {}/{}_o_heme_h.xyz > {}/no_charges/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
                             #os.system("{} {}/{}_oh_heme_h.xyz > {}/no_charges/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                            os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                            os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                            os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                            os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/".format(x2t_loc, folder_name, protein_name, folder_name))
+                            os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/".format(x2t_loc, folder_name, protein_name, folder_name))
+                            os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/".format(x2t_loc, folder_name, protein_name, folder_name))
 
                             # get some info from xyz
                             frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
