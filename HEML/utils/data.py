@@ -848,7 +848,7 @@ def get_cross_vector(file_name):
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
     fe_ID = fe_info["id"]
-    nitrogen_info = get_N_positions(file_name, fe_xyz)
+    nitrogen_info = get_N_positions(file_name, fe_ID, fe_xyz)
 
 
     
