@@ -70,8 +70,23 @@ def define_turbomoleio(
         timeout=timeout,
         parameters=dp
     )
-    dr.run_full()
-    os.system(f'sed -i /"s/scforbitalshift  closedshell=.05/scforbitalshift  closedshell=.3 /" {folder_name}/control')
+    #dr._initialize_control()
+    #dr._add_atomic_coordinates_from_file()
+    #dr._add_basis_set()
+    #dr._determine_symmetry()
+    #dr._set_basis(dp[""])
+    #self._initialize_control(update=False)
+    # coordinate menu
+    #self._geometry_menu(new_coords=True)
+    # leave the previous menu and move to the next one
+    #self._switch_to_atomic_attribute_menu()
+    # atomic attribute menu - only basis set is used here
+    #self._define_basis_sets()
+    # leave the previous menu and move to the next one
+    #self._switch_to_molecular_orbital_definition_menu()
+    
+    #dr.run_full()
+    #os.system(f'sed -i /"s/scforbitalshift  closedshell=.05/scforbitalshift  /" {folder_name}/control')
 
 
 def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
@@ -87,6 +102,9 @@ def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
             "bonds": ["4,5"]    
         }
     },
+    "method": "dft",
+    "ri" : True,
+
     "dft": {
         "dft_on": True,
         "func": "tpss",
@@ -108,11 +126,14 @@ def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
     "freeze_atoms": [],
     "calculation": "geo",
     "geo_iterations": 600,
+    "scfiterlimit": 1000,
     "weight": False,
     "gcart": None,
     "denconv": None,
     "rij": False,
     "marij": True,
+    "ri": True, 
+    "rijk": True,
     "dsp": True,
     "charge": 0
     }
@@ -144,7 +165,7 @@ def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
         if charge == -2: 
             basic_dict["open_shell"]["open_shell_on"] = True
             basic_dict["open_shell"]["unpaired"] = 1
-        
+       
     if frozen_atoms != []:
         basic_dict['freeze_atoms'] = frozen_atoms
 
