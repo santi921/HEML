@@ -2,6 +2,7 @@ import os, json
 import numpy as np 
 from turbomoleio.input.define import DefineRunner
 
+
 def get_elements(file_name): 
     """
     Open xyz and get all the elements in the file
@@ -59,9 +60,19 @@ def define_turbomoleio(
             return
 
     dp = get_dictionary(frozen_atoms, atoms_present, charge)
-    dr = DefineRunner(parameters=dp)
+    timeout=120
+    log_filepath = folder_name + "turbomoleio.log"
+    workdir = folder_name
+
+    dr = DefineRunner(
+        log_filepath=log_filepath,
+        workdir=workdir,
+        timeout=timeout,
+        parameters=dp
+    )
     dr.run_full()
     os.system(f'sed -i /"s/scforbitalshift  closedshell=.05/scforbitalshift  closedshell=.3 /" {folder_name}/control')
+
 
 def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
 
@@ -155,6 +166,7 @@ def write_json(folder, frozen_atoms = [], atoms_present = [], charge = 0):
     with open(folder + "definput.json", "w") as outfile:
         json.dump(basic_dict, outfile, indent = 4)
 
+
 def check_submitted(folder):
     """
     Checks if the protein has been submitted to sbatch
@@ -179,6 +191,7 @@ def check_submitted(folder):
         return True
     return False
 
+
 def clean_up(folder, filter="GEO_OPT_FAILED"):
     # check if there's a file with name filter in the folder
     # if there is, remove all the files in the folder
@@ -188,6 +201,7 @@ def clean_up(folder, filter="GEO_OPT_FAILED"):
             for file in os.listdir(folder):
                 if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith(".coord"):
                     os.remove(os.path.join(folder, file))
+
 
 def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"):
     """
@@ -222,6 +236,7 @@ def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"
     if submit_tf:
         os.system("sbatch " + folder + "launch.sh")
         
+
 def add_frozen_atoms(folder, frozen_atoms):
     """
     Adds the frozen atoms to the coord file at corresponding positions 
@@ -235,6 +250,7 @@ def add_frozen_atoms(folder, frozen_atoms):
         lines = infile.readlines()
         for atom in frozen_atoms:
             lines[atom+1] = lines[atom+1][:-1] + " f"
+
 
 def get_fe_positions(file):
     fe_ID, fe_xyz = None, None
@@ -251,6 +267,7 @@ def get_fe_positions(file):
             break
 
     return {"id": fe_ID, "xyz": fe_xyz}
+
 
 def get_cross_vector(file_name): 
 
@@ -282,6 +299,7 @@ def get_cross_vector(file_name):
     cross = cross / np.linalg.norm(cross)
     return cross 
 
+
 def get_carbon_xyz_from_file(file_name):
     """
     get the xyz coordinates of the carbons in the file
@@ -302,6 +320,7 @@ def get_carbon_xyz_from_file(file_name):
                         )
                     ind.append(line_ind-1)
     return carbon_xyz, ind
+
 
 def get_N_positions(file, fe_xyz):
 
@@ -342,6 +361,7 @@ def get_N_positions(file, fe_xyz):
 
     return nitrogen_dict 
 
+
 def get_frozen_atoms(file_name):
     """
     get the two carbons most out of the plane to freeze
@@ -379,6 +399,7 @@ def get_frozen_atoms(file_name):
     return_list = [ind_carbons[i] for i in frozen_atom_ind]
 
     return return_list
+
 
 def fetch_charges_dict(file_name = 'test.pqr'):
     """

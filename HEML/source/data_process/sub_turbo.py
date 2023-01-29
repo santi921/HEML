@@ -1,5 +1,6 @@
 import warnings, os 
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
+from pexpect import popen_spawn
 
 from HEML.utils.data import (
     create_folders, 
@@ -48,6 +49,7 @@ def main():
             create_folders(folder_name)
 
             if not check_submitted(folder_name):
+
                 try:  
                     os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))
                     os.system("{} {}/{}_o_heme_h.xyz > {}/embedding/o/coord".format(x2t_loc, folder_name, protein_name, folder_name))
@@ -60,13 +62,13 @@ def main():
 
                     elements = get_elements("{}/{}_heme_h.xyz".format(folder_name, protein_name))
                     #add frozen atoms to coord files
-                    add_frozen_atoms("{}/embedding/oh/coord".format(folder_name), frozen_atoms_oh)
-                    add_frozen_atoms("{}/embedding/o/coord".format(folder_name), frozen_atoms_o)
-                    add_frozen_atoms("{}/embedding/normal/coord".format(folder_name), frozen_atoms_heme)
+                    add_frozen_atoms("{}/embedding/oh/".format(folder_name), frozen_atoms_oh)
+                    add_frozen_atoms("{}/embedding/o/".format(folder_name), frozen_atoms_o)
+                    add_frozen_atoms("{}/embedding/normal/".format(folder_name), frozen_atoms_heme)
                 
-                    define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=0)
-                    define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=0)
-                    define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1)
+                    define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=-2)
+                    define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=-2)
+                    define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=-3)
 
                                 
                     if embedd_tf:
@@ -84,7 +86,8 @@ def main():
                         submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
                         submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
                         submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
-                            
+
+
                     else: 
                         print("not submitting calculations")
 
