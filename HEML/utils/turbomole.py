@@ -49,7 +49,6 @@ def submit_turbomole(folder_name, check_if_done = True):
 def define_turbomoleio(
     folder_name, 
     check_if_done = True,
-    frozen_atoms = [],
     atoms_present = [],
     charge = 0
     ):
@@ -59,7 +58,7 @@ def define_turbomoleio(
             os.chdir("../../..")
             return
 
-    dp = get_dictionary(frozen_atoms, atoms_present, charge)
+    dp = get_dictionary(atoms_present, charge)
     timeout=120
     log_filepath = folder_name + "turbomoleio.log"
     workdir = folder_name
@@ -70,72 +69,62 @@ def define_turbomoleio(
         timeout=timeout,
         parameters=dp
     )
-    #dr._initialize_control()
-    #dr._add_atomic_coordinates_from_file()
-    #dr._add_basis_set()
-    #dr._determine_symmetry()
-    #dr._set_basis(dp[""])
-    #self._initialize_control(update=False)
-    # coordinate menu
-    #self._geometry_menu(new_coords=True)
-    # leave the previous menu and move to the next one
-    #self._switch_to_atomic_attribute_menu()
-    # atomic attribute menu - only basis set is used here
-    #self._define_basis_sets()
-    # leave the previous menu and move to the next one
-    #self._switch_to_molecular_orbital_definition_menu()
+
+    with open(dr.log_filepath, "wb") as logfile:
+       dr.define = dr._spawn(
+                    dr._get_bin_path(), timeout=dr.timeout, logfile=logfile
+         )
+       dr._set_metric()
+       dr._initialize_control()
+       dr._switch_to_atomic_attribute_menu()
+       dr._define_basis_sets()
+       dr._switch_to_molecular_orbital_definition_menu()
+       dr._extended_hueckel_theory_menu()
+       dr._set_dft_options(use_dft=True) # uses functional, gridsize keys 
+       dr._set_scf_options()
+       dr._quit_general_menu()
+       dr._post_process()
+       case = dr._expect(
+                        ["define ended normally", "define ended abnormally"],
+                        action="check end of define",
+                    )
+
+       if case == 0:
+          ended_normally = True
+
+    #run_generate_mo_files
     
-    #dr.run_full()
-    #os.system(f'sed -i /"s/scforbitalshift  closedshell=.05/scforbitalshift  /" {folder_name}/control')
+    
 
+def get_dictionary( atoms_present = [], charge = 0):
 
-def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
+    basic_dict = {        
+        "method": "dft",
+        "functional" : "tpss",
+        "grid_size": "m4",
+        "scfiterlimit": 500,
+        "scfconv": 4,
+        "basis": { "all": "def2-SVP" },
+        "freeze_atoms": [],
+        "calculation": "geo",
+        "scfiterlimit": 1000,
+        "weight": False,
+        "gcart": None,
+        "denconv": None,
+        "rij": False,
+        "marij": True,
+        "ri": True, 
+        "rijk": False,
+        "charge": 0,
+        "disp": "DFT-D3",
+        "use_cosmo": True,
+        "epsilon": 4,
+        "stp": {
+            "itvc": 0,
+            "trad": 0.1
+        },
+        "geo_iterations": 600,
 
-    basic_dict = {
-    "geometry": { 
-        "cartesians": True,
-        "idef": { "idef_on": False },
-        "freeze_stretch": ["4,5"],
-        "ired": False,
-        "iaut": { 
-            "iaut_on": False, 
-            "bonds": ["4,5"]    
-        }
-    },
-    "method": "dft",
-    "ri" : True,
-
-    "dft": {
-        "dft_on": True,
-        "func": "tpss",
-        "grid": "m4"           
-    },
-    "scf": {
-        "iter": 500,
-        "conv": 4
-    },
-    "basis": { "all": "def2-SVP" },
-    "stp": {
-        "itvc": 0,
-        "trad": 0.1
-    },
-    "open_shell": {
-        "open_shell_on": False,
-    },
-    "cosmo": 4,
-    "freeze_atoms": [],
-    "calculation": "geo",
-    "geo_iterations": 600,
-    "scfiterlimit": 1000,
-    "weight": False,
-    "gcart": None,
-    "denconv": None,
-    "rij": False,
-    "marij": True,
-    "ri": True, 
-    "rijk": True,
-    "dsp": True,
-    "charge": 0
     }
 
     if atoms_present == []:
@@ -164,10 +153,10 @@ def get_dictionary(frozen_atoms = [], atoms_present = [], charge = 0):
         basic_dict["charge"] = charge
         if charge == -2: 
             basic_dict["open_shell"]["open_shell_on"] = True
-            basic_dict["open_shell"]["unpaired"] = 1
+            basic_dict["unpaired_electrons"] = 1
        
-    if frozen_atoms != []:
-        basic_dict['freeze_atoms'] = frozen_atoms
+    #if frozen_atoms != []:
+    #    basic_dict['freeze_atoms'] = frozen_atoms
 
     return basic_dict
 
@@ -213,15 +202,18 @@ def check_submitted(folder):
     return False
 
 
-def clean_up(folder, filter="GEO_OPT_FAILED"):
+def clean_up(folder, filter="GEO_OPT_FAILED", clear_control_tf = False):
     # check if there's a file with name filter in the folder
     # if there is, remove all the files in the folder
     for file in os.listdir(folder):
         if file.endswith(filter):        
             # remove every file that isn't a .sh file or a slurm* file or coord file
             for file in os.listdir(folder):
-                if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith(".coord"):
+                if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord"):
                     os.remove(os.path.join(folder, file))
+                if clear_control_tf:
+                    if file.endswith("control"):
+                        os.remove(os.path.join(folder, file))
 
 
 def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"):

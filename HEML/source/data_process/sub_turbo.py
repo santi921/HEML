@@ -25,6 +25,7 @@ def main():
     submit_only = False
     cleanup_tf = True
     embedd_tf = False
+    clear_control_tf = False
 
 
     options = get_options("./options.json")
@@ -37,7 +38,7 @@ def main():
             folder_name = root + protein_name
             
             if cleanup_tf:
-                clean_up(folder_name, filter="GEO_OPT_FAILED")
+                clean_up(folder_name, filter="GEO_OPT_FAILED", clear_control_tf=clear_control_tf)
             
             if submit_only:
                 submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
