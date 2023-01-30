@@ -82,14 +82,16 @@ def define_turbomoleio(
             dr.define = dr._spawn(
                             dr._get_bin_path(), timeout=dr.timeout, logfile=logfile
                 )
-            dr._set_metric()
+            print(os.listdir())
             dr._initialize_control()
+            dr._geometry_menu(new_coords=True)
             dr._switch_to_atomic_attribute_menu()
             dr._define_basis_sets()
             dr._switch_to_molecular_orbital_definition_menu()
             dr._extended_hueckel_theory_menu()
             dr._set_dft_options(use_dft=True) # uses functional, gridsize keys 
             dr._set_scf_options()
+            dr._set_ri_state()
             dr._quit_general_menu()
             dr._post_process()
             case = dr._expect(
@@ -113,12 +115,7 @@ def get_dictionary( atoms_present = [], charge = 0):
         "scfiterlimit": 500,
         "scfconv": 4,
         "basis": "b all def2-SV(P)",
-        #"freeze_atoms": [],
-        #"calculation": "geo",
         "scfiterlimit": 1000,
-        #"weight": False,
-        #"gcart": None,
-        #"denconv": None,
         "rij": False,
         "marij": True,
         "ri": True, 
@@ -127,12 +124,7 @@ def get_dictionary( atoms_present = [], charge = 0):
         "disp": "DFT-D3",
         "use_cosmo": True,
         "epsilon": 4,
-        #"stp": {
-        #    "itvc": 0,
-        #    "trad": 0.1
-        #},
-        #"geo_iterations": 600,
-
+        "coord_file": "coord"
     }
 
     if atoms_present == []:
@@ -143,8 +135,9 @@ def get_dictionary( atoms_present = [], charge = 0):
             "o": "def2-TZVP"
         }
     else:
-        for atom in atoms_present:
-            basic_dict["basis_atom"] = {}
+        atoms_set = list(set(atoms_present))
+        basic_dict["basis_atom"] = {}
+        for atom in atoms_set:
             if atom == "Fe" or atom == "fe":
                 basic_dict["basis_atom"]["fe"] = "def2-TZVP"
             elif atom == "N" or atom == "n":
@@ -269,7 +262,8 @@ def add_frozen_atoms(folder, frozen_atoms):
     with open(folder + "coord", "r") as infile:
         lines = infile.readlines()
         for atom in frozen_atoms:
-            lines[atom+1] = lines[atom+1][:-1] + " f"
+            lines[atom+1] = lines[atom+1].rstrip("\n") + " f\n"
+            
     # write the new coord file
     with open(folder + "coord", "w") as outfile:
         outfile.writelines(lines)
