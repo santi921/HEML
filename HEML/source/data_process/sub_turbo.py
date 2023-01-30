@@ -71,13 +71,21 @@ def main():
                     add_frozen_atoms("{}/embedding/normal/".format(folder_name), frozen_atoms_heme)
                     try:
                         define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=0, spin=0)
-                    except: print("failed to define turbomoleio for oh")
+                    except: 
+                        print("failed to define turbomoleio for oh")
+                        #add to log 
+
                     try:
                         define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=0, spin=0)
-                    except: print("failed to define turbomoleio for o")
+                    except: 
+                        print("failed to define turbomoleio for o")
                     try:       
                         define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1, spin=1)
-                    except: print("failed to define turbomoleio for normal")
+                    except: 
+                        try:
+                            define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1, spin=2)
+                        except:
+                            print("failed to define turbomoleio for normal")
                                 
                     if embedd_tf:
                         # find pqr file in folder

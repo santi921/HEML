@@ -62,7 +62,7 @@ def define_turbomoleio(
             return
 
     dp = get_dictionary(atoms_present, charge, spin=spin)
-    timeout=120
+    timeout=15
     log_filepath = folder_name + "turbomoleio.log"
     workdir = folder_name
 
@@ -103,7 +103,6 @@ def define_turbomoleio(
                 ended_normally = True
 
     
-
 def get_dictionary( atoms_present = [], charge = 0, spin=0):
 
     basic_dict = {        
