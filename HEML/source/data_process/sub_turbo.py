@@ -83,6 +83,7 @@ def main():
                         define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1, spin=1)
                     except: 
                         try:
+                            clean_up("{}/embedding/normal/".format(folder_name), filter=None, clear_control_tf=True)
                             define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1, spin=2)
                         except:
                             print("failed to define turbomoleio for normal")
