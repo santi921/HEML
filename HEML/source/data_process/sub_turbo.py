@@ -52,11 +52,11 @@ def main():
             create_folders(folder_name)
 
             if not check_submitted(folder_name):
-                os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
-                frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
-                elements = get_elements("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
-                add_frozen_atoms("{}/embedding/oh/".format(folder_name), frozen_atoms_oh)
-                define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=-2)
+                #os.system("{} {}/{}_oh_heme_h.xyz > {}/embedding/oh/coord".format(x2t_loc, folder_name, protein_name, folder_name))
+                #frozen_atoms_oh = get_frozen_atoms("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+                #elements = get_elements("{}/{}_oh_heme_h.xyz".format(folder_name, protein_name))
+                #add_frozen_atoms("{}/embedding/oh/".format(folder_name), frozen_atoms_oh)
+                #define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=-2)
 
                 try:  
                     os.system("{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(x2t_loc, folder_name, protein_name, folder_name))

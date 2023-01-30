@@ -82,7 +82,7 @@ def define_turbomoleio(
             dr.define = dr._spawn(
                             dr._get_bin_path(), timeout=dr.timeout, logfile=logfile
                 )
-            print(os.listdir())
+            #print(os.listdir())
             dr._initialize_control()
             dr._geometry_menu(new_coords=True)
             dr._switch_to_atomic_attribute_menu()
@@ -156,7 +156,7 @@ def get_dictionary( atoms_present = [], charge = 0):
        
     #if frozen_atoms != []:
     #    basic_dict['freeze_atoms'] = frozen_atoms
-    print(basic_dict)
+    #print(basic_dict)
     return basic_dict
 
 
