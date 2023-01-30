@@ -106,7 +106,7 @@ def get_dictionary( atoms_present = [], charge = 0):
         "grid_size": "m4",
         "scfiterlimit": 500,
         "scfconv": 4,
-        "basis": { "all": "def2-SVP" },
+        "basis": "def2-SVP",
         "freeze_atoms": [],
         "calculation": "geo",
         "scfiterlimit": 1000,
@@ -130,26 +130,25 @@ def get_dictionary( atoms_present = [], charge = 0):
     }
 
     if atoms_present == []:
-        basic_dict["basis"] = {
-            "all": "def2-SVP",
+        basic_dict["basis_atom"] = {
             "fe": "def2-TZVP",
             "n": "def2-TZVP",
             "s": "def2-TZVP",
             "o": "def2-TZVP"
         }
     else:
-        basic_dict["basis"]["all"] = "def2-SVP"
         for atom in atoms_present:
+             basic_dict["basis_atom"] = {}
             if atom == "Fe" or atom == "fe":
-                basic_dict["basis"]["fe"] = "def2-TZVP"
+                basic_dict["basis_atom"]["fe"] = "def2-TZVP"
             elif atom == "N" or atom == "n":
-                basic_dict["basis"]["n"] = "def2-TZVP"
+                basic_dict["basis_atom"]["n"] = "def2-TZVP"
             elif atom == "S" or atom == "s":
-                basic_dict["basis"]["s"] = "def2-TZVP"
+                basic_dict["basis_atom"]["s"] = "def2-TZVP"
             elif atom == "O" or atom == "o":
-                basic_dict["basis"]["o"] = "def2-TZVP"
+                basic_dict["basis_atom"]["o"] = "def2-TZVP"
             else: 
-                basic_dict["basis"][atom.lower()] = "def2-SVP"
+                basic_dict["basis_atom"][atom.lower()] = "def2-SVP"
 
     if charge != 0:
         basic_dict["charge"] = charge
