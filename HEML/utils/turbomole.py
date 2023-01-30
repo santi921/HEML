@@ -1,6 +1,8 @@
 import os, json
 import numpy as np 
 from turbomoleio.input.define import DefineRunner
+from turbomoleio.input.utils import get_define_template, validate_parameters
+from monty.os import cd
 
 
 def get_elements(file_name): 
@@ -69,28 +71,28 @@ def define_turbomoleio(
         timeout=timeout,
         parameters=dp
     )
+    with cd(dr.workdir):
+        with open(dr.log_filepath, "wb") as logfile:
+            dr.define = dr._spawn(
+                            dr._get_bin_path(), timeout=dr.timeout, logfile=logfile
+                )
+            dr._set_metric()
+            dr._initialize_control()
+            dr._switch_to_atomic_attribute_menu()
+            dr._define_basis_sets()
+            dr._switch_to_molecular_orbital_definition_menu()
+            dr._extended_hueckel_theory_menu()
+            dr._set_dft_options(use_dft=True) # uses functional, gridsize keys 
+            dr._set_scf_options()
+            dr._quit_general_menu()
+            dr._post_process()
+            case = dr._expect(
+                                ["define ended normally", "define ended abnormally"],
+                                action="check end of define",
+                            )
 
-    with open(dr.log_filepath, "wb") as logfile:
-       dr.define = dr._spawn(
-                    dr._get_bin_path(), timeout=dr.timeout, logfile=logfile
-         )
-       dr._set_metric()
-       dr._initialize_control()
-       dr._switch_to_atomic_attribute_menu()
-       dr._define_basis_sets()
-       dr._switch_to_molecular_orbital_definition_menu()
-       dr._extended_hueckel_theory_menu()
-       dr._set_dft_options(use_dft=True) # uses functional, gridsize keys 
-       dr._set_scf_options()
-       dr._quit_general_menu()
-       dr._post_process()
-       case = dr._expect(
-                        ["define ended normally", "define ended abnormally"],
-                        action="check end of define",
-                    )
-
-       if case == 0:
-          ended_normally = True
+        if case == 0:
+            ended_normally = True
 
     #run_generate_mo_files
     
@@ -152,7 +154,7 @@ def get_dictionary( atoms_present = [], charge = 0):
     if charge != 0:
         basic_dict["charge"] = charge
         if charge == -2: 
-            basic_dict["open_shell"]["open_shell_on"] = True
+            #basic_dict["open_shell"]["open_shell_on"] = True
             basic_dict["unpaired_electrons"] = 1
        
     #if frozen_atoms != []:
@@ -263,7 +265,9 @@ def add_frozen_atoms(folder, frozen_atoms):
         lines = infile.readlines()
         for atom in frozen_atoms:
             lines[atom+1] = lines[atom+1][:-1] + " f"
-
+    # write the new coord file
+    with open(folder + "coord", "w") as outfile:
+        outfile.writelines(lines)
 
 def get_fe_positions(file):
     fe_ID, fe_xyz = None, None
