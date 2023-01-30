@@ -71,6 +71,10 @@ def define_turbomoleio(
         timeout=timeout,
         parameters=dp
     )
+    
+    dr._set_metric()
+    ended_normally = False
+
     with cd(dr.workdir):
         with open(dr.log_filepath, "wb") as logfile:
             dr.define = dr._spawn(
@@ -91,8 +95,8 @@ def define_turbomoleio(
                                 action="check end of define",
                             )
 
-        if case == 0:
-            ended_normally = True
+            if case == 0:
+                ended_normally = True
 
     #run_generate_mo_files
     
@@ -138,7 +142,7 @@ def get_dictionary( atoms_present = [], charge = 0):
         }
     else:
         for atom in atoms_present:
-             basic_dict["basis_atom"] = {}
+            basic_dict["basis_atom"] = {}
             if atom == "Fe" or atom == "fe":
                 basic_dict["basis_atom"]["fe"] = "def2-TZVP"
             elif atom == "N" or atom == "n":
@@ -267,6 +271,7 @@ def add_frozen_atoms(folder, frozen_atoms):
     # write the new coord file
     with open(folder + "coord", "w") as outfile:
         outfile.writelines(lines)
+
 
 def get_fe_positions(file):
     fe_ID, fe_xyz = None, None
