@@ -43,8 +43,18 @@ def submit_turbomole(folder_name, check_if_done = True):
             os.chdir("../../..")
             print("calculation is complete, not resubmitting")
             return
-
-    os.system("sbatch ./submit.sh")
+    write_sbatch(
+        "./", 
+        time = 24, 
+        cpus=4, 
+        steps = 1000, 
+        ri = True, 
+        rij = True, 
+        conv_crit = 5, 
+        gcart = 3, 
+        submit_tf = False, 
+        user = "santi92", keep=False)
+    #os.system("sbatch ./submit.sh")
     os.chdir("../../..")
 
 
