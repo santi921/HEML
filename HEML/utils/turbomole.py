@@ -52,7 +52,8 @@ def define_turbomoleio(
     folder_name, 
     check_if_done = True,
     atoms_present = [],
-    charge = 0
+    charge = 0, 
+    spin = 0
     ):
     
     if check_if_done:
@@ -60,12 +61,12 @@ def define_turbomoleio(
             os.chdir("../../..")
             return
 
-    dp = get_dictionary(atoms_present, charge)
+    dp = get_dictionary(atoms_present, charge, spin=spin)
     timeout=120
     log_filepath = folder_name + "turbomoleio.log"
     workdir = folder_name
 
-    print("validate parameters: {}".format(validate_parameters(dp)))
+    print("valid turboio parameters: {}".format(validate_parameters(dp)))
 
     dr = DefineRunner(
         log_filepath=log_filepath,
@@ -75,7 +76,6 @@ def define_turbomoleio(
     )
     
     dr._set_metric()
-    ended_normally = False
 
     with cd(dr.workdir):
         with open(dr.log_filepath, "wb") as logfile:
@@ -104,7 +104,7 @@ def define_turbomoleio(
 
     
 
-def get_dictionary( atoms_present = [], charge = 0):
+def get_dictionary( atoms_present = [], charge = 0, spin=0):
 
     basic_dict = {        
         "ired": False, 
@@ -150,9 +150,10 @@ def get_dictionary( atoms_present = [], charge = 0):
 
     if charge != 0:
         basic_dict["charge"] = charge
-        if charge == -2: 
-            #basic_dict["open_shell"]["open_shell_on"] = True
-            basic_dict["unpaired_electrons"] = 1
+        basic_dict["unpaired_electrons"] = spin
+        #if charge == -2: 
+        #    #basic_dict["open_shell"]["open_shell_on"] = True
+        #    basic_dict["unpaired_electrons"] = 1
        
     #if frozen_atoms != []:
     #    basic_dict['freeze_atoms'] = frozen_atoms
