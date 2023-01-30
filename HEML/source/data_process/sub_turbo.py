@@ -28,7 +28,7 @@ def main():
     clear_control_tf = True
 
 
-    options = get_options("./options.json")
+    options = get_options("./options/options.json")
     root = options["compressed_proteins_folder"]
     x2t_loc = options["x2t_loc"]
 
@@ -38,9 +38,9 @@ def main():
             folder_name = root + protein_name
             
             if cleanup_tf:
-                clean_up("{}/embedding/o/".format(folder_name), filter="GEO_OPT_FAILED", clear_control_tf=clear_control_tf)
-                clean_up("{}/embedding/oh/".format(folder_name), filter="GEO_OPT_FAILED", clear_control_tf=clear_control_tf)
-                clean_up("{}/embedding/normal/".format(folder_name), filter="GEO_OPT_FAILED", clear_control_tf=clear_control_tf)
+                clean_up("{}/embedding/o/".format(folder_name), filter=None, clear_control_tf=clear_control_tf)
+                clean_up("{}/embedding/oh/".format(folder_name), filter=None, clear_control_tf=clear_control_tf)
+                clean_up("{}/embedding/normal/".format(folder_name), filter=None, clear_control_tf=clear_control_tf)
 
             if submit_only:
                 submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)

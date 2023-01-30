@@ -93,7 +93,7 @@ def define_turbomoleio(
             dr._set_scf_options()
             dr._set_ri_state()
             dr._quit_general_menu()
-            dr._post_process()
+            dr._postprocess()
             case = dr._expect(
                                 ["define ended normally", "define ended abnormally"],
                                 action="check end of define",
@@ -102,20 +102,19 @@ def define_turbomoleio(
             if case == 0:
                 ended_normally = True
 
-    #run_generate_mo_files
-    
     
 
 def get_dictionary( atoms_present = [], charge = 0):
 
     basic_dict = {        
         "ired": False, 
+        "desy": True,
         "method": "dft",
         "functional" : "tpss",
         "gridsize": "m4",
         "scfiterlimit": 500,
         "scfconv": 4,
-        "basis": "b all def2-SV(P)",
+        "basis": "def2-SV(P)",
         "scfiterlimit": 1000,
         "marij": True,
         "ri": True, 
@@ -224,7 +223,8 @@ def clean_up(folder, filter=None, clear_control_tf = False):
                     if file.endswith("control"):
                         os.remove(os.path.join(folder, file))
 
-def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"):
+
+def write_sbatch(folder, time = 24, cpus=4, steps = 100, ri = False, rij=False, conv_crit = 6, gcart = 3, submit_tf = False, user = "santi92", keep=False):
     """
     Writes a launch sbatch file for the protein
     Takes:
@@ -232,6 +232,20 @@ def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"
         submit_tf: if True, submits the sbatch file
     """
     # write the sbatch file 
+    jobex_command = "jobex  -c {} -np {} -c".format(steps, cpus, time)
+    if conv_crit:
+        jobex_command += " -energy {}".format(conv_crit)
+    if ri:
+        jobex_command += " -ri"
+    if rij:
+        jobex_command += " -rij"
+    if keep: 
+        jobex_command += " -keep"
+    if gcart:
+        jobex_command += " -gcart {}".format(gcart)
+    
+    jobdex_command += "\n"
+
     with open(folder + "launch.sh", "w") as outfile:
         outfile.write("#!/bin/bash\n")
         outfile.write("#SBATCH -q RM-shared\n")
@@ -251,7 +265,9 @@ def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"
         outfile.write("export PATH=/ocean/projects/che160019p/shared/openbabel-2.4.0/bin/:$PATH\n")
         outfile.write("unalis -a\n")
         outfile.write("export PYTHONUNBUFFERED=1\n")
-        outfile.write("time /ocean/projects/che160019p/santi92/phd3/phd3/bin/runturbomole.py -n {} -t {}\n".format(cpus, time))
+        #outfile.write("time /ocean/projects/che160019p/santi92/phd3/phd3/bin/runturbomole.py -n {} -t {}\n".format(cpus, time))
+        #outfile.write("time jobex  -c {}  -np {} -t {} -c\n".format(steps, cpus, time))
+        
         outfile.write("exit 0\n")
 
     if submit_tf:

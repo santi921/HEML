@@ -19,7 +19,7 @@ def addh(pdb_file):
     rc("close session")
 
 
-def get_options(options_file = "./options.json"):
+def get_options(options_file = "./options/options.json"):
     """
     Get options from options.json file and create folders if they don't exist.
     Takes 
@@ -39,7 +39,7 @@ def get_options(options_file = "./options.json"):
 
 def main():
     
-    options = get_options("./options.json")
+    options = get_options("./options/options.json")
     root = options["compressed_proteins_folder"]
 
     for ind, protein_name in enumerate(os.listdir(root)):

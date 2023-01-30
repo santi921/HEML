@@ -4,7 +4,7 @@ from os import system as run
 from glob import glob
 
 
-def get_options(options_file = "./options.json"):
+def get_options(options_file = "./options/options.json"):
     """
     Get options from options.json file and create folders if they don't exist.
     Takes 
@@ -32,7 +32,7 @@ def main():
 
     # read json file for folder locations  
 
-    options = get_options("./options.json")
+    options = get_options("./options/options.json")
     pdb_folder = str(options["pdb_folder"])
     output_folder = str(options["processed_pdb_folder"])
     charges_folder = str(options["charges_folder"])

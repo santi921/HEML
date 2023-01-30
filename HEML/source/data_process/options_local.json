@@ -1,7 +1,0 @@
-{
-    "pdb_folder": "../../../data/pdbs/",
-    "cpet_folder": "../../../data/cpet/",
-    "processed_pdb_folder":"../../../data/pdb_processed/",
-    "charges_folder":"../../../data/charges/old_pqr/",
-    "processed_charges_folder":"../../../data/charge_processed/old_pqr/",
-    "compressed_proteins_folder":"/home/santiagovargas/dev/HEML/data/compressed_frames/"}

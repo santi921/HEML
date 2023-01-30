@@ -4,7 +4,7 @@ from HEML.utils.data import compress, get_options
 from random import choice
 
 def main():
-    options = get_options("./options.json")
+    options = get_options("./options/options.json")
     root = options["cpet_folder"]
     
     # get list of folders in directory specified by user

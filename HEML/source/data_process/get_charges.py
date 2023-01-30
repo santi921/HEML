@@ -7,7 +7,7 @@ from HEML.utils.data import get_options
 
 def main():
 
-    options = get_options("./options.json")
+    options = get_options("./options/options.json")
     folder_processed = options["processed_pdb_folder"]
     out_folder = options["charges_folder"]
     chargefw2_loc = options["chargefw2_loc"]

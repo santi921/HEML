@@ -12,7 +12,7 @@ if __name__ == "__main__" :
     box_size = 3.0
 
     fail = 0
-    options = get_options("./options.json")
+    options = get_options("./options/options.json")
 
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
