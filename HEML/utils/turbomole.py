@@ -34,7 +34,7 @@ def setup_turbomole(folder_name):
     write__sbatch(folder_name)
 
 
-def submit_turbomole(folder_name, check_if_done = True):
+def submit_turbomole(folder_name, check_if_done = True, t=24, n = 4):
     os.chdir(folder_name)   
     # check if file called GEO_OPT_CONVERGED exists
     
@@ -45,8 +45,8 @@ def submit_turbomole(folder_name, check_if_done = True):
             return
     write_sbatch(
         "./", 
-        time = 24, 
-        cpus=4, 
+        time = t, 
+        cpus=n, 
         steps = 1000, 
         ri = True, 
         rij = True, 
