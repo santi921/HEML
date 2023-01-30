@@ -65,6 +65,8 @@ def define_turbomoleio(
     log_filepath = folder_name + "turbomoleio.log"
     workdir = folder_name
 
+    print("validate parameters: {}".format(validate_parameters(dp)))
+
     dr = DefineRunner(
         log_filepath=log_filepath,
         workdir=workdir,
@@ -107,16 +109,16 @@ def get_dictionary( atoms_present = [], charge = 0):
     basic_dict = {        
         "method": "dft",
         "functional" : "tpss",
-        "grid_size": "m4",
+        "gridsize": "m4",
         "scfiterlimit": 500,
         "scfconv": 4,
-        "basis": "def2-SVP",
-        "freeze_atoms": [],
-        "calculation": "geo",
+        "basis": "b all def2-SV(P)",
+        #"freeze_atoms": [],
+        #"calculation": "geo",
         "scfiterlimit": 1000,
-        "weight": False,
-        "gcart": None,
-        "denconv": None,
+        #"weight": False,
+        #"gcart": None,
+        #"denconv": None,
         "rij": False,
         "marij": True,
         "ri": True, 
@@ -125,11 +127,11 @@ def get_dictionary( atoms_present = [], charge = 0):
         "disp": "DFT-D3",
         "use_cosmo": True,
         "epsilon": 4,
-        "stp": {
-            "itvc": 0,
-            "trad": 0.1
-        },
-        "geo_iterations": 600,
+        #"stp": {
+        #    "itvc": 0,
+        #    "trad": 0.1
+        #},
+        #"geo_iterations": 600,
 
     }
 
@@ -152,7 +154,7 @@ def get_dictionary( atoms_present = [], charge = 0):
             elif atom == "O" or atom == "o":
                 basic_dict["basis_atom"]["o"] = "def2-TZVP"
             else: 
-                basic_dict["basis_atom"][atom.lower()] = "def2-SVP"
+                basic_dict["basis_atom"][atom.lower()] = "def2-SV(P)"
 
     if charge != 0:
         basic_dict["charge"] = charge
