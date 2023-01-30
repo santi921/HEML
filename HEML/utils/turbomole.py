@@ -109,6 +109,7 @@ def define_turbomoleio(
 def get_dictionary( atoms_present = [], charge = 0):
 
     basic_dict = {        
+        "ired": False, 
         "method": "dft",
         "functional" : "tpss",
         "gridsize": "m4",
@@ -116,7 +117,6 @@ def get_dictionary( atoms_present = [], charge = 0):
         "scfconv": 4,
         "basis": "b all def2-SV(P)",
         "scfiterlimit": 1000,
-        "rij": False,
         "marij": True,
         "ri": True, 
         "rijk": False,
@@ -157,7 +157,7 @@ def get_dictionary( atoms_present = [], charge = 0):
        
     #if frozen_atoms != []:
     #    basic_dict['freeze_atoms'] = frozen_atoms
-
+    print(basic_dict)
     return basic_dict
 
 
@@ -207,9 +207,9 @@ def clean_up(folder, filter="GEO_OPT_FAILED", clear_control_tf = False):
     # if there is, remove all the files in the folder
     for file in os.listdir(folder):
         if file.endswith(filter):        
-            # remove every file that isn't a .sh file or a slurm* file or coord file
+            # remove every file that isn't a .sh file or a slurm* file or coord file 
             for file in os.listdir(folder):
-                if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord"):
+                if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord") and not file.endswith("control"):
                     os.remove(os.path.join(folder, file))
                 if clear_control_tf:
                     if file.endswith("control"):
@@ -262,7 +262,7 @@ def add_frozen_atoms(folder, frozen_atoms):
     with open(folder + "coord", "r") as infile:
         lines = infile.readlines()
         for atom in frozen_atoms:
-            lines[atom+1] = lines[atom+1].rstrip("\n") + " f\n"
+            lines[atom] = lines[atom].rstrip("\n") + " f\n"
             
     # write the new coord file
     with open(folder + "coord", "w") as outfile:
