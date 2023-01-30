@@ -202,11 +202,20 @@ def check_submitted(folder):
     return False
 
 
-def clean_up(folder, filter="GEO_OPT_FAILED", clear_control_tf = False):
+def clean_up(folder, filter=None, clear_control_tf = False):
     # check if there's a file with name filter in the folder
     # if there is, remove all the files in the folder
     for file in os.listdir(folder):
-        if file.endswith(filter):        
+        if filter is not None:
+            if file.endswith(filter):        
+                # remove every file that isn't a .sh file or a slurm* file or coord file 
+                for file in os.listdir(folder):
+                    if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord") and not file.endswith("control"):
+                        os.remove(os.path.join(folder, file))
+                    if clear_control_tf:
+                        if file.endswith("control"):
+                            os.remove(os.path.join(folder, file))
+        else:
             # remove every file that isn't a .sh file or a slurm* file or coord file 
             for file in os.listdir(folder):
                 if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord") and not file.endswith("control"):
@@ -214,7 +223,6 @@ def clean_up(folder, filter="GEO_OPT_FAILED", clear_control_tf = False):
                 if clear_control_tf:
                     if file.endswith("control"):
                         os.remove(os.path.join(folder, file))
-
 
 def write__sbatch(folder, time = 24, cpus=4, submit_tf = False, user = "santi92"):
     """
