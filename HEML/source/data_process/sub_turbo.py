@@ -23,7 +23,7 @@ from HEML.utils.turbomole import (
 def main():
     submit_tf = False
     submit_only = False
-    cleanup_tf = True
+    cleanup_tf = False
     embedd_tf = False
     clear_control_tf = True
 
@@ -100,9 +100,9 @@ def main():
                     
                                 
                     if submit_tf:
-                        submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
-                        submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
-                        submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
+                        submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 6)
+                        submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 6)
+                        submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 6)
 
                     else: 
                         print("not submitting calculations")

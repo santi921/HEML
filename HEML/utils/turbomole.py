@@ -31,10 +31,10 @@ def setup_turbomole(folder_name):
     os.chdir(folder_name)
     os.system('setupturbomole.py -t')
     os.chdir("../../..")
-    write__sbatch(folder_name)
+    write_sbatch(folder_name)
 
 
-def submit_turbomole(folder_name, check_if_done = True, t=24, n = 4):
+def submit_turbomole(folder_name, check_if_done = True, t = 24, n = 4):
     os.chdir(folder_name)   
     # check if file called GEO_OPT_CONVERGED exists
     
@@ -43,6 +43,7 @@ def submit_turbomole(folder_name, check_if_done = True, t=24, n = 4):
             os.chdir("../../..")
             print("calculation is complete, not resubmitting")
             return
+        
     write_sbatch(
         "./", 
         time = t, 
@@ -52,7 +53,7 @@ def submit_turbomole(folder_name, check_if_done = True, t=24, n = 4):
         rij = True, 
         conv_crit = 5, 
         gcart = 3, 
-        submit_tf = False, 
+        submit_tf = True, 
         user = "santi92", keep=False)
     #os.system("sbatch ./submit.sh")
     os.chdir("../../..")
@@ -254,11 +255,11 @@ def write_sbatch(folder, time = 24, cpus=4, steps = 100, ri = False, rij=False, 
     if gcart:
         jobex_command += " -gcart {}".format(gcart)
     
-    jobdex_command += "\n"
+    jobex_command += "\n"
 
     with open(folder + "launch.sh", "w") as outfile:
         outfile.write("#!/bin/bash\n")
-        outfile.write("#SBATCH -q RM-shared\n")
+        outfile.write("#SBATCH -p RM-shared\n")
         outfile.write("#SBATCH -t {}:00:00\n".format(time))
         outfile.write("#SBATCH -J o\n")
         outfile.write("#SBATCH --no-requeue\n")
@@ -273,11 +274,12 @@ def write_sbatch(folder, time = 24, cpus=4, steps = 100, ri = False, rij=False, 
         outfile.write("echo \"\n\tSUBMIT DIRECTORY = $qqdir\n\tCORES = {} \n\tTIME = {} \n\tSCRATCH = $LOCAL \n\tDATE = `date`\n\"\n".format(cpus, time))
         outfile.write("echo \"\n\tAdding OpenBabel to Path\n\"\n")
         outfile.write("export PATH=/ocean/projects/che160019p/shared/openbabel-2.4.0/bin/:$PATH\n")
-        outfile.write("unalis -a\n")
+        #outfile.write("unalis -a\n")
         outfile.write("export PYTHONUNBUFFERED=1\n")
+        # increase memory limit - 16 gb
+        outfile.write("ulimit -v 16000000\n")
         #outfile.write("time /ocean/projects/che160019p/santi92/phd3/phd3/bin/runturbomole.py -n {} -t {}\n".format(cpus, time))
-        #outfile.write("time jobex  -c {}  -np {} -t {} -c\n".format(steps, cpus, time))
-        
+        outfile.write(jobex_command)
         outfile.write("exit 0\n")
 
     if submit_tf:
