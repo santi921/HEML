@@ -34,7 +34,7 @@ def setup_turbomole(folder_name):
     write_sbatch(folder_name)
 
 
-def submit_turbomole(folder_name, check_if_done = True, t = 24, n = 4):
+def submit_turbomole(folder_name, check_if_done = True, t = 24, n = 4, job_name = "o"):
     os.chdir(folder_name)   
     # check if file called GEO_OPT_CONVERGED exists
     
@@ -53,9 +53,10 @@ def submit_turbomole(folder_name, check_if_done = True, t = 24, n = 4):
         rij = True, 
         conv_crit = 5, 
         gcart = 3, 
-        submit_tf = True, 
+        submit_tf = True,
+        name = job_name, 
         user = "santi92", keep=False)
-    #os.system("sbatch ./submit.sh")
+    
     os.chdir("../../..")
 
 
@@ -122,7 +123,6 @@ def get_dictionary( atoms_present = [], charge = 0, spin=0):
         "method": "dft",
         "functional" : "tpss",
         "gridsize": "m4",
-        "scfiterlimit": 500,
         "scfconv": 4,
         "basis": "def2-SV(P)",
         "scfiterlimit": 1000,
@@ -235,13 +235,36 @@ def clean_up(folder, filter=None, clear_control_tf = False):
                         os.remove(os.path.join(folder, file))
 
 
-def write_sbatch(folder, time = 24, cpus=4, steps = 100, ri = False, rij=False, conv_crit = 6, gcart = 3, submit_tf = False, user = "santi92", keep=False):
+def write_sbatch(
+        folder, 
+        time = 24, 
+        cpus=4, 
+        steps = 100, 
+        ri = False, 
+        rij=False, 
+        conv_crit = 6, 
+        gcart = 3, 
+        submit_tf = False, 
+        user = "santi92", 
+        name='normal', 
+        keep=False):
     """
     Writes a launch sbatch file for the protein
     Takes:
         folder: the folder of the protein
         submit_tf: if True, submits the sbatch file
+        time: the time in hours that the protein should be run for
+        cpus: the number of cpus that should be used
+        steps: the number of steps that should be run - geo opt 
+        ri: if True, runs RI
+        rij: if True, runs RIJ
+        conv_crit: the convergence criterion for the energy
+        gcart: the convergence criterion for the geometry
+        user: the user that is running the calculation
+        name: the name of the job
+        keep: if True, keeps the files after the calculation is done
     """
+
     # write the sbatch file 
     jobex_command = "jobex  -c {} -np {} -c".format(steps, cpus, time)
     if conv_crit:
@@ -260,14 +283,16 @@ def write_sbatch(folder, time = 24, cpus=4, steps = 100, ri = False, rij=False, 
     with open(folder + "launch.sh", "w") as outfile:
         outfile.write("#!/bin/bash\n")
         outfile.write("#SBATCH -p RM-shared\n")
+        outfile.write("#SBATCH --mem=10000\n")
         outfile.write("#SBATCH -t {}:00:00\n".format(time))
-        outfile.write("#SBATCH -J o\n")
+        outfile.write("#SBATCH -J {}\n".format(name))
         outfile.write("#SBATCH --no-requeue\n")
         outfile.write("#SBATCH -N 1\n")
         outfile.write("#SBATCH --ntasks-per-node {}\n".format(cpus))
         outfile.write("#SBATCH --mail-user={}\n".format(user))
         outfile.write("#SBATCH --mail-type=FAIL\n")
         outfile.write("echo \"\n\tSettings MKL_DEBUG_CPU_TYPE=5\n\"\n")
+        outfile.write("module load mkl\n")
         outfile.write("export MKL_DEBUG_CPU_TYPE=5\n")
         outfile.write("qqdir=$SLURM_SUBMIT_DIR")
         outfile.write("cd $qqdir\n")
@@ -277,7 +302,7 @@ def write_sbatch(folder, time = 24, cpus=4, steps = 100, ri = False, rij=False, 
         #outfile.write("unalis -a\n")
         outfile.write("export PYTHONUNBUFFERED=1\n")
         # increase memory limit - 16 gb
-        outfile.write("ulimit -v 16000000\n")
+        #outfile.write("ulimit -v 4000000\n")
         #outfile.write("time /ocean/projects/che160019p/santi92/phd3/phd3/bin/runturbomole.py -n {} -t {}\n".format(cpus, time))
         outfile.write(jobex_command)
         outfile.write("exit 0\n")

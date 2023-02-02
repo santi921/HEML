@@ -44,9 +44,10 @@ def main():
                 clean_up("{}/embedding/normal/".format(folder_name), filter=None, clear_control_tf=clear_control_tf)
 
             if submit_only:
-                submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 4)
-                submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 4)
-                submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 4)
+                submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 6, job_name="{}_o".format(protein_name))
+                submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 6, job_name="{}_oh".format(protein_name))
+                submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 6, job_name="{}_normal".format(protein_name))
+
                 # go to next protein
                 continue
 
@@ -76,15 +77,15 @@ def main():
                         #add to log 
 
                     try:
-                        define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=0, spin=0)
+                        define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=-2, spin=1)
                     except: 
                         print("failed to define turbomoleio for o")
                     try:       
-                        define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1, spin=1)
+                        define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=-3, spin=0)
                     except: 
                         try:
                             clean_up("{}/embedding/normal/".format(folder_name), filter=None, clear_control_tf=True)
-                            define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=+1, spin=2)
+                            define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=-3, spin=0)
                         except:
                             print("failed to define turbomoleio for normal")
                                 
@@ -100,9 +101,9 @@ def main():
                     
                                 
                     if submit_tf:
-                        submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 6)
-                        submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 6)
-                        submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 6)
+                        submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 6, job_name="{}_o".format(protein_name))
+                        submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 6, job_name="{}_oh".format(protein_name))
+                        submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 6, job_name="{}_normal".format(protein_name))
 
                     else: 
                         print("not submitting calculations")

@@ -33,7 +33,7 @@ def run_box_calcs(cpet_path, charges_dir):
         print("protein file: {}".format(protein))
 
         if(protein+".top" not in files_done):            
-            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), file)
+            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), cpet_path+file)
             print(launch_str)    
             os.system(launch_str)
         print("cpet done running")
