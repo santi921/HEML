@@ -125,7 +125,7 @@ def get_dictionary( atoms_present = [], charge = 0, spin=0):
         "gridsize": "m4",
         "scfconv": 4,
         "basis": "def2-SV(P)",
-        "scfiterlimit": 1000,
+        "scfiterlimit": 1600,
         "marij": True,
         "ri": True, 
         "rijk": False,
@@ -160,6 +160,7 @@ def get_dictionary( atoms_present = [], charge = 0, spin=0):
 
     if charge != 0:
         basic_dict["charge"] = charge
+    if spin != 0:
         basic_dict["unpaired_electrons"] = spin
         #if charge == -2: 
         #    #basic_dict["open_shell"]["open_shell_on"] = True
