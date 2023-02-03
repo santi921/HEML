@@ -155,6 +155,8 @@ def get_dictionary( atoms_present = [], charge = 0, spin=0):
                 basic_dict["basis_atom"]["s"] = "def2-TZVP"
             elif atom == "O" or atom == "o":
                 basic_dict["basis_atom"]["o"] = "def2-TZVP"
+            elif atom == "C" or atom == "c":
+                basic_dict["basis_atom"]['c'] = "def2-TZVP"
             else: 
                 basic_dict["basis_atom"][atom.lower()] = "def2-SV(P)"
 
