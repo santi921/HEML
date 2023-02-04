@@ -326,7 +326,7 @@ def write_sbatch(
         os.system("sbatch " + folder + "launch.sh")
 
 
-def write_memory_header_to_control(folder, memory=1800):
+def write_memory_header_to_control(folder, memory=1500):
     """
     Writes the memory header to the control file
     Takes:
