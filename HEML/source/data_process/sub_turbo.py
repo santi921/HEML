@@ -16,7 +16,8 @@ from HEML.utils.turbomole import (
     check_submitted,
     clean_up,
     fetch_charges_dict,
-    submit_turbomole
+    submit_turbomole,
+    write_memory_header_to_control
 )
 
 
@@ -26,7 +27,6 @@ def main():
     cleanup_tf = False
     embedd_tf = False
     clear_control_tf = True
-
 
     options = get_options("./options/options.json")
     root = options["compressed_proteins_folder"]
@@ -47,7 +47,6 @@ def main():
                 submit_turbomole("{}/embedding/o/".format(folder_name), t = 24, n = 6, job_name="{}_o".format(protein_name))
                 submit_turbomole("{}/embedding/oh/".format(folder_name), t = 24, n = 6, job_name="{}_oh".format(protein_name))
                 submit_turbomole("{}/embedding/normal/".format(folder_name), t = 24, n = 6, job_name="{}_normal".format(protein_name))
-
                 # go to next protein
                 continue
 
@@ -72,18 +71,21 @@ def main():
                     add_frozen_atoms("{}/embedding/normal/".format(folder_name), frozen_atoms_heme)
 
                     try:       
-                        define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=-2, spin=1)
+                        define_turbomoleio("{}/embedding/normal/".format(folder_name), frozen_atoms_heme, elements,  charge=-2, spin=1, new_control=clear_control_tf)
+                        write_memory_header_to_control("{}/embedding/normal/".format(folder_name), 1800)
                     except: 
                         print("failed to define turbomoleio for normal")
 
                     try:
-                        define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=-2, spin=0)
+                        define_turbomoleio("{}/embedding/oh/".format(folder_name), frozen_atoms_oh, elements,  charge=-2, spin=0, new_control=clear_control_tf)
+                        write_memory_header_to_control("{}/embedding/oh/".format(folder_name), 1800)
                     except: 
                         print("failed to define turbomoleio for oh")
                         #add to log 
 
                     try:
-                        define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=-3, spin=0)
+                        define_turbomoleio("{}/embedding/o/".format(folder_name), frozen_atoms_o, elements,  charge=-3, spin=0, new_control=clear_control_tf)
+                        write_memory_header_to_control("{}/embedding/o/".format(folder_name), 1800)
                     except: 
                         print("failed to define turbomoleio for o")
                     

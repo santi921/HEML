@@ -35,7 +35,9 @@ def setup_turbomole(folder_name):
 
 
 def submit_turbomole(folder_name, check_if_done = True, t = 24, n = 4, job_name = "o"):
+    
     os.chdir(folder_name)   
+    
     # check if file called GEO_OPT_CONVERGED exists
     
     if check_if_done:
@@ -65,9 +67,14 @@ def define_turbomoleio(
     check_if_done = True,
     atoms_present = [],
     charge = 0, 
-    spin = 0
+    spin = 0,
+    new_control=False
     ):
     
+    if new_control:
+        clean_up(folder = folder_name, filter=None, clean_control_only=True)
+    
+
     if check_if_done:
         if os.path.exists("GEO_OPT_CONVERGED"):
             os.chdir("../../..")
@@ -215,12 +222,25 @@ def check_submitted(folder):
     return False
 
 
-def clean_up(folder, filter=None, clear_control_tf = False):
+def clean_up(folder, filter=None, clear_control_tf = False, clean_control_only = False):
     # check if there's a file with name filter in the folder
     # if there is, remove all the files in the folder
     for file in os.listdir(folder):
-        if filter is not None:
-            if file.endswith(filter):        
+        if clean_control_only:
+            if file.endswith("control"):
+                os.remove(os.path.join(folder, file))
+        else:
+            if filter is not None:
+                if file.endswith(filter):        
+                    # remove every file that isn't a .sh file or a slurm* file or coord file 
+                    for file in os.listdir(folder):
+                        if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord") and not file.endswith("control"):
+                            os.remove(os.path.join(folder, file))
+                        if clear_control_tf:
+                            if file.endswith("control"):
+                                os.remove(os.path.join(folder, file))
+            
+            else:
                 # remove every file that isn't a .sh file or a slurm* file or coord file 
                 for file in os.listdir(folder):
                     if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord") and not file.endswith("control"):
@@ -228,14 +248,6 @@ def clean_up(folder, filter=None, clear_control_tf = False):
                     if clear_control_tf:
                         if file.endswith("control"):
                             os.remove(os.path.join(folder, file))
-        else:
-            # remove every file that isn't a .sh file or a slurm* file or coord file 
-            for file in os.listdir(folder):
-                if not file.endswith(".sh") and not file.startswith("slurm-") and not file.endswith("coord") and not file.endswith("control"):
-                    os.remove(os.path.join(folder, file))
-                if clear_control_tf:
-                    if file.endswith("control"):
-                        os.remove(os.path.join(folder, file))
 
 
 def write_sbatch(
@@ -286,7 +298,7 @@ def write_sbatch(
     with open(folder + "launch.sh", "w") as outfile:
         outfile.write("#!/bin/bash\n")
         outfile.write("#SBATCH -p RM-shared\n")
-        outfile.write("#SBATCH --mem=10000\n")
+        outfile.write("#SBATCH --mem={}\n".format(int(cpus * 2000)))
         outfile.write("#SBATCH -t {}:00:00\n".format(time))
         outfile.write("#SBATCH -J {}\n".format(name))
         outfile.write("#SBATCH --no-requeue\n")
@@ -312,7 +324,31 @@ def write_sbatch(
 
     if submit_tf:
         os.system("sbatch " + folder + "launch.sh")
-        
+
+
+def write_memory_header_to_control(folder, memory=1800):
+    """
+    Writes the memory header to the control file
+    Takes:
+        folder: the folder of the protein
+        memory: the memory in mb
+    """
+    with open(folder + "control", "r") as infile:
+        lines = infile.readlines()
+        # add the memory header to the control file at fourth to last line without overwriting that line 
+        #lines[-4] = "$mem {} mib\n".format(memory)
+        # get last four lines 
+        lines_temp = lines[-4:]
+        # remove last four lines
+        lines = lines[:-4]
+        # add the memory header to the control file at fourth to last line without overwriting that line
+        lines.append("$maxcor {} mib per_core\n".format(memory))
+        # add last four lines back
+        lines.extend(lines_temp)
+        # write new control file
+        with open(folder + "control", "w") as outfile:
+            outfile.writelines(lines)
+
 
 def add_frozen_atoms(folder, frozen_atoms):
     """
