@@ -1,7 +1,7 @@
 import os, json
 import numpy as np 
 from turbomoleio.input.define import DefineRunner
-from turbomoleio.input.utils import get_define_template, validate_parameters
+from turbomoleio.input.utils import validate_parameters
 from monty.os import cd
 
 
@@ -79,7 +79,9 @@ def define_turbomoleio(
         if os.path.exists("GEO_OPT_CONVERGED"):
             os.chdir("../../..")
             return
-
+    # if energy in atoms_present remove it from list 
+    if "Energy" in atoms_present:
+        atoms_present.remove("Energy")
     dp = get_dictionary(atoms_present, charge, spin=spin)
     timeout=15
     log_filepath = folder_name + "turbomoleio.log"

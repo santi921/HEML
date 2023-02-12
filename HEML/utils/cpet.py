@@ -24,8 +24,8 @@ def run_box_calcs(cpet_path, charges_dir):
     files_target = glob(cpet_path + "options_field*.txt")
     files_done = os.listdir(cpet_path)
     charges_dir = charges_dir
-
-    for i in range(10000):
+    print(files_target)
+    for i in range(20000):
         file = choice(files_target)
         protein=file.split("/")[-1][14:] # works for protein movies
         
@@ -33,7 +33,7 @@ def run_box_calcs(cpet_path, charges_dir):
         print("protein file: {}".format(protein))
 
         if(protein+".top" not in files_done):            
-            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), cpet_path+file)
+            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), file)
             print(launch_str)    
             os.system(launch_str)
         print("cpet done running")

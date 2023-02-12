@@ -8,18 +8,18 @@ if __name__ == "__main__" :
     zero_active = True
     zero_everything_charged = False
     
-    box = False
+    box = True
     box_size = 3.0
 
     fail = 0
-    options = get_options("./options/options.json")
+    options = get_options("./options/options_local.json")
 
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
-    
+    print(outdir)
     filelist = glob(charges_directory+"*pqr")
-    
+    print(filelist)    
     for i in filelist:
 
         # new filename
