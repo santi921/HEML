@@ -9,5 +9,3 @@ order
 - python process_charges
 - python run_cpet.py 
 
-# Todo 
-# [] - equivariants/euclidean networks
