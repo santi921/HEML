@@ -13,7 +13,7 @@ from HEML.utils.model import *
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.metrics import accuracy_score, f1_score, r2_score, roc_auc_score
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
 class training: 
     def __init__(self, model, pca_tf=True, aug=True):
@@ -57,7 +57,7 @@ class training:
 
 
     def train(self):
-        with wandb.init(project="HemeML") as run:
+        with wandb.init(project="HemeML_redux") as run:
             config = wandb.config
             model_obj = self.make_model(config)
 

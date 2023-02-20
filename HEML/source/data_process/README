@@ -11,4 +11,10 @@ Once you have your list of compressed proteins and the structures you want to co
 
 1) phd3_process.py --> pulls out heme from MD frame, converts to pdb
 2) addh_post.py --> adds hydrogens to core heme
-3) turbo_sub.
+3) turbo_sub.py
+
+
+2) python get_charges.py
+3) python process_charges.py
+4) python run_cpet_box_calc.py/run_top_single.py
+
