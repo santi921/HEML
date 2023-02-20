@@ -54,7 +54,7 @@ class training:
             self.X_train_untransformed = self.X_train
             self.X_test_untransformed = self.X_test
             
-            _, self.pca_obj = pca(np.concatenate((self.X_train, self.X_test)), verbose = True, pca_comps=10) 
+            _, self.pca_obj = pca(np.concatenate((self.X_train, self.X_test)), verbose = True, pca_comps=15) 
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)        
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)  
 
@@ -63,7 +63,7 @@ class training:
         model_dict = {"alpha":0.000010657294909830847,
                     "eta":0.8230449864361263,
                     "gamma":0.00002776158908445319,
-                    "max_depth":2,
+                    "max_depth":3,
                     "reg_lambda":0.000004975837567403846,
                     "subsample":0.7744313711193004}
         self.model_obj = XGBClassifier(**model_dict, eval_metric='mlogloss')
