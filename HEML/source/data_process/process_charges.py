@@ -60,7 +60,6 @@ if __name__ == "__main__" :
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
                 ligand_none = check_if_dict_has_None(ligand_dict)
                 if(not nitro_none and not ligand_none):
-                    
                     fail_cond = False
             
                     if ligand_dict["best_crit_dist"] > 4.0:
@@ -80,8 +79,6 @@ if __name__ == "__main__" :
                 fail_cond = True
                 print("Failed File: ".format(i))
                 fail += 1 
-
-
 
 
             filename = os.path.basename(i)

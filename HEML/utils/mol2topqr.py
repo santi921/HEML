@@ -44,22 +44,28 @@ def mol2_to_pqr(file):
                 y = line_split[3]
                 z = line_split[4]
                 atom_type = line_split[5]
+                # convert to uppercase
+                atom_type = atom_type.upper()
                 subst_id = line_split[6]
                 subst_name = line_split[7]
                 charge = line_split[8]
                 radius = atomic_radii[atom_type]
                 chain = 'A'
                 
+                atom_het = "ATOM"
                 # just for shobhit's files
                 if subst_name == "HM1": 
                     subst_name = "HEM"
+                    atom_het = "HETATM"
                 if subst_name == "FE1": 
                     subst_name = "HEM"
+                    atom_het = "HETATM"
+
 
                 # with element at end 
                 #line_pqr = "{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n".format('ATOM', int(atom_id), atom_name, ' ', subst_name, chain, int(subst_id), ' ', float(x), float(y), float(z), float(charge), float(radius), atom_type, ' ')
                 # without element at end
-                line_pqr = "{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}\n".format('ATOM', int(atom_id), atom_name, ' ', subst_name, chain, int(subst_id), ' ', float(x), float(y), float(z), float(charge), float(radius))
+                line_pqr = "{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}\n".format(atom_het, int(atom_id), atom_name, ' ', subst_name, chain, int(subst_id), ' ', float(x), float(y), float(z), float(charge), float(radius))
                 lines_pqr.append(line_pqr)
         
         if line.startswith('@<TRIPOS>ATOM'):
