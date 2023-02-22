@@ -3,23 +3,33 @@ from tkinter import E
 import os, re, json
 from glob import glob
 from HEML.utils.data import *
-
+from HEML.utils.mol2topqr import mol2_to_pqr_folder
 if __name__ == "__main__" :
     zero_active = True
     zero_everything_charged = False
-    
     box = True
-    box_size = 3.0
-
+    box_size = 4.0
     fail = 0
     options = get_options("./options/options_local.json")
 
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
+    
     print(outdir)
     filelist = glob(charges_directory+"*pqr")
-    print(filelist)    
+    # check if there are no files in the directory with the correct extension
+    if len(filelist) == 0:
+        print("No files in the directory with the correct extension, checking mol2 and converting to pqr")
+        filelist = glob(charges_directory+"*mol2")
+        if len(filelist) == 0:
+            print("No files in the directory with the correct extension, exiting")
+            exit()
+        else:
+            mol2_to_pqr_folder(charges_directory)
+            filelist = glob(charges_directory+"*pqr")
+        
+    
     for i in filelist:
 
         # new filename
