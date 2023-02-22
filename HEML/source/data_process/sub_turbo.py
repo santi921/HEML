@@ -93,7 +93,7 @@ def main():
                     if embedd_tf:
                         # find pqr file in fsqueueuolder
                         pqr_file = [f for f in os.listdir(folder_name) if f.endswith(".pqr")][0]
-                        charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file))
+                        charges_dict = fetch_charges_dict(os.path.join(folder_name, pqr_file), convert_to_bohr=True)
                         #print("-"*20 + "charges fetched" + "-"*20)
                     
                         put_charges_in_turbo_files(os.path.join(folder_name, "/embedding/oh/"), charges_dict)

@@ -40,21 +40,21 @@ def run_box_calcs(cpet_path, charges_dir):
     print("done running cpet")
 
 
-def run_topology_calcs(cpet_path, charges_dir):
+def run_topology_calcs(cpet_path, charges_dir, num = 10000, threads = 16):
 
     cpet_path = cpet_path
     files_target = glob(cpet_path + "options_topology*.txt")
     files_done = os.listdir(cpet_path)
     charges_dir = charges_dir
 
-    for i in range(10000):
+    for i in range(num):
         file = choice(files_target)
         protein=file.split("/")[-1][17:]
         
         print("protein file: {}".format(protein))
 
         if(protein+".top" not in files_done):            
-            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), file)
+            launch_str = "./cpet -p {} -t {} -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), threads, file)
             print(launch_str)    
             os.system(launch_str)
         print("cpet done running")

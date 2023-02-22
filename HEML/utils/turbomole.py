@@ -520,7 +520,7 @@ def get_frozen_atoms(file_name):
     return return_list
 
 
-def fetch_charges_dict(file_name = 'test.pqr'):
+def fetch_charges_dict(file_name = 'test.pqr', convert_to_bohr = True):
     """
     Given a list of dictionaries with element and position, traverse a pqr file and get the charges from the file
     EXCLUDING ELEMENTS IN THE LIST OF DICTIONARIES
@@ -534,13 +534,18 @@ def fetch_charges_dict(file_name = 'test.pqr'):
     # get the lines of the pqr file
     with open(file_name, 'r') as f:
         lines = f.readlines()
-    
+
+    if convert_to_bohr:
+        scalar = 1.8897259886
+    else: 
+        scalar = 1 
+
     for line in lines: 
-        x       = float(line[30:38].strip())
-        y       = float(line[39:46].strip())
-        z       = float(line[47:54].strip())
-        charge  = float(line[55:61].strip())
-        radius  = float(line[62:68].strip())    
+        x       = float(line[30:38].strip()) * scalar
+        y       = float(line[39:46].strip()) * scalar
+        z       = float(line[47:54].strip()) * scalar
+        charge  = float(line[55:61].strip()) 
+        radius  = float(line[62:68].strip()) * scalar   
         if np.abs(charge) >= 0.01:
             pqr_dict.append({"position": [x,y,z], "charge": charge, "radius": radius})
 
