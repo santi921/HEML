@@ -1,21 +1,23 @@
 import os
-from glob import glob 
+from glob import glob
 from random import choice
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
 
-matplotlib.rcParams.update({  # Use mathtext, not LaTeX
-    'text.usetex': False,
-    # Use the Computer modern font
-    'font.family': 'serif',
-    'font.serif': 'cmr10',
-    'mathtext.fontset': 'cm',
-    # Use ASCII minus
-    'axes.unicode_minus': False,
-    'font.size': 16
-})
+matplotlib.rcParams.update(
+    {  # Use mathtext, not LaTeX
+        "text.usetex": False,
+        # Use the Computer modern font
+        "font.family": "serif",
+        "font.serif": "cmr10",
+        "mathtext.fontset": "cm",
+        # Use ASCII minus
+        "axes.unicode_minus": False,
+        "font.size": 16,
+    }
+)
 
 
 def run_box_calcs(cpet_path, charges_dir):
@@ -27,20 +29,22 @@ def run_box_calcs(cpet_path, charges_dir):
     print(files_target)
     for i in range(20000):
         file = choice(files_target)
-        protein=file.split("/")[-1][14:] # works for protein movies
-        
-        #.split("_")[-1].split(".")[0]#.split("_")[-1]
+        protein = file.split("/")[-1][14:]  # works for protein movies
+
+        # .split("_")[-1].split(".")[0]#.split("_")[-1]
         print("protein file: {}".format(protein))
 
-        if(protein+".top" not in files_done):            
-            launch_str = "./cpet -p {} -t 16 -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), file)
-            print(launch_str)    
+        if protein + ".top" not in files_done:
+            launch_str = "./cpet -p {} -t 16 -o {} ".format(
+                "{}.pqr".format(charges_dir + protein[:-4]), file
+            )
+            print(launch_str)
             os.system(launch_str)
         print("cpet done running")
     print("done running cpet")
 
 
-def run_topology_calcs(cpet_path, charges_dir, num = 10000, threads = 16):
+def run_topology_calcs(cpet_path, charges_dir, num=10000, threads=16):
 
     cpet_path = cpet_path
     files_target = glob(cpet_path + "options_topology*.txt")
@@ -49,13 +53,15 @@ def run_topology_calcs(cpet_path, charges_dir, num = 10000, threads = 16):
 
     for i in range(num):
         file = choice(files_target)
-        protein=file.split("/")[-1][17:]
-        
+        protein = file.split("/")[-1][17:]
+
         print("protein file: {}".format(protein))
 
-        if(protein+".top" not in files_done):            
-            launch_str = "./cpet -p {} -t {} -o {} ".format('{}.pqr'.format(charges_dir+protein[:-4]), threads, file)
-            print(launch_str)    
+        if protein + ".top" not in files_done:
+            launch_str = "./cpet -p {} -t {} -o {} ".format(
+                "{}.pqr".format(charges_dir + protein[:-4]), threads, file
+            )
+            print(launch_str)
             os.system(launch_str)
         print("cpet done running")
 
@@ -63,7 +69,7 @@ def run_topology_calcs(cpet_path, charges_dir, num = 10000, threads = 16):
     print("done running cpet")
 
 
-def make_histograms(topo_files, plot = False):
+def make_histograms(topo_files, plot=False):
     histograms = []
 
     for topo_file in topo_files:
@@ -81,7 +87,15 @@ def make_histograms(topo_files, plot = False):
 
         # bins is number of histograms bins in x and y direction (so below is 100x100 bins)
         # range gives xrange, yrange for the histogram
-        a, b, c, q = plt.hist2d(distances, curvatures, bins=200, range=[[0, 10], [0, 30]], norm=matplotlib.colors.LogNorm(), density=True, cmap='jet')
+        a, b, c, q = plt.hist2d(
+            distances,
+            curvatures,
+            bins=200,
+            range=[[0, 10], [0, 30]],
+            norm=matplotlib.colors.LogNorm(),
+            density=True,
+            cmap="jet",
+        )
 
         NormConstant = 0
         for j in a:
@@ -90,27 +104,27 @@ def make_histograms(topo_files, plot = False):
 
         actual = []
         for j in a:
-            actual.append([m/NormConstant for m in j])
+            actual.append([m / NormConstant for m in j])
 
         actual = np.array(actual)
-        histograms.append(actual.flatten()) 
-        if(plot):
+        histograms.append(actual.flatten())
+        if plot:
             plt.show()
 
     return np.array(histograms)
 
 
 def distance_numpy(hist1, hist2):
-    a = (hist1-hist2)**2
-    b = hist1+hist2
-    return np.sum(np.divide(a, b, out=np.zeros_like(a), where=b!=0))/2.0
+    a = (hist1 - hist2) ** 2
+    b = hist1 + hist2
+    return np.sum(np.divide(a, b, out=np.zeros_like(a), where=b != 0)) / 2.0
 
 
 def construct_distance_matrix(histograms):
     matrix = np.diag(np.zeros(len(histograms)))
     for i, hist1 in enumerate(histograms):
-        for j,hist2 in enumerate(histograms[i+1:]):
-            j += i+1
+        for j, hist2 in enumerate(histograms[i + 1 :]):
+            j += i + 1
             matrix[i][j] = distance_numpy(hist1, hist2)
             matrix[j][i] = matrix[i][j]
 

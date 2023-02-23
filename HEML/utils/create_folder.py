@@ -1,9 +1,9 @@
-import os 
+import os
 
 
 def create_folders():
     """Create a folder for each protein in the current directory and move the
-        protein into the folder.    
+    protein into the folder.
     """
     # Get the current directory
     current_dir = os.getcwd()

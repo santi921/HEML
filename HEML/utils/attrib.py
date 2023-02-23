@@ -1,13 +1,17 @@
 from __future__ import absolute_import
 import numpy as np
-#from keras import backend as K
+
+# from keras import backend as K
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
 
 
 def model_modifier_function(cloned_model):
     import tensorflow as tf
+
     cloned_model.layers[1].activation = tf.keras.activations.linear
+
+
 def macro_f1(y, y_hat, thresh=0.5):
     import tensorflow as tf
 
@@ -28,8 +32,11 @@ def macro_f1(y, y_hat, thresh=0.5):
     f1 = 2 * tp / (2 * tp + fn + fp + 1e-16)
     macro_f1 = tf.reduce_mean(f1)
     return macro_f1
+
+
 def macro_soft_f1(y, y_hat):
     import tensorflow as tf
+
     """Compute the macro soft F1-score as a cost.
     Average (1 - soft-F1) across all labels.
     Use probability values instead of binary predictions.
@@ -52,8 +59,11 @@ def macro_soft_f1(y, y_hat):
     macro_cost = tf.reduce_mean(cost)  # average on all labels
 
     return macro_cost
-def normalize(array, min_value=0., max_value=1.):
+
+
+def normalize(array, min_value=0.0, max_value=1.0):
     from tensorflow import keras
+
     """Normalizes the numpy array to (min_value, max_value)
     Args:
         array: The numpy array
@@ -66,6 +76,8 @@ def normalize(array, min_value=0., max_value=1.):
     arr_max = np.max(array)
     normalized = (array - arr_min) / (arr_max - arr_min + keras.backend.epsilon())
     return (max_value - min_value) * normalized + min_value
+
+
 def get_img_shape(img):
     from tensorflow import keras
 
@@ -81,11 +93,13 @@ def get_img_shape(img):
     else:
         shape = keras.backend.int_shape(img)
 
-    if keras.backend.image_data_format() == 'channels_last':
+    if keras.backend.image_data_format() == "channels_last":
         shape = list(shape)
         shape.insert(1, shape[-1])
         shape = tuple(shape[:-1])
     return shape
+
+
 def deprocess_input(input_array, input_range=(0, 255)):
     from tensorflow import keras
 
@@ -99,7 +113,7 @@ def deprocess_input(input_array, input_range=(0, 255)):
     # normalize tensor: center on 0., ensure std is 0.1
     input_array = input_array.copy()
     input_array -= input_array.mean()
-    input_array /= (input_array.std() + keras.backend.epsilon())
+    input_array /= input_array.std() + keras.backend.epsilon()
     input_array *= 0.1
 
     # clip to [0, 1]
@@ -108,7 +122,9 @@ def deprocess_input(input_array, input_range=(0, 255)):
 
     # Convert to `input_range`
     return (input_range[1] - input_range[0]) * input_array + input_range[0]
-def random_array(shape, mean=128., std=20.):
+
+
+def random_array(shape, mean=128.0, std=20.0):
     from tensorflow import keras
 
     """Creates a uniformly distributed random array with the given `mean` and `std`.
@@ -140,17 +156,17 @@ def saliency_map_dense(model, test_field):
 
     with tf.GradientTape() as tape:
         pred = model(images, training=False)
-        #np.array(pred)
+        # np.array(pred)
         class_idxs_sorted = np.argsort(pred.numpy().flatten())[::-1]
-        loss = pred[0][class_idxs_sorted[0]]    
+        loss = pred[0][class_idxs_sorted[0]]
         grads = tape.gradient(loss, images)
 
     dgrad_abs = tf.math.abs(grads)
 
     ## normalize to range between 0 and 1
-    arr_min, arr_max  = np.min(dgrad_abs), np.max(dgrad_abs)
+    arr_min, arr_max = np.min(dgrad_abs), np.max(dgrad_abs)
     grad_eval = (dgrad_abs - arr_min) / (arr_max - arr_min + 1e-18)
-    #np.around(grad_eval/10, decimals=3)*10
+    # np.around(grad_eval/10, decimals=3)*10
     return np.array(grad_eval)
 
 
@@ -178,7 +194,9 @@ def get_gradients(img_input, model, top_pred_idx):
     return grads
 
 
-def get_integrated_gradients(img_input, top_pred_idx, model, baseline=None, num_steps=50):
+def get_integrated_gradients(
+    img_input, top_pred_idx, model, baseline=None, num_steps=50
+):
     import tensorflow as tf
 
     """Computes Integrated Gradients for a predicted label.
@@ -212,7 +230,7 @@ def get_integrated_gradients(img_input, top_pred_idx, model, baseline=None, num_
     interpolated_image = np.array(interpolated_image).astype(np.float32)
 
     # 2. Preprocess the interpolated images
-    #interpolated_image = xception.preprocess_input(interpolated_image)
+    # interpolated_image = xception.preprocess_input(interpolated_image)
 
     # 3. Get the gradients
     grads = []
@@ -253,11 +271,11 @@ def random_baseline_integrated_gradients(
     img_size = np.shape(img_input)
     # 2. Get the integrated gradients for all the baselines
     for run in range(num_runs):
-        #baseline = np.random.random(img_size) * 255
-        baseline = random_array(img_size, mean = 0, std = 1)
+        # baseline = np.random.random(img_size) * 255
+        baseline = random_array(img_size, mean=0, std=1)
         igrads = get_integrated_gradients(
             img_input=img_input,
-            model = model, 
+            model=model,
             top_pred_idx=top_pred_idx,
             baseline=baseline,
             num_steps=num_steps,
@@ -283,7 +301,7 @@ def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None
     # with respect to the activations of the last conv layer
     with tf.GradientTape() as tape:
         last_conv_layer_output, preds = grad_model(img_array)
-        #if pred_index is None:
+        # if pred_index is None:
         #    pred_index = tf.argmax(preds[0])
         class_channel = preds[:, pred_index]
 
@@ -302,10 +320,10 @@ def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None
 
     heatmap = last_conv_layer_output @ pooled_grads[..., tf.newaxis]
     print(np.shape(heatmap.numpy()))
-    #heatmap = tf.squeeze(heatmap)
+    # heatmap = tf.squeeze(heatmap)
 
     # For visualization purpose, we will also normalize the heatmap between 0 & 1
     heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
-    
+
     print(np.shape(heatmap.numpy()))
     return heatmap.numpy().reshape(np.shape(heatmap.numpy()))
