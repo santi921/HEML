@@ -20,7 +20,7 @@ def main():
     out_folder = options["charges_folder"]
     chargefw2_loc = options["chargefw2_loc"]
 
-    files = glob(folder_processed + ".pdb")
+    files = glob(folder_processed + "*.pdb")
 
     for ind in range(len(files)):
         i = random.choice(files)

@@ -11,6 +11,7 @@ setup(
              './HEML/source/data_process/run_topology.py',
              './HEML/source/data_process/run_box_calc.py',
              './HEML/source/data_process/get_charges.py',
+             './HEML/source/data_process/process_charges.py',
              './HEML/source/data_process/dist_and_compress_each_protein.py',
              './HEML/source/data_process/sub_turbo.py'
              ],

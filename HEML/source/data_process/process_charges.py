@@ -1,23 +1,39 @@
-from posixpath import split
-from tkinter import E
-import os, re, json
+import os, re, argparse
 from glob import glob
 from HEML.utils.data import *
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
-    zero_active = True
-    zero_everything_charged = False
-    box = True
-    box_size = 4.0
-    fail = 0
-    options = get_options("./options/options_local.json")
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--options", help="location of options file", default="./options/options.json"
+    )
+    parser.add_argument(
+        "--zero_active", help="zero active site", default=True
+    )
+    parser.add_argument(
+        "--zero_everything_charged", help="zero everything charged", default=False
+    )
+    parser.add_argument(
+        "--box", help="box", default=False
+    )
+    parser.add_argument(
+        "--box_size", help="box size", default=4.0
+    )
+    options_loc = parser.parse_args().options
+    zero_active = parser.parse_args().zero_active
+    zero_everything_charged = parser.parse_args().zero_everything_charged
+    box = parser.parse_args().box
+    box_size = parser.parse_args().box_size
 
+    options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
 
     print(outdir)
+    fail = 0
     filelist = glob(charges_directory + "*pqr")
     # check if there are no files in the directory with the correct extension
     if len(filelist) == 0:
