@@ -21,8 +21,9 @@ def main():
     options = get_options(options_loc)
 
     cpet_folder = options["cpet_folder"]
+    cpet_loc = options["cpet_loc"]
     processed_charges_folder = options["processed_charges_folder"]
-    run_topology_calcs(cpet_folder, processed_charges_folder, num, threads)
+    run_topology_calcs(cpet_loc, cpet_folder, processed_charges_folder, num, threads)
 
 
 main()

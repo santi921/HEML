@@ -20,13 +20,13 @@ matplotlib.rcParams.update(
 )
 
 
-def run_box_calcs(cpet_path, charges_dir):
+def run_box_calcs(cpet_path, target_path, charges_dir):
 
-    cpet_path = cpet_path
-    files_target = glob(cpet_path + "options_field*.txt")
-    files_done = os.listdir(cpet_path)
+    
+    files_target = glob(target_path + "options_field*.txt")
+    files_done = os.listdir(target_path)
     charges_dir = charges_dir
-    print(files_target)
+    
     for i in range(20000):
         file = choice(files_target)
         protein = file.split("/")[-1][14:]  # works for protein movies
@@ -35,8 +35,8 @@ def run_box_calcs(cpet_path, charges_dir):
         print("protein file: {}".format(protein))
 
         if protein + ".top" not in files_done:
-            launch_str = "./cpet -p {} -t 16 -o {} ".format(
-                "{}.pqr".format(charges_dir + protein[:-4]), file
+            launch_str = "{} -p {} -t 16 -o {} ".format(
+                cpet_path, "{}.pqr".format(charges_dir + protein[:-4]), file
             )
             print(launch_str)
             os.system(launch_str)
@@ -44,11 +44,10 @@ def run_box_calcs(cpet_path, charges_dir):
     print("done running cpet")
 
 
-def run_topology_calcs(cpet_path, charges_dir, num=10000, threads=16):
+def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=16):
 
-    cpet_path = cpet_path
-    files_target = glob(cpet_path + "options_topology*.txt")
-    files_done = os.listdir(cpet_path)
+    files_target = glob(target_path + "options_topology*.txt")
+    files_done = os.listdir(target_path)
     charges_dir = charges_dir
 
     for i in range(num):
@@ -58,14 +57,14 @@ def run_topology_calcs(cpet_path, charges_dir, num=10000, threads=16):
         print("protein file: {}".format(protein))
 
         if protein + ".top" not in files_done:
-            launch_str = "./cpet -p {} -t {} -o {} ".format(
-                "{}.pqr".format(charges_dir + protein[:-4]), threads, file
+            launch_str = "{} -p {} -t {} -o {} ".format(
+                "{}.pqr".format(cpet_path, charges_dir + protein[:-4]), threads, file
             )
             print(launch_str)
             os.system(launch_str)
         print("cpet done running")
 
-        os.system("mv {}_0.top {}{}.top".format(protein[:-4], cpet_path, protein[:-4]))
+        os.system("mv {}_0.top {}{}.top".format(protein[:-4], target_path, protein[:-4]))
     print("done running cpet")
 
 
