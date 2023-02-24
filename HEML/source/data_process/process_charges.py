@@ -24,7 +24,7 @@ if __name__ == "__main__":
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
-    box = parser.parse_args().box
+    box = bool(parser.parse_args().box)
     box_size = parser.parse_args().box_size
 
     options = get_options(options_loc)

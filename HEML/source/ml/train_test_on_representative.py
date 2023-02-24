@@ -111,7 +111,8 @@ if __name__ == "__main__":
         print("test auroc:       {:.2f}".format(roc_auc_test))
 
     names, mat = [], []
-    dir_fields = "../../../data/charges_md/cpet/"
+    #dir_fields = "../../../data/charges_md/cpet/"
+    dir_fields = "../../../data/1u5u_amber_md/"
     test_files = os.listdir(dir_fields)
 
     for file in test_files:
@@ -137,7 +138,9 @@ if __name__ == "__main__":
     print(x.shape[0])
     result = {}
     for i in range(x.shape[0]):
+        print(names[i])
         name_pro = names[i].split("_")[3]
+        
         if name_pro not in result:
             result[name_pro] = [0, 0, 0]
         pred = model_obj.predict(x[i].reshape(1, -1))

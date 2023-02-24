@@ -4,8 +4,6 @@ from HEML.utils.data import get_options
 
 
 def main():
-    threads = 16
-    num = 10000
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -13,6 +11,9 @@ def main():
     )
     parser.add_argument(
         "--num", help="number of topologies to calculate", default=10000
+    )
+    parser.add_argument(
+        "--threads", help="number of threads to use", default=16
     )
     parser.add_argument("--threads", help="number of threads to use", default=16)
     options_loc = parser.parse_args().options

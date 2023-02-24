@@ -419,7 +419,11 @@ def get_ligand_info(file, fe_xyz):
     for j in readfile:
         line = j.split()
         sg_cond = "ATOM" in line[0] and "SG" in line[2] and "CYS" in line[3]
-        oh_cond = "ATOM" in line[0] and "OH" in line[2] and "TYR" in line[3]
+        oh_cond = (
+            "ATOM" in line[0] 
+            and ("OH" in line[2])
+            and ("TYR" in line[3] or "TR1" in line[3]))
+        
         nend_cond = (
             "ATOM" in line[0]
             and (("NE2" in line[2]) or ("ND1") in line[2])
