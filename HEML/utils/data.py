@@ -418,7 +418,11 @@ def get_ligand_info(file, fe_xyz):
 
     for j in readfile:
         line = j.split()
-        sg_cond = "ATOM" in line[0] and "SG" in line[2] and "CYS" in line[3]
+        sg_cond = (
+            "ATOM" in line[0] 
+            and ("SG" in line[2])
+            and ("CY1" in line[3] or "CYS" in line[3]))
+        
         oh_cond = (
             "ATOM" in line[0] 
             and ("OH" in line[2])
@@ -545,9 +549,10 @@ def pull_mats_w_label(
 
     x, y = [], []
     df = pd.read_csv(dir_data)
+    print(df.shape)
     y_count, h_count, c_count = 0, 0, 0
     for row in df.iterrows():
-        # print(row[1]['name'])
+        print(row[1]['name'])
         cpet_name = dir_fields + "efield_cox_" + row[1]["name"] + ".dat"
 
         if os.path.exists(cpet_name):
