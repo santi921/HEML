@@ -1,11 +1,17 @@
-import os, json
+import os, json, argparse
 from HEML.utils.cpet import make_histograms, construct_distance_matrix
 from HEML.utils.data import compress, get_options
 from random import choice
 
 
 def main():
-    options = get_options("./options/options.json")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--options", help="location of options file", default="./options/options.json"
+    )
+    
+    options_loc = parser.parse_args().options
+    options = get_options(options_loc)
     root = options["cpet_folder"]
 
     # get list of folders in directory specified by user
