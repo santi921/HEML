@@ -46,6 +46,8 @@ def run_box_calcs(cpet_path, target_path, charges_dir):
 
 def run_mag_calcs(cpet_path, target_path, charges_dir):
     files_target = glob(target_path + "options_mag*.txt")
+    files_done = os.listdir(target_path)
+
     # filter files that dont end in .dat
     files_done = [i for i in files_done if i[-4:] == ".dat"]
     charges_dir = charges_dir
