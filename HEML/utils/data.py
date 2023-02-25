@@ -446,11 +446,11 @@ def mat_pull(file, meta_data=False):
 
 
 def pull_mats_w_label(
-    dir_data="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
+    data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
 ):
 
     x, y = [], []
-    df = pd.read_csv(dir_data)
+    df = pd.read_csv(data_file)
     print(df.shape)
     y_count, h_count, c_count = 0, 0, 0
     for row in df.iterrows():

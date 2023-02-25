@@ -84,12 +84,11 @@ def get_nodes_and_edges_from_pdb(
     return filtered_atom, bonds, filtered_xyz
 
 
-
 def get_cones_viz_from_pca(vector_scale = 3, components = 10, data_file = "../../data/protein_data.csv", dir_fields = "../../data/cpet/"): 
 
     cones = []
 
-    x, _ = pull_mats_w_label(dir_data = data_file, dir_fields = dir_fields)
+    x, _ = pull_mats_w_label(data_file = data_file, dir_fields = dir_fields)
     
     arr_min, arr_max,  = np.min(x), np.max(x)
     #x = (x - arr_min) / np.abs(arr_max - arr_min + 0.1)
@@ -136,3 +135,34 @@ def get_cones_viz_from_pca(vector_scale = 3, components = 10, data_file = "../..
             colorscale='Greens',))
         
     return cones 
+
+
+def mat_to_cones(mat, shape, vector_scale = 3):
+    bohr_to_ang = 1.88973
+    comp_vect_field = mat.reshape(shape[1], shape[2], shape[3], shape[4])
+    x, y, z = np.meshgrid(
+                np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang),
+                np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang),
+                np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang)
+                )
+
+    u_1, v_1, w_1 = split_and_filter(
+    comp_vect_field, 
+    cutoff=85, 
+    std_mean=True, 
+    min_max=False
+    )
+
+    return go.Cone(
+    x=x.flatten(), 
+    y=y.flatten(), 
+    z=z.flatten(), 
+    u=u_1,
+    v=v_1, 
+    w=w_1,
+    sizeref=vector_scale,
+    opacity=0.4, 
+    showscale=False,
+    colorscale='Greens',)
+        
+  

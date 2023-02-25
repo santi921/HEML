@@ -1,21 +1,8 @@
 import os, random
 from HEML.utils.data import *
+from HEML.utils.dictionaries import atom_int_dict 
 from glob import glob
 
-
-atom_element_to_number = {
-    "H": 1,
-    "C": 6,
-    "N": 7,
-    "O": 8,
-    "F": 9,
-    "P": 15,
-    "S": 16,
-    "Cl": 17,
-    "Br": 35,
-    "I": 53,
-    "Fe": 26,
-}
 
 
 def create_folders():
@@ -356,7 +343,7 @@ def xtb_sanitize_and_save(
     from ase.optimize.lbfgs import LBFGS
 
     positions = [i["xyz"] for i in dict_xyz]
-    elements = [atom_element_to_number[i["element"]] for i in dict_xyz]
+    elements = [atom_int_dict[i["element"]] for i in dict_xyz]
     fixed = [i["freeze"] for i in dict_xyz]
 
     atoms = Atoms(

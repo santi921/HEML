@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # df = pd.read_csv("../../data/protein_data.csv")
     x, y = pull_mats_w_label(
-        dir_data="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
+        data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
     )
 
     arr_min, arr_max, = np.min(
