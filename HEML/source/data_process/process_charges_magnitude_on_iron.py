@@ -36,7 +36,7 @@ if __name__ == "__main__":
     fail = 0
     filelist = glob(charges_directory + "*pqr")
     # check if there are no files in the directory with the correct extension
-    
+
     if len(filelist) == 0:
         print(
             "No files in the directory with the correct extension, checking mol2 and converting to pqr"
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 assert fe_dict["id"] != None
                 print(fe_dict["id"], fe_dict["xyz"])
                 fail_cond = False
-                print(fe_dict["id"], fe_dict["xyz"])
+                #print(fe_dict["id"], fe_dict["xyz"])
             except:
                 fail_cond = True
                 print("Failed File: ".format(i))
@@ -107,8 +107,8 @@ if __name__ == "__main__":
                 file_name = i.split("/")[-1].split(".")[0]
                 options = open(f"{outdir_cpet}options_mag_{file_name}.txt", "w+")
                 options.write(f"%field \n")
-                options.write(f"    locations {fe_dict[0]}:{fe_dict[1]}:{fe_dict[2]} \n")
-                options.write(f"output {outdir_cpet}efield_mag_FE_{file_name}.dat \n")
+                options.write("    locations {}:{}:{} \n".format(fe_dict["xyz"][0], fe_dict["xyz"][1], fe_dict["xyz"][2]))
+                options.write(f"output {outdir_cpet}{file_name}_mag.dat \n")
                 options.write(f"end \n")
                 options.close()
 

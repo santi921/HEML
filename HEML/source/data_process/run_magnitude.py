@@ -16,14 +16,13 @@ def main():
 
     options_loc = parser.parse_args().options
     num = int(parser.parse_args().num)
-    threads = int(parser.parse_args().threads)
 
     options = get_options(options_loc)
 
     cpet_folder = options["cpet_folder"]
     cpet_loc = options["cpet_loc"]
     processed_charges_folder = options["processed_charges_folder"]
-    run_mag_calcs(cpet_loc, cpet_folder, processed_charges_folder, num)
+    run_mag_calcs(cpet_loc, cpet_folder, processed_charges_folder)
 
 
 main()
