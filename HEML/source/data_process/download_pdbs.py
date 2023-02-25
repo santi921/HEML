@@ -1,7 +1,6 @@
-import subprocess, os, sys
+import subprocess
 import unicodedata
 import urllib.request
-
 import pandas as pd
 
 

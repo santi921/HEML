@@ -5,7 +5,7 @@ import pandas as pd
 
 from HEML.utils.data import *
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score, r2_score
+from sklearn.metrics import accuracy_score
 from tensorflow.keras.regularizers import l1 as L1
 import plotly.graph_objects as go
 import plotly.express as px

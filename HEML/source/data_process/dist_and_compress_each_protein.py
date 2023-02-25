@@ -1,6 +1,7 @@
 import os, json, argparse
 from HEML.utils.cpet import make_histograms, construct_distance_matrix
-from HEML.utils.data import compress, get_options
+from HEML.utils.data import get_options
+from HEML.utils.fields import compress
 from random import choice
 
 

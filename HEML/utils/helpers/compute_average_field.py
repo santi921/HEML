@@ -1,7 +1,8 @@
 import argparse
 import numpy as np 
 from glob import glob
-from HEML.utils.data import mat_pull, save_numpy_as_dat
+from HEML.utils.data import mat_pull
+from HEML.utils.fields import save_numpy_as_dat
 
 
 

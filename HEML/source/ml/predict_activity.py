@@ -5,9 +5,10 @@ from plotly.subplots import make_subplots
 import numpy as np
 import pandas as pd
 import wandb, argparse
-from HEML.utils.data import *
+from HEML.utils.data import pull_mats_w_label
 from HEML.utils.attrib import *
 from HEML.utils.model import *
+from HEML.utils.fields import pca, aug_all
 
 import matplotlib.pyplot as plt
 

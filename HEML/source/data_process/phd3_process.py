@@ -4,7 +4,6 @@ from HEML.utils.setup_phd3 import (
     xtb_sanitize_and_save,
 )
 from HEML.utils.data import get_options
-import numpy as np
 
 
 def main():

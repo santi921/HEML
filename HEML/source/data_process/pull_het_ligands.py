@@ -1,4 +1,4 @@
-import glob, os
+import glob
 
 
 def main():

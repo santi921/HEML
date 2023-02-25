@@ -1,8 +1,5 @@
 # get charges - preprocess
 import subprocess, os, random
-import numpy as np
-import matplotlib.pyplot as plt
-
 
 def main():
     files = os.listdir("../../data/charge_processed/")

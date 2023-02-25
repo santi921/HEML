@@ -1,9 +1,7 @@
-import subprocess, os, random, json
-import numpy as np
-import matplotlib.pyplot as plt
+import subprocess, os, random, argparse
 from glob import glob
+
 from HEML.utils.data import get_options
-import argparse
 
 
 def main():

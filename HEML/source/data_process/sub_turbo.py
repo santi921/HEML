@@ -4,7 +4,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 from HEML.utils.data import create_folders, get_options, put_charges_in_turbo_files
-
 from HEML.utils.turbomole import (
     define_turbomoleio,
     get_frozen_atoms,
@@ -20,10 +19,10 @@ from HEML.utils.turbomole import (
 
 def main():
     submit_tf = False
-    submit_only = False
+    submit_only = True
     cleanup_tf = False
     embedd_tf = False
-    clear_control_tf = True
+    clear_control_tf = False
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

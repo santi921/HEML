@@ -1,7 +1,8 @@
 import numpy as np
-from HEML.utils.data import *
+from HEML.utils.data import pull_mats_w_label, mat_pull
 from HEML.utils.attrib import *
 from HEML.utils.model import *
+from HEML.utils.fields import pca, aug_all
 
 import matplotlib.pyplot as plt
 
