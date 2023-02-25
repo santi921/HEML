@@ -214,8 +214,8 @@ def pca(mat, pca=None, pca_comps=10, verbose=False, write=False):
         fig.write_html("./out_pca.html")
 
     if verbose:
-        print(pca.explained_variance_ratio_)
-
+        print("cumulative explained vars ratio: \n" + str(cum_explained_var))
+        
     return mat_transform, pca
 
 

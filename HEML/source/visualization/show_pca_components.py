@@ -4,7 +4,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 #from HEML.utils.data import *
-from HEML.utils.data import pull_mats_w_label, mat_pull
+from HEML.utils.data import pull_mats_w_label
 from HEML.utils.attrib import *
 from HEML.utils.model import *
 from HEML.utils.fields import pca, split_and_filter

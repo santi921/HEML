@@ -1,28 +1,5 @@
 import os
-
-atomic_radii = {
-    "H": 1.2,
-    "C": 1.7,
-    "N": 1.55,
-    "O": 1.52,
-    "F": 1.47,
-    "P": 1.8,
-    "S": 1.8,
-    "CL": 1.75,
-    "BR": 1.85,
-    "I": 1.98,
-    "FE": 1.80,
-    "CU": 1.40,
-    "ZN": 1.39,
-    "MG": 1.73,
-    "CA": 2.00,
-    "NA": 2.27,
-    "K": 2.75,
-    "LI": 1.82,
-    "AL": 1.84,
-    "MN": 1.73,
-    "CO": 1.70,
-}
+from HEML.utils.dictionaries import atomic_radii
 
 
 def mol2_to_pqr(file):
