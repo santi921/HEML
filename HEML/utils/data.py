@@ -505,42 +505,105 @@ def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False):
     return u, v, w
 
 
-def mat_pull(file):
+def save_numpy_as_dat(dict_meta_data, average_field, name):
+    """
+    Saves np array in original format from cpet output
+    Takes: 
+        dict_meta_data: dictionary with meta data
+        average_field: np array with average field
+        name: name of file to save
+    """
+    
+
+    first_line = dict_meta_data["first_line"]
+    steps_x = dict_meta_data["steps_x"]
+    steps_y = dict_meta_data["steps_y"]
+    steps_z = dict_meta_data["steps_z"]
+    step_size_x = dict_meta_data["step_size_x"]
+    step_size_y = dict_meta_data["step_size_y"]
+    step_size_z = dict_meta_data["step_size_z"]
+    print(dict_meta_data)
+    lines = [first_line]
+    # add six lines starting with #
+    lines = lines + ["#\n"] * 6
+
+    # write as 
+    for i in range(steps_x):
+        for j in range(steps_y):
+            for k in range(steps_z):
+                line = "{:.3f} {:.3f} {:.3f} {:.6f} {:.6f} {:.6f}\n".format(
+                    step_size_x * (i - (steps_x - 1)/2), 
+                    step_size_y * (j - (steps_y - 1)/2), 
+                    step_size_z * (k - (steps_z - 1)/2), 
+                    average_field[i, j, k, 0], average_field[i, j, k, 1], average_field[i, j, k, 2])
+                lines.append(line)
+    
+    with open(name, "w") as f:
+        f.writelines(lines)
+
+def average_fields(mat): 
+    """Average the fields in the matrix."""
+    return np.mean(mat, axis=0)
+
+
+def mat_pull(file, meta_data=False):
 
     with open(file) as f:
         lines = f.readlines()
 
-    steps_x = 2 * int(lines[0].split()[2]) + 1
-    steps_y = 2 * int(lines[0].split()[3]) + 1
-    steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
-    mat = np.zeros((steps_x, steps_y, steps_z, 3))
+    if meta_data:
+        
+        steps_x = 2 * int(lines[0].split()[2]) + 1
+        steps_y = 2 * int(lines[0].split()[3]) + 1
+        steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
+        x_size = float(lines[0].split()[-3])
+        y_size = float(lines[0].split()[-2])
+        z_size = float(lines[0].split()[-1])
 
-    # gap_x = round(np.abs(float(lines[steps_x*steps_y + 7].split()[0]) - float(lines[7].split()[0])), 4)
-    # gap_y = round(np.abs(float(lines[steps_x+8].split()[1]) - float(lines[7].split()[1])), 4)
-    # gap_z = round(np.abs(float(lines[8].split()[2]) - float(lines[7].split()[2])), 4)
+        meta_dict = {
+            "steps_x": steps_x,
+            "steps_y": steps_y,
+            "steps_z": steps_z,
+            "step_size_x": np.round(x_size / float(lines[0].split()[2]), 4),
+            "step_size_y": np.round(y_size / float(lines[0].split()[3]), 4),
+            "step_size_z": np.round(z_size / float(lines[0].split()[4][:-1]), 4),
+            "first_line": lines[0]
+        }
 
-    for ind, i in enumerate(lines[7:]):
-        line_split = i.split()
-        # print(i)
-        mat[
-            int(ind / (steps_z * steps_y)),
-            int(ind / steps_z % steps_y),
-            ind % steps_z,
-            0,
-        ] = float(line_split[-3])
-        mat[
-            int(ind / (steps_z * steps_y)),
-            int(ind / steps_z % steps_y),
-            ind % steps_z,
-            1,
-        ] = float(line_split[-2])
-        mat[
-            int(ind / (steps_z * steps_y)),
-            int(ind / steps_z % steps_y),
-            ind % steps_z,
-            2,
-        ] = float(line_split[-1])
-    return mat
+        return meta_dict
+    else: 
+        steps_x = 2 * int(lines[0].split()[2]) + 1
+        steps_y = 2 * int(lines[0].split()[3]) + 1
+        steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
+        mat = np.zeros((steps_x, steps_y, steps_z, 3))
+
+        # gap_x = round(np.abs(float(lines[steps_x*steps_y + 7].split()[0]) - float(lines[7].split()[0])), 4)
+        # gap_y = round(np.abs(float(lines[steps_x+8].split()[1]) - float(lines[7].split()[1])), 4)
+        # gap_z = round(np.abs(float(lines[8].split()[2]) - float(lines[7].split()[2])), 4)
+
+        for ind, i in enumerate(lines[7:]):
+            line_split = i.split()
+            # print(i)
+            mat[
+                int(ind / (steps_z * steps_y)),
+                int(ind / steps_z % steps_y),
+                ind % steps_z,
+                0,
+            ] = float(line_split[-3])
+            mat[
+                int(ind / (steps_z * steps_y)),
+                int(ind / steps_z % steps_y),
+                ind % steps_z,
+                1,
+            ] = float(line_split[-2])
+            mat[
+                int(ind / (steps_z * steps_y)),
+                int(ind / steps_z % steps_y),
+                ind % steps_z,
+                2,
+            ] = float(line_split[-1])
+        
+        return mat
 
 
 def pull_mats_w_label(
