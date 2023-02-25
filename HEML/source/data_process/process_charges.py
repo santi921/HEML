@@ -163,7 +163,7 @@ if __name__ == "__main__":
                     bins = 30
                     step_size = 0.001
                     options = open(
-                        f"{outdir_cpet}options_topology_{file_name}.txt", "w+"
+                        f"{outdir_cpet}options_topol_{file_name}.txt", "w+"
                     )
                     options.write(
                         f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'

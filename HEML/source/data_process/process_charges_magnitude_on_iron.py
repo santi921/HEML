@@ -15,18 +15,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--zero_everything_charged", help="zero everything charged", default=False
     )
-    parser.add_argument(
-        "--box", help="box", default=False
-    )
-    parser.add_argument(
-        "--box_size", help="box size", default=4.0
-    )
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
-    box = bool(parser.parse_args().box)
-    box_size = parser.parse_args().box_size
-
+    
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
@@ -105,7 +97,7 @@ if __name__ == "__main__":
                             outfile.write(j)
 
                 file_name = i.split("/")[-1].split(".")[0]
-                options = open(f"{outdir_cpet}options_mag_{file_name}.txt", "w+")
+                options = open(f"{outdir_cpet}options_magni_{file_name}.txt", "w+")
                 options.write(f"%field \n")
                 options.write("    locations {}:{}:{} \n".format(fe_dict["xyz"][0], fe_dict["xyz"][1], fe_dict["xyz"][2]))
                 options.write(f"output {outdir_cpet}{file_name}_mag.dat \n")
