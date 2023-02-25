@@ -44,6 +44,27 @@ def run_box_calcs(cpet_path, target_path, charges_dir):
     print("done running cpet")
 
 
+def run_mag_calcs(cpet_path, target_path, charges_dir):
+    files_target = glob(target_path + "options_field*.txt")
+    files_done = os.listdir(target_path)
+    charges_dir = charges_dir
+    
+    for i in range(20000):
+        file = choice(files_target)
+        protein = file.split("/")[-1][14:]  # works for protein movies
+
+        # .split("_")[-1].split(".")[0]#.split("_")[-1]
+        print("protein file: {}".format(protein))
+
+        if protein + ".top" not in files_done:
+            launch_str = "{} -p {} -o {} ".format(
+                cpet_path, "{}.pqr".format(charges_dir + protein[:-4]), file
+            )
+            print(launch_str)
+            os.system(launch_str)
+
+
+
 def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=16):
 
     files_target = glob(target_path + "options_topology*.txt")
