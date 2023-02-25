@@ -13,6 +13,8 @@ setup(
              './HEML/source/data_process/get_charges.py',
              './HEML/source/data_process/process_charges.py',
              './HEML/source/data_process/dist_and_compress_each_protein.py',
-             './HEML/source/data_process/sub_turbo.py'
+             './HEML/source/data_process/sub_turbo.py',
+             './HEML/source/data_process/run_magnitude.py',
+             './HEML/source/data_process/process_charges_magnitude_on_iron.py',
              ],
 )
