@@ -8,6 +8,7 @@ setup(
     packages = find_packages(),
     scripts=['./HEML/utils/helpers/remove_solvent_from_pdb.py',
              './HEML/utils/helpers/split_movies.py',
+             './HEML/utils/helpers/compute_average_field.py',
              './HEML/source/data_process/run_topology.py',
              './HEML/source/data_process/run_box_calc.py',
              './HEML/source/data_process/get_charges.py',
@@ -16,5 +17,6 @@ setup(
              './HEML/source/data_process/sub_turbo.py',
              './HEML/source/data_process/run_magnitude.py',
              './HEML/source/data_process/process_charges_magnitude_on_iron.py',
+
              ],
 )
