@@ -22,9 +22,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--zero_everything_charged", help="zero everything charged", default=False
     )
+    # store t/f if --box is used
     parser.add_argument(
-        "--box", help="box", default=False
-    )
+        "--box", help="box", action="store_true"
+        )
+
     parser.add_argument(
         "--box_size", help="box size", default=4.0
     )
@@ -33,7 +35,7 @@ if __name__ == "__main__":
         "--density", help="density", default=10
     )
     parser.add_argument(
-        "--samples", help="samples", default=1000
+        "--samples", help="samples", default=3000
     )
     parser.add_argument(
         "--bins", help="bins", default=25
@@ -149,13 +151,13 @@ if __name__ == "__main__":
                             and line_split[10] == ligand_identifier[1]
                         )
                         
-                        x, y, z = float(line_split[5]), float(line_split[6]), float(line_split[7])
+                        x, y, z = float(line_split[12]), float(line_split[14]), float(line_split[16])
                         box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
                         
                         if box_conditional:
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
-                            
+
                         elif zero_active and ("HETATM" in line_split[0] or cond):
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
