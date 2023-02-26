@@ -28,11 +28,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "--box_size", help="box size", default=4.0
     )
+
+    parser.add_argument(
+        "--density", help="density", default=10
+    )
+    parser.add_argument(
+        "--samples", help="samples", default=1000
+    )
+    parser.add_argument(
+        "--bins", help="bins", default=25
+    )
+    parser.add_argument(
+        "--step_size", help="step size", default=0.001
+    )
+
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
     box = bool(parser.parse_args().box)
     box_size = parser.parse_args().box_size
+    density = int(parser.parse_args().density)
+    samples = int(parser.parse_args().samples)
+    bins = int(parser.parse_args().bins)
+    step_size = float(parser.parse_args().step_size)
 
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
@@ -118,6 +136,7 @@ if __name__ == "__main__":
 
             filename = os.path.basename(i)
             listname = filename.split(".")
+            center = nitrogen_dict["mean_N_xyz"]
 
             if not fail_cond:
                 ligand_identifier = ligand_dict["best_crit"].split(":")
@@ -129,11 +148,19 @@ if __name__ == "__main__":
                             line_split[8] == ligand_identifier[0]
                             and line_split[10] == ligand_identifier[1]
                         )
-
-                        if zero_active and ("HETATM" in line_split[0] or cond):
+                        
+                        x, y, z = float(line_split[5]), float(line_split[6]), float(line_split[7])
+                        box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
+                        
+                        if box_conditional:
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
                             
+                        elif zero_active and ("HETATM" in line_split[0] or cond):
+                            temp_write = j[:56] + "0.000" + j[61:]
+                            outfile.write(temp_write)
+                        
+
                         elif zero_everything_charged and line_split[3] in [
                             "ASP",
                             "GLU",
@@ -143,12 +170,13 @@ if __name__ == "__main__":
                         ]:
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
+
                         else:
                             outfile.write(j)
 
                 file_name = i.split("/")[-1].split(".")[0]
                 if box:
-                    density = 10
+
                     options = open(f"{outdir_cpet}options_field_{file_name}.txt", "w+")
                     options.write(
                         f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
@@ -167,9 +195,7 @@ if __name__ == "__main__":
                     options.write(f"end \n")
                     options.close()
                 else:
-                    samples = 3000
-                    bins = 30
-                    step_size = 0.001
+
                     options = open(
                         f"{outdir_cpet}options_topol_{file_name}.txt", "w+"
                     )
