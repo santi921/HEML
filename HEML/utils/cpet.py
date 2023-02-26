@@ -71,7 +71,7 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
 
 def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=16):
 
-    files_target = glob(target_path + "options_topology*.txt")
+    files_target = glob(target_path + "options_topol*.txt")
     files_done = os.listdir(target_path)
     charges_dir = charges_dir
 
