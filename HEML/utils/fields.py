@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 
 from HEML.utils.data import mat_pull
 
-def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False):
+def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False):
 
     arr_mean, arr_std, arr_min, arr_max = (
         np.mean(mat),
@@ -20,6 +20,9 @@ def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False):
 
     if std_mean:
         mat = (mat - arr_mean) / (arr_std)
+
+    if log1:
+        mat = np.log1p(mat)
 
     try:
         u = mat[0][:, :, :, 0].flatten()

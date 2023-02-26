@@ -148,9 +148,10 @@ def mat_to_cones(mat, shape, vector_scale = 3):
 
     u_1, v_1, w_1 = split_and_filter(
     comp_vect_field, 
-    cutoff=85, 
-    std_mean=True, 
-    min_max=False
+    cutoff=0, 
+    std_mean=False, 
+    min_max=False, 
+    log1 = True
     )
 
     return go.Cone(
