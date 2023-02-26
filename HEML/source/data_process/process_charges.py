@@ -48,7 +48,7 @@ if __name__ == "__main__":
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
     box = bool(parser.parse_args().box)
-    box_size = parser.parse_args().box_size
+    box_size = float(parser.parse_args().box_size)
     density = int(parser.parse_args().density)
     samples = int(parser.parse_args().samples)
     bins = int(parser.parse_args().bins)
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
             filename = os.path.basename(i)
             listname = filename.split(".")
-            center = nitrogen_dict["mean_N_xyz"]
+            center = [float(i) for i in nitrogen_dict["mean_N_xyz"]]
 
             if not fail_cond:
                 ligand_identifier = ligand_dict["best_crit"].split(":")
