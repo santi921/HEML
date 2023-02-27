@@ -17,7 +17,7 @@ def main():
 
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
-
+    
     compressed_folder = root + "/compressed/"
     if not os.path.exists(compressed_folder):
         os.mkdir(compressed_folder)
@@ -28,7 +28,7 @@ def main():
         print(folder)
 
         if os.path.exists(
-            os.path.join(root, folder) + "/compressed_distance_matrix.json"
+            os.path.join(root, folder, "/cpet/") + "/compressed_distance_matrix.json"
         ):
             print("compressed already exists")
 
