@@ -151,14 +151,14 @@ if __name__ == "__main__":
                             and line_split[10] == ligand_identifier[1]
                         )
                         
-                        x, y, z = float(line_split[12]), float(line_split[14]), float(line_split[16])
-                        box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
+                        #x, y, z = float(j[30:38]), float(j[38:46]), float(j[46:54])
+                        #box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
                         
-                        if box_conditional:
-                            temp_write = j[:56] + "0.000" + j[61:]
-                            outfile.write(temp_write)
+                        #if box_conditional:
+                        #    temp_write = j[:56] + "0.000" + j[61:]
+                        #    outfile.write(temp_write)
 
-                        elif zero_active and ("HETATM" in line_split[0] or cond):
+                        if zero_active and ("HETATM" in line_split[0] or cond):
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
                         
