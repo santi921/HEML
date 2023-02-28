@@ -18,20 +18,24 @@ def main():
     
     options_loc = parser.parse_args().options
     options = get_options(options_loc, create_folders=False)
+    
     root = options["target_folder"]
     output_folder = options["compressed_output_folder"]
 
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
-    if "output" in folders: folders.remove("output")
+    
+    for i in ["output", "compressed_out"]:
+        if i in folders: folders.remove(i)
+
     
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
     #remove folder output if it exists from list of folders
     
     # for each folder, run the distance mat calculations and put them in the output folder
-    for i in range(len(folders)):
-        folder = folders[i]
+    for ind in range(len(folders)):
+        folder = folders[ind]
         
         # merge root, folder and cpet
         path_target = os.path.join(root, folder, "cpet/")
@@ -74,22 +78,22 @@ def main():
             ]
         print("saving compressed dictionary...")
         with open(
-            output_folder + "{}_compressed_dictionary.json".format(folder), "w"
+            output_folder + "{}_compressed_dictionary.json".format(ind), "w"
         ) as outputfile:
             json.dump(compress_dictionary, outputfile)
 
         for k, v in compress_dictionary.items():         
             name_center = v["name_center"]
+            print(name_center)
+            print("{}".format(name_center))
+            print("{}/{}_{}".format(output_folder, ind, name_center.split("/")[-1]))
             if not os.path.exists(output_folder + name_center):
                 # get name of center from full path
                 os.system(
-                    "cp {}/{}/{} {}_{}_{}".format(
-                        root, 
-                        folder,
-                        v, 
+                    "cp {} {}{}_{}".format( 
                         name_center, 
                         output_folder, 
-                        i, 
+                        ind, 
                         name_center.split("/")[-1])
                 )
 
