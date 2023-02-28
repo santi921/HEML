@@ -84,7 +84,13 @@ def get_nodes_and_edges_from_pdb(
     return filtered_atom, bonds, filtered_xyz
 
 
-def get_cones_viz_from_pca(vector_scale = 3, components = 10, data_file = "../../data/protein_data.csv", dir_fields = "../../data/cpet/"): 
+def get_cones_viz_from_pca(
+    vector_scale = 3, 
+    components = 10, 
+    data_file = "../../data/protein_data.csv", 
+    dir_fields = "../../data/cpet/",
+    bounds={'x': [-3, 3], 'y': [-3, 3], 'z': [-3, 3]} , 
+    step_size = {"x": 0.3, "y": 0.3, "z": 0.3}): 
 
     cones = []
 
@@ -110,10 +116,10 @@ def get_cones_viz_from_pca(vector_scale = 3, components = 10, data_file = "../..
         comp_vect_field = pca_comp.reshape(shape_mat[1], shape_mat[2], shape_mat[3], shape_mat[4])
         bohr_to_ang = 1.88973
         x, y, z = np.meshgrid(
-                        np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang),
-                        np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang),
-                        np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang)
-                        )
+                    np.arange(bounds['x'][0] * bohr_to_ang, (bounds['x'][1]+step_size['x']) * bohr_to_ang, step_size['x']* bohr_to_ang),
+                    np.arange(bounds['y'][0] * bohr_to_ang, (bounds['y'][1]+step_size['y']) * bohr_to_ang, step_size['y']* bohr_to_ang),
+                    np.arange(bounds['z'][0] * bohr_to_ang, (bounds['z'][1]+step_size['z']) * bohr_to_ang, step_size['z']* bohr_to_ang)
+                )
 
         u_1, v_1, w_1 = split_and_filter(
             comp_vect_field, 
@@ -137,13 +143,13 @@ def get_cones_viz_from_pca(vector_scale = 3, components = 10, data_file = "../..
     return cones 
 
 
-def mat_to_cones(mat, shape, vector_scale = 3):
+def mat_to_cones(mat, shape, vector_scale = 3, bounds={'x': [-3, 3], 'y': [-3, 3], 'z': [-3, 3]} , step_size = {"x": 0.3, "y": 0.3, "z": 0.3}):
     bohr_to_ang = 1.88973
     comp_vect_field = mat.reshape(shape[1], shape[2], shape[3], shape[4])
     x, y, z = np.meshgrid(
-                np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang),
-                np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang),
-                np.arange(-3* bohr_to_ang, 3.3* bohr_to_ang, 0.3* bohr_to_ang)
+                np.arange(bounds['x'][0] * bohr_to_ang, (bounds['x'][1]+step_size['x']) * bohr_to_ang, step_size['x']* bohr_to_ang),
+                np.arange(bounds['y'][0] * bohr_to_ang, (bounds['y'][1]+step_size['y']) * bohr_to_ang, step_size['y']* bohr_to_ang),
+                np.arange(bounds['z'][0] * bohr_to_ang, (bounds['z'][1]+step_size['z']) * bohr_to_ang, step_size['z']* bohr_to_ang)
                 )
 
     u_1, v_1, w_1 = split_and_filter(

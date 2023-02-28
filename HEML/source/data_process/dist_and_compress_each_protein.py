@@ -27,7 +27,7 @@ def main():
     
     for i in ["output", "compressed_out"]:
         if i in folders: folders.remove(i)
-
+    # sort the folders by name 
     
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
@@ -52,7 +52,7 @@ def main():
         topo_files.sort(key=lambda i: i.split("_")[0])
 
         with open(
-            output_folder + "{}_topo_file_list.txt".format(folder), "w"
+            output_folder + "{}_topo_file_list.txt".format(ind), "w"
         ) as file_list:
             for i in topo_files:
                 file_list.write(f"{i} \n")
@@ -61,7 +61,7 @@ def main():
         distance_matrix = construct_distance_matrix(histograms)
 
         with open(
-            output_folder + "{}_distance_matrix.dat".format(folder), "w"
+            output_folder + "{}_distance_matrix.dat".format(ind), "w"
         ) as outputfile:
             for row in distance_matrix:
                 for col in row:
@@ -84,9 +84,9 @@ def main():
 
         for k, v in compress_dictionary.items():         
             name_center = v["name_center"]
-            print(name_center)
-            print("{}".format(name_center))
-            print("{}/{}_{}".format(output_folder, ind, name_center.split("/")[-1]))
+            #print(name_center)
+            #print("{}".format(name_center))
+            #print("{}/{}_{}".format(output_folder, ind, name_center.split("/")[-1]))
             if not os.path.exists(output_folder + name_center):
                 # get name of center from full path
                 os.system(
