@@ -39,6 +39,7 @@ def main():
                     "TRUE",
                 ]
             )
+        files.remove(i)
 
 
 main()

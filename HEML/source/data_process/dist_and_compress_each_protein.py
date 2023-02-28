@@ -78,17 +78,19 @@ def main():
         ) as outputfile:
             json.dump(compress_dictionary, outputfile)
 
-        for k, v in compress_dictionary.items():
+        for k, v in compress_dictionary.items():         
             name_center = v["name_center"]
             if not os.path.exists(output_folder + name_center):
                 # get name of center from full path
                 os.system(
-                    "cp {}/".format(root, folder)
-                    + name_center
-                    + 
-                    + output_folder
-                    + "{}_".format(i)
-                    + name_center.split("/")[-1]
+                    "cp {}/{}/{} {}_i_{}".format(
+                        root, 
+                        folder,
+                        v, 
+                        name_center, 
+                        output_folder, 
+                        i, 
+                        name_center.split("/")[-1])
                 )
 
     # make a list of all the compressed topologies

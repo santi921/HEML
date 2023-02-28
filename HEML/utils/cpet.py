@@ -29,6 +29,7 @@ def run_box_calcs(cpet_path, target_path, charges_dir):
     
     for i in range(20000):
         file = choice(files_target)
+        files_target.remove(i)
         protein = file.split("/")[-1][14:]  # works for protein movies
 
         # .split("_")[-1].split(".")[0]#.split("_")[-1]
@@ -41,6 +42,7 @@ def run_box_calcs(cpet_path, target_path, charges_dir):
             print(launch_str)
             os.system(launch_str)
         print("cpet done running")
+        
     print("done running cpet")
 
 
@@ -54,6 +56,7 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
     
     for i in range(20000):
         file = choice(files_target)
+        files_target.remove(i)
         protein = file.split("/")[-1][14:]  # works for protein movies
 
         # .split("_")[-1].split(".")[0]#.split("_")[-1]
@@ -77,7 +80,7 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
 
     for i in range(num):
         file = choice(files_target)
-        
+        files_target.remove(i)
         protein = file.split("/")[-1][14:]
 
         print("protein file: {}".format(protein))
