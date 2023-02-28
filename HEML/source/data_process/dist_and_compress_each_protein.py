@@ -6,105 +6,103 @@ from random import choice
 
 
 def main():
+    """
+    Usage: select a folder with MD runs in sub folder and this script will compute the distance matrix and the generate the compressed 
+    dictionary for each run. It will also copy the compressed topologies to a compressed folder in the root directory.
+    """
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
     )
     
     options_loc = parser.parse_args().options
-    options = get_options(options_loc)
-    root = options["cpet_folder"]
+    options = get_options(options_loc, create_folders=False)
+    root = options["target_folder"]
+    output_folder = options["compressed_output_folder"]
 
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
+    if "output" in folders: folders.remove("output")
     
-    compressed_folder = root + "/compressed/"
-    if not os.path.exists(compressed_folder):
-        os.mkdir(compressed_folder)
-
-    # for each folder, run the distance mat calculations
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+    #remove folder output if it exists from list of folders
+    
+    # for each folder, run the distance mat calculations and put them in the output folder
     for i in range(len(folders)):
         folder = folders[i]
-        print(folder)
+        
+        # merge root, folder and cpet
+        path_target = os.path.join(root, folder, "cpet/")
+        print(path_target)
 
-        if os.path.exists(
-            os.path.join(root, folder, "/cpet/") + "/compressed_distance_matrix.json"
-        ):
-            print("compressed already exists")
+        topo_files = [
+            path_target + f
+            for f in os.listdir(path_target)
+            if f.endswith(".top")
+        ] # get the list of topologies in the folder
+        print("number of topologies in folder \"{}\": {}".format(folder, len(topo_files)))
+        
+        # sorts the files in some way
+        topo_files.sort(key=lambda i: i.split("_")[0])
 
-        else:
-            topo_files = [
-                os.path.join(root, folder) + "/" + f
-                for f in os.listdir(os.path.join(root, folder))
-                if f.endswith(".top")
+        with open(
+            output_folder + "{}_topo_file_list.txt".format(folder), "w"
+        ) as file_list:
+            for i in topo_files:
+                file_list.write(f"{i} \n")
+
+        histograms = make_histograms(topo_files)
+        distance_matrix = construct_distance_matrix(histograms)
+
+        with open(
+            output_folder + "{}_distance_matrix.dat".format(folder), "w"
+        ) as outputfile:
+            for row in distance_matrix:
+                for col in row:
+                    outputfile.write(f"{col} ")
+                outputfile.write("\n")
+
+        compress_dictionary = compress(distance_matrix)
+
+        for k, v in compress_dictionary.items():
+            compress_dictionary[k]["name_center"] = topo_files[
+                int(v["index_center"])
             ]
-            # sorts the files in some way
-            topo_files.sort(key=lambda i: i.split("_")[0])
 
-            with open(
-                os.path.join(root, folder) + "/topo_file_list.txt", "w"
-            ) as file_list:
-                for i in topo_files:
-                    file_list.write(f"{i} \n")
+        with open(
+            os.path.join(root, folder) + "{}_compressed_dictionary.json".format(folder), "w"
+        ) as outputfile:
+            json.dump(compress_dictionary, outputfile)
 
-            histograms = make_histograms(topo_files)
-            distance_matrix = construct_distance_matrix(histograms)
+        for k, v in compress_dictionary.items():
+            name_center = v["name_center"]
+            if not os.path.exists(output_folder + name_center):
+                # get name of center from full path
+                os.system(
+                    "cp {}/".format(root, folder)
+                    + name_center
+                    + " "
+                    + output_folder
+                    + name_center.split("/")[-1]
+                )
 
-            with open(
-                os.path.join(root, folder) + "/distance_matrix.dat", "w"
-            ) as outputfile:
-                for row in distance_matrix:
-                    for col in row:
-                        outputfile.write(f"{col} ")
-                    outputfile.write("\n")
-
-            compress_dictionary = compress(distance_matrix)
-
-            for k, v in compress_dictionary.items():
-                compress_dictionary[k]["name_center"] = topo_files[
-                    int(v["index_center"])
-                ]
-
-            with open(
-                os.path.join(root, folder) + "/compressed_dictionary.json", "w"
-            ) as outputfile:
-                json.dump(compress_dictionary, outputfile)
-
-            for k, v in compress_dictionary.items():
-                name_center = v["name_center"]
-                if not os.path.exists(compressed_folder + name_center):
-                    # get name of center from full path
-                    os.system(
-                        "cp "
-                        + name_center
-                        + " "
-                        + compressed_folder
-                        + name_center.split("/")[-1]
-                    )
-
-            os.system(
-                "cp "
-                + os.path.join(root, folder)
-                + "/compressed_dictionary.json "
-                + compressed_folder
-                + folder
-                + "_compressed_dictionary.json"
-            )
-
+    # make a list of all the compressed topologies
     topo_files = [
-        compressed_folder + f
-        for f in os.listdir(compressed_folder)
+        output_folder + f
+        for f in os.listdir(output_folder)
         if f.endswith(".top")
     ]
     topo_files.sort(key=lambda i: i.split("_")[0])
-    with open(compressed_folder + "topo_file_list.txt", "w") as file_list:
+    with open(output_folder + "topo_file_list.txt", "w") as file_list:
         for i in topo_files:
             file_list.write(f"{i} \n")
 
     histograms = make_histograms(topo_files)
     distance_matrix = construct_distance_matrix(histograms)
 
-    with open(compressed_folder + "distance_matrix.dat", "w") as outputfile:
+    with open(output_folder + "distance_matrix.dat", "w") as outputfile:
         for row in distance_matrix:
             for col in row:
                 outputfile.write(f"{col} ")

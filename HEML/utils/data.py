@@ -5,7 +5,7 @@ from copy import deepcopy
 from HEML.utils.dictionaries import * 
 
 
-def get_options(options_file="./options.json"):
+def get_options(options_file="./options.json", create_folders=True):
     """
     Get options from options.json file and create folders if they don't exist.
     Takes
@@ -15,6 +15,7 @@ def get_options(options_file="./options.json"):
     """
     with open(options_file) as f:
         options = json.load(f)
+    
     for key in options:
         if "folder" in key:
             if not os.path.exists(options[key]):
