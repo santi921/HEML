@@ -74,7 +74,7 @@ def main():
             ]
         print("saving compressed dictionary...")
         with open(
-            os.path.join(root, folder) + "{}_compressed_dictionary.json".format(folder), "w"
+            output_folder + "{}_compressed_dictionary.json".format(folder), "w"
         ) as outputfile:
             json.dump(compress_dictionary, outputfile)
 
@@ -83,7 +83,7 @@ def main():
             if not os.path.exists(output_folder + name_center):
                 # get name of center from full path
                 os.system(
-                    "cp {}/{}/{} {}_i_{}".format(
+                    "cp {}/{}/{} {}_{}_{}".format(
                         root, 
                         folder,
                         v, 
