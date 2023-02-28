@@ -63,14 +63,16 @@ def main():
                 for col in row:
                     outputfile.write(f"{col} ")
                 outputfile.write("\n")
-
+        print("constucted distance matrix for folder \"{}\"".format(folder))
         compress_dictionary = compress(distance_matrix)
+
+        print("moving central topologies to compressed folder...")
 
         for k, v in compress_dictionary.items():
             compress_dictionary[k]["name_center"] = topo_files[
                 int(v["index_center"])
             ]
-
+        print("saving compressed dictionary...")
         with open(
             os.path.join(root, folder) + "{}_compressed_dictionary.json".format(folder), "w"
         ) as outputfile:
@@ -83,8 +85,9 @@ def main():
                 os.system(
                     "cp {}/".format(root, folder)
                     + name_center
-                    + " "
+                    + 
                     + output_folder
+                    + "{}_".format(i)
                     + name_center.split("/")[-1]
                 )
 
