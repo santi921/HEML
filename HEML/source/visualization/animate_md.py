@@ -1,8 +1,7 @@
-from HEML.utils.animate import show_in_out_plots
+from HEML.utils.animate import animate_fields
 
 def main():
     folder = '../../../data/cpet/'
     folder = '../../../data/1u5u_amber_md/'
-    show_in_out_plots(folder)
-
+    animate_fields(folder)
 main()

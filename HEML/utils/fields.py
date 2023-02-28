@@ -15,14 +15,23 @@ def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False):
         np.min(mat),
         np.max(mat),
     )
+
+    if log1:
+        shape = mat.shape
+         # get magnitude of vector field
+        mags = np.sqrt((mat**2).sum(axis=3))
+        #mags = mags.reshape([1, shape[0], shape[1], shape[2]])
+        mags_log1p = np.log1p(mags)
+        # get ratio magnitude to mags_log1p
+        ratio = mags_log1p / mags
+        multiply = np.multiply(mat, ratio.reshape([shape[0], shape[1], shape[2], 1])) 
+        mat = multiply
+
     if min_max:
         mat = (mat - arr_min) / (arr_max - arr_min + 10e-10)
 
     if std_mean:
         mat = (mat - arr_mean) / (arr_std)
-
-    if log1:
-        mat = np.log1p(mat)
 
     try:
         u = mat[0][:, :, :, 0].flatten()
@@ -157,7 +166,14 @@ def augment_mat_field(mat, target, xy=True, z=False):
     return aug_mat, aug_target
 
 
-def pca(mat, pca=None, pca_comps=10, verbose=False, write=False):
+def pca(
+        mat, 
+        pca=None, 
+        pca_comps=10, 
+        verbose=False, 
+        write=False,
+        bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
+        step_size = {"x": 0.3, "y": 0.3, "z": 0.3}):
 
     mat_transform = mat.reshape(
         mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4]
@@ -184,8 +200,11 @@ def pca(mat, pca=None, pca_comps=10, verbose=False, write=False):
 
     fig = make_subplots(rows=1, cols=1, specs=[[{"type": "cone"}]])
     x, y, z = np.meshgrid(
-        np.arange(-3.0, 3.3, 0.3), np.arange(-3.0, 3.3, 0.3), np.arange(-3.0, 3.3, 0.3)
+        np.arange(bounds['x'][0], bounds['x'][1]+step_size['x'], step_size['x']),
+        np.arange(bounds['y'][0], bounds['y'][1]+step_size['y'], step_size['y']),
+        np.arange(bounds['z'][0], bounds['z'][1]+step_size['z'], step_size['z'])
     )
+    
     u = pc0[0][:, :, :, 0].flatten()
     v = pc0[0][:, :, :, 1].flatten()
     w = pc0[0][:, :, :, 2].flatten()

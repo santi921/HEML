@@ -399,18 +399,25 @@ def mat_pull(file, meta_data=False):
         x_size = float(lines[0].split()[-3])
         y_size = float(lines[0].split()[-2])
         z_size = float(lines[0].split()[-1])
+        step_size_x = np.round(x_size / float(lines[0].split()[2]), 4)
+        step_size_y = np.round(y_size / float(lines[0].split()[3]), 4)
+        step_size_z = np.round(z_size / float(lines[0].split()[4][:-1]), 4)
 
         meta_dict = {
+            "first_line": lines[0],
             "steps_x": steps_x,
             "steps_y": steps_y,
             "steps_z": steps_z,
-            "step_size_x": np.round(x_size / float(lines[0].split()[2]), 4),
-            "step_size_y": np.round(y_size / float(lines[0].split()[3]), 4),
-            "step_size_z": np.round(z_size / float(lines[0].split()[4][:-1]), 4),
-            "first_line": lines[0]
+            "step_size_x": step_size_x,
+            "step_size_y": step_size_y,
+            "step_size_z": step_size_z,
+            'bounds_x': [-x_size, x_size + step_size_x], 
+            'bounds_y': [-y_size , y_size + step_size_y],
+            'bounds_z': [-z_size , z_size + step_size_z]
         }
 
         return meta_dict
+    
     else: 
         steps_x = 2 * int(lines[0].split()[2]) + 1
         steps_y = 2 * int(lines[0].split()[3]) + 1

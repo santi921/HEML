@@ -89,7 +89,7 @@ def get_cones_viz_from_pca(
     components = 10, 
     data_file = "../../data/protein_data.csv", 
     dir_fields = "../../data/cpet/",
-    bounds={'x': [-3, 3], 'y': [-3, 3], 'z': [-3, 3]} , 
+    bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
     step_size = {"x": 0.3, "y": 0.3, "z": 0.3}): 
 
     cones = []
@@ -143,8 +143,18 @@ def get_cones_viz_from_pca(
     return cones 
 
 
-def mat_to_cones(mat, shape, vector_scale = 3, bounds={'x': [-3, 3], 'y': [-3, 3], 'z': [-3, 3]} , step_size = {"x": 0.3, "y": 0.3, "z": 0.3}):
-    bohr_to_ang = 1.88973
+def mat_to_cones(
+        mat, 
+        shape, 
+        vector_scale = 3, 
+        bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
+        step_size = {"x": 0.3, "y": 0.3, "z": 0.3}, 
+        bohr_to_ang_conv = False):
+    
+    bohr_to_ang = 1
+    if bohr_to_ang_conv:
+        bohr_to_ang = 1.88973
+    
     comp_vect_field = mat.reshape(shape[1], shape[2], shape[3], shape[4])
     x, y, z = np.meshgrid(
                 np.arange(bounds['x'][0] * bohr_to_ang, (bounds['x'][1]+step_size['x']) * bohr_to_ang, step_size['x']* bohr_to_ang),
@@ -153,11 +163,11 @@ def mat_to_cones(mat, shape, vector_scale = 3, bounds={'x': [-3, 3], 'y': [-3, 3
                 )
 
     u_1, v_1, w_1 = split_and_filter(
-    comp_vect_field, 
-    cutoff=0, 
-    std_mean=False, 
-    min_max=False, 
-    log1 = True
+        comp_vect_field, 
+        cutoff=0, 
+        std_mean=False, 
+        min_max=False, 
+        log1 = True
     )
 
     return go.Cone(
