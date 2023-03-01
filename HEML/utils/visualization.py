@@ -147,8 +147,9 @@ def mat_to_cones(
         mat, 
         shape, 
         vector_scale = 3, 
+        cutoff = 0, 
         bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
-        step_size = {"x": 0.3, "y": 0.3, "z": 0.3}, 
+        step_size = {"x": 0.8, "y": 0.8, "z": 0.3}, 
         bohr_to_ang_conv = False):
     
     bohr_to_ang = 1
@@ -164,7 +165,7 @@ def mat_to_cones(
 
     u_1, v_1, w_1 = split_and_filter(
         comp_vect_field, 
-        cutoff=0, 
+        cutoff=cutoff, 
         std_mean=False, 
         min_max=False, 
         log1 = True

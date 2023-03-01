@@ -20,10 +20,9 @@ if __name__ == "__main__":
     x, y = pull_mats_w_label(
         data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
     )
+    
 
-    arr_min, arr_max, = np.min(
-        x
-    ), np.max(x)
+    arr_min, arr_max, = np.min(x), np.max(x)
     # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     x_sign = np.sign(x)
     # getting absolute value of every element
@@ -32,7 +31,14 @@ if __name__ == "__main__":
     x_log1p = np.log1p(x_abs)
     # getting sign back
     x = np.multiply(x_log1p, x_sign)
+    print(x.shape)
     y = [np.argmax(i) for i in y]
+    
+    # reduce x to just the center point of the matrix (midpoint_ind, midpoint_ind, midpoint_ind, 3)
+    midpoint_ind = int(x.shape[1] / 2)
+    x = x[:, midpoint_ind, midpoint_ind, midpoint_ind, :]
+    # get magnitude of vector
+    x = np.linalg.norm(x, axis=1).reshape(-1, 1)
 
     (
         X_train,
@@ -41,25 +47,10 @@ if __name__ == "__main__":
         y_test,
     ) = train_test_split(x, y, test_size=0.2, random_state=11)
 
-    if pca_tf:
-        X_train_untransformed = X_train
-        X_test_untransformed = X_test
-
-        _, pca_obj = pca(np.concatenate((X_train, X_test)), verbose=True, pca_comps=15)
-        X_train, pca_obj_train = pca(X_train, pca_obj)
-        X_test, pca_obj_test = pca(X_test, pca_obj)
 
     print(X_test.shape)
-    model_obj = XGBClassifier(
-        eta=0.8885,
-        gamma=0.0756,
-        max_depth=3,
-        subsample=0.5897054280821705,
-        reg_lambda=0.0000011289136863384718,
-        alpha=0.00002,
-        eval_metric="mlogloss",
-    )
-
+    
+    model_obj = RandomForestClassifier()
     kf = KFold(n_splits=5, random_state=11, shuffle=True)
     acc_train, acc_val, f1_val, auroc_val = [], [], [], []
 
@@ -69,19 +60,9 @@ if __name__ == "__main__":
         y_train_temp = np.array(y_train)[ind_train].tolist()
         y_val_temp = np.array(y_train)[ind_val].tolist()
 
-        if aug:
-            x_train_temp, y_train_temp = aug_all(
-                X_train_untransformed[ind_train], y_train_temp, xy=True, z=False
-            )
-            x_train_temp, _ = pca(x_train_temp, pca_obj)
-            model_obj.fit(x_train_temp, y_train_temp)
-            y_train_pred = model_obj.predict(x_train_temp)
-            acc_train.append(accuracy_score(y_train_pred, y_train_temp))
-
-        else:
-            model_obj.fit(x_train_temp, y_train_temp)
-            y_train_pred = model_obj.predict(x_train_temp)
-            acc_train.append(accuracy_score(y_train_pred, y_train_temp))
+        model_obj.fit(x_train_temp, y_train_temp)
+        y_train_pred = model_obj.predict(x_train_temp)
+        acc_train.append(accuracy_score(y_train_pred, y_train_temp))
 
         y_val_pred = model_obj.predict(x_val_temp)
         acc_val.append(accuracy_score(y_val_temp, y_val_pred))

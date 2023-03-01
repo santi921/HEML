@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # df = pd.read_csv("../../data/protein_data.csv")
     x, y = pull_mats_w_label(
-        data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
+        data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet_5_21/"
     )
 
     arr_min, arr_max, = np.min(
@@ -51,12 +51,12 @@ if __name__ == "__main__":
 
     print(X_test.shape)
     model_obj = XGBClassifier(
-        eta=0.8885,
-        gamma=0.0756,
-        max_depth=3,
-        subsample=0.5897054280821705,
+        eta=0.78,
+        gamma=0.6,
+        max_depth=7,
+        subsample=0.80,
         reg_lambda=0.0000011289136863384718,
-        alpha=0.00002,
+        alpha=0.0001,
         eval_metric="mlogloss",
     )
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     names, mat = [], []
     #dir_fields = "../../../data/charges_md/cpet/"
-    dir_fields = "../../../data/1u5u_amber_md/"
+    dir_fields = "../../../data/1u5u_amder_md_5_21/"
     test_files = os.listdir(dir_fields)
 
     for file in test_files:
