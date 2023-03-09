@@ -29,6 +29,12 @@ x2t
 *tar.xz
 *out
 *basis*
+*zip
 *tar.gz
 data/compressed_frames/*
 *gradient
+heml.egg-info/PKG-INFO
+HEML/source/visualization/newplot.png
+heml.egg-info/PKG-INFO
+data/cpet_5_35/average_field.npy
+data/cpet/average_field.npy

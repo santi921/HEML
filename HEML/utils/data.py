@@ -2,6 +2,8 @@ import os, json
 import pandas as pd
 import numpy as np
 from copy import deepcopy
+from glob import glob
+from tqdm import tqdm
 from HEML.utils.dictionaries import * 
 
 
@@ -464,7 +466,6 @@ def pull_mats_w_label(
     for row in df.iterrows():
         #print(row[1]['name'])
         cpet_name = dir_fields + "efield_cox_" + row[1]["name"] + ".dat"
-
         if os.path.exists(cpet_name):
             x.append(mat_pull(cpet_name))
             if row[1]["label"] == "Y":
@@ -479,6 +480,45 @@ def pull_mats_w_label(
     print(y_count, h_count, c_count)
     return np.array(x), np.array(y)
 
+
+def pull_mats_from_MD_folder(
+        root_dir = '../../../data/fields/',
+        data_file="../../../data/protein_data.csv"
+    ):
+
+
+    # iterate through all files in root_dir with ending *dat
+    # get the name of the file
+    target_files = []
+    target_files = glob(root_dir + '/*.dat')
+    
+    df = pd.read_csv(data_file)
+
+    x, y = [], []
+    c_count, h_count, y_count = 0, 0, 0
+
+    for i in tqdm(target_files):
+
+        x.append(mat_pull(i))
+        # get protein name from file name
+        protein_name = i.split('_')[3]#.split('.')[0]
+        # check if protein name is in df['name']
+        label_tf = df['name'].isin([protein_name])
+        if label_tf.any():
+            # get index of protein name
+            label = df.loc[df['name'] == protein_name, 'label'].iloc[0]
+            
+            if label == "Y":
+                y.append([1, 0, 0])
+                y_count += 1
+            elif label == "H":
+                y.append([0, 1, 0])
+                h_count += 1
+            else:
+                y.append([0, 0, 1])
+                c_count += 1
+    
+    return np.array(x), np.array(y)
 
 
 def fetch_charges_dict(file_name="test.pqr"):

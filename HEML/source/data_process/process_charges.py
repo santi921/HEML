@@ -130,6 +130,7 @@ if __name__ == "__main__":
                         print(f'Nitro 3 {nitrogen_dict["N_ID3"]}')
                         print(f'Nitro 4 {nitrogen_dict["N_ID4"]}')
                         print(f'ligand of note {ligand_dict["best_crit"]}\n')
+                        center = [float(i) for i in nitrogen_dict["mean_N_xyz"]]
 
             except:
                 fail_cond = True
@@ -138,9 +139,9 @@ if __name__ == "__main__":
 
             filename = os.path.basename(i)
             listname = filename.split(".")
-            center = [float(i) for i in nitrogen_dict["mean_N_xyz"]]
 
             if not fail_cond:
+
                 ligand_identifier = ligand_dict["best_crit"].split(":")
 
                 with open(output, "w") as outfile:

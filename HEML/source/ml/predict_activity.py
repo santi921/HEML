@@ -24,7 +24,7 @@ class training:
 
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y = pull_mats_w_label(
-            data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet_5_21/"
+            data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet_5_35/"
         )
 
         arr_min, arr_max, = np.min(
@@ -45,7 +45,7 @@ class training:
             self.X_test,
             self.y_train,
             self.y_test,
-        ) = train_test_split(x, y, test_size=0.2, random_state=11)
+        ) = train_test_split(x, y, test_size=0.2, random_state=0)
 
         if pca_tf:
             self.X_train_untransformed = self.X_train
@@ -66,7 +66,7 @@ class training:
             config = wandb.config
             model_obj = self.make_model(config)
 
-            kf = KFold(n_splits=5, random_state=11, shuffle=True)
+            kf = KFold(n_splits=5, random_state=0, shuffle=True)
             acc_train, acc_val, f1_val, auroc_val = [], [], [], []
 
             for ind_train, ind_val in kf.split(X=self.X_train, y=self.y_train):

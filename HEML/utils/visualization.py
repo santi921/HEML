@@ -87,6 +87,7 @@ def get_nodes_and_edges_from_pdb(
 def get_cones_viz_from_pca(
     vector_scale = 3, 
     components = 10, 
+    cutoff=75,
     data_file = "../../data/protein_data.csv", 
     dir_fields = "../../data/cpet/",
     bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
@@ -95,9 +96,8 @@ def get_cones_viz_from_pca(
     cones = []
 
     x, _ = pull_mats_w_label(data_file = data_file, dir_fields = dir_fields)
-    
+    print("field shape: "+ str(x.shape))
     arr_min, arr_max,  = np.min(x), np.max(x)
-    #x = (x - arr_min) / np.abs(arr_max - arr_min + 0.1)
     # getting sign of every element
     x_sign = np.sign(x)
     # getting absolute value of every element
@@ -106,7 +106,8 @@ def get_cones_viz_from_pca(
     x_log1p = np.log1p(x_abs)
     # getting sign back
     x = np.multiply(x_log1p, x_sign)
-    
+    x = (x - arr_min) / np.abs(arr_max - arr_min + 0.1)
+
     x_untransformed = x
     x_pca, pca_obj = pca(x, verbose = True, pca_comps = components, write = False) 
     shape_mat = x.shape
@@ -123,7 +124,7 @@ def get_cones_viz_from_pca(
 
         u_1, v_1, w_1 = split_and_filter(
             comp_vect_field, 
-            cutoff=85, 
+            cutoff=cutoff, 
             std_mean=True, 
             min_max=False
             )
@@ -149,7 +150,7 @@ def mat_to_cones(
         vector_scale = 3, 
         cutoff = 0, 
         bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
-        step_size = {"x": 0.8, "y": 0.8, "z": 0.3}, 
+        step_size = {"x": 0.3, "y": 0.3, "z": 0.3}, 
         bohr_to_ang_conv = False):
     
     bohr_to_ang = 1
@@ -162,7 +163,9 @@ def mat_to_cones(
                 np.arange(bounds['y'][0] * bohr_to_ang, (bounds['y'][1]+step_size['y']) * bohr_to_ang, step_size['y']* bohr_to_ang),
                 np.arange(bounds['z'][0] * bohr_to_ang, (bounds['z'][1]+step_size['z']) * bohr_to_ang, step_size['z']* bohr_to_ang)
                 )
-
+    print(x.shape)
+    print(y.shape)
+    print(z.shape)
     u_1, v_1, w_1 = split_and_filter(
         comp_vect_field, 
         cutoff=cutoff, 
