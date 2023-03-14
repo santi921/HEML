@@ -483,7 +483,8 @@ def pull_mats_w_label(
 
 def pull_mats_from_MD_folder(
         root_dir = '../../../data/fields/',
-        data_file="../../../data/protein_data.csv"
+        data_file="../../../data/protein_data.csv", 
+        label_ind = 3
     ):
 
 
@@ -501,13 +502,14 @@ def pull_mats_from_MD_folder(
 
         x.append(mat_pull(i))
         # get protein name from file name
-        protein_name = i.split('_')[3]#.split('.')[0]
+        protein_name = i.split("/")[-1].split('_')[label_ind]#.split('.')[0]
+        #print(protein_name)
         # check if protein name is in df['name']
         label_tf = df['name'].isin([protein_name])
+        
         if label_tf.any():
             # get index of protein name
             label = df.loc[df['name'] == protein_name, 'label'].iloc[0]
-            
             if label == "Y":
                 y.append([1, 0, 0])
                 y_count += 1
