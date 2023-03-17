@@ -8,8 +8,6 @@ from HEML.utils.attrib import *
 from HEML.utils.model import *
 from HEML.utils.fields import pca, aug_all
 
-
-
 class training:
     def __init__(
             self, 
@@ -24,7 +22,7 @@ class training:
         self.model = model
         self.test_crystal = test_crystal
         self.test_md = test_md
-
+        pca_comps = 25
 
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y, names = pull_mats_from_MD_folder(label_ind=3)
@@ -37,7 +35,7 @@ class training:
         # getting sign back
         x = np.multiply(x_log1p, x_sign)
         y = [np.argmax(i) for i in y]
-
+        print(set(y))
         (
             self.X_train,
             self.X_test,
@@ -47,13 +45,25 @@ class training:
             self.names_test,
         ) = train_test_split(x, y, names, test_size=0.2, random_state=0)
         #print(self.y_test.shape)
+        
         if self.pca_tf:
             self.X_train_untransformed = self.X_train
             self.X_test_untransformed = self.X_test
+                        
+            if self.aug:
+                x_train_temp, y_train_temp = aug_all(
+                    np.concatenate((self.X_train, self.X_test)),
+                    np.concatenate((self.y_train, self.y_test)),
+                    xy=True,
+                    z=True)
+                
+                _, self.pca_obj = pca(x_train_temp, verbose=True, pca_comps=pca_comps)
+            
+            #else: 
+            #_, self.pca_obj = pca(
+            #    np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=pca_comps
+            #)
 
-            _, self.pca_obj = pca(
-                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=35
-            )
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)
 
@@ -71,6 +81,13 @@ class training:
             # getting sign back
             x_md_test = np.multiply(x_log1p, x_sign)
             #print('pull mats on md test {} {}'.format(len(x_md_test), len(y_md_test)))
+            
+            if self.aug:
+                x_md_test, y_md_test = aug_all(x_md_test, y_md_test, xy=True, z=False)
+                # create new list with repeated element in names_test
+                names_test = [item for item in names_test for i in range(4)]
+                
+
             self.x_md_test, _ = pca(x_md_test, self.pca_obj)
             self.y_md_test = [np.argmax(i) for i in y_md_test]
             self.names_md_test = names_test
@@ -90,7 +107,7 @@ class training:
     
 
     def make_model(self, config):
-        print(config)
+        
         model_obj = construct_models(config=config, model=self.model)
         return model_obj
 
@@ -118,7 +135,7 @@ class training:
                     self.X_train_untransformed[ind_train],
                     y_train_temp,
                     xy=True,
-                    z=False)
+                    z=True)
                 x_train_temp, _ = pca(x_train_temp, self.pca_obj)
                 model_obj.fit(x_train_temp, y_train_temp)
                 
@@ -137,6 +154,7 @@ class training:
 
         print("final testing...")
         y_test_pred = model_obj.predict(self.X_test)
+        print(set(y_test_pred))
         acc_test = accuracy_score(self.y_test, y_test_pred)
         f1_test = f1_score(self.y_test, y_test_pred, average="weighted")
 
@@ -164,7 +182,13 @@ class training:
 
         if self.test_md: 
             print("test md...")
-            predictions = model_obj.predict(self.x_md_test) 
+            predictions = model_obj.predict(self.x_md_test)
+            #predictions = []
+            #for i in range(len(self.x_md_test)):
+            #    prediction_single = model_obj.predict(self.x_md_test[i].reshape(1, -1))
+            #    predictions += prediction_single.tolist()
+
+            #predictions = model_obj.predict(self.x_md_test) 
             #print(len(self.x_md_test), len(predictions), len(self.y_md_test))
 
             acc_score = accuracy_score(self.y_md_test, predictions)
@@ -174,23 +198,22 @@ class training:
 
             names = self.names_md_test
             result = {}
+            print(set(predictions))
             for i in range(len(predictions)):
-                print(names)
-                name_pro = names[i].split(".")[0].split("_")[3]
+                
+                name_pro = names[i]
                 
                 if name_pro not in result:
                     result[name_pro] = [0, 0, 0]
-                pred = predictions[i]
 
-                if pred[0] == 0:
+                pred = predictions[i]
+                if pred == 0:
                     result[name_pro][0] += 1
-                elif pred[0] == 1:
+                elif pred == 1:
                     result[name_pro][1] += 1
                 else:
                     result[name_pro][2] += 1
-            print(result)
-        
-
+            print(result)    
 
 class config:
     def __init__(
@@ -201,7 +224,9 @@ class config:
             gamma,
             reg_lambda,
             alpha,
-            subsample):
+            subsample, 
+            min_samples_leaf,
+            bootstrap):
         self.nestimators = nestimators
         self.max_depth = max_depth
         self.eta = eta
@@ -209,22 +234,31 @@ class config:
         self.reg_lambda = reg_lambda
         self.alpha = alpha
         self.subsample = subsample
-
+        self.min_samples_leaf = min_samples_leaf
+        self.bootstrap = bootstrap
 
 if __name__ == "__main__":
-
-
     pca_tf = True
-    model = "xgb"
-    trainer = training(model=model, pca_tf=pca_tf, test_crystal=True, test_md=True)
+    model = "brfc" # "xgb" "brfc" "eec"
+    
+    trainer = training(
+        model=model, 
+        pca_tf=pca_tf, 
+        test_crystal=True, 
+        test_md=True,
+        aug=True)
+    
     config = config(
-        nestimators=500, 
-        max_depth=8, 
+        nestimators=400, 
+        max_depth=4, 
         eta=0.70399291160943, 
         gamma=63.27723608448208,
         reg_lambda=0.1,
-        alpha=0.000002194560486561219,
-        subsample=0.6322187403324615)
+        alpha=0.0009978623441125043,
+        subsample=0.6322187403324615,
+        min_samples_leaf=4,
+        bootstrap=True)
+    
     trainer.train(config)
 
     

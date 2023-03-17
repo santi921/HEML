@@ -103,7 +103,6 @@ class training:
             self.y_crystal = [np.argmax(i) for i in y_crystal]
     
     def make_model(self, config):
-        print(config)
         model_obj = construct_models(config=config, model=self.model)
         return model_obj
 

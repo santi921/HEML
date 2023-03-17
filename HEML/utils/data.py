@@ -511,6 +511,7 @@ def pull_mats_from_MD_folder(
             # get index of protein name
             names.append(protein_name)
             label = df.loc[df['name'] == protein_name, 'label'].iloc[0]
+            #print(protein_name, label)
             if label == "Y":
                 y.append([1, 0, 0])
                 y_count += 1
