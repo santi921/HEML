@@ -165,15 +165,31 @@ class training:
         if self.test_md: 
             print("test md...")
             predictions = model_obj.predict(self.x_md_test) 
-            print(len(self.x_md_test), len(predictions), len(self.y_md_test))
+            #print(len(self.x_md_test), len(predictions), len(self.y_md_test))
 
             acc_score = accuracy_score(self.y_md_test, predictions)
             f1score = f1_score(self.y_md_test, predictions, average="weighted")
             print("md test acc:           {:.2f}".format(acc_score))
             print("md test f1 score:      {:.2f}".format(f1score))
 
+            names = self.names_md_test
+            result = {}
+            for i in range(len(predictions)):
+                print(names)
+                name_pro = names[i].split(".")[0].split("_")[3]
+                
+                if name_pro not in result:
+                    result[name_pro] = [0, 0, 0]
+                pred = predictions[i]
+
+                if pred[0] == 0:
+                    result[name_pro][0] += 1
+                elif pred[0] == 1:
+                    result[name_pro][1] += 1
+                else:
+                    result[name_pro][2] += 1
+            print(result)
         
-            
 
 
 class config:

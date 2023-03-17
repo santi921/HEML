@@ -163,6 +163,7 @@ if __name__ == "__main__":
     print(x.shape)
     print(x.shape[0])
     result = {}
+    
     for i in range(x.shape[0]):
         print(names[i])
         name_pro = names[i].split(".")[0].split("_")[3]

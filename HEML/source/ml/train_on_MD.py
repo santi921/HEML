@@ -41,7 +41,7 @@ class training:
 
 
         # df = pd.read_csv("../../data/protein_data.csv")
-        x, y = pull_mats_from_MD_folder(label_ind=3)
+        x, y, _ = pull_mats_from_MD_folder(label_ind=3)
 
         arr_min, arr_max, = np.min(x), np.max(x)
         
@@ -90,7 +90,7 @@ class training:
 
 
         if test_crystal:
-            x_crystal, y_crystal, _ = pull_mats_w_label(
+            x_crystal, y_crystal = pull_mats_w_label(
                 data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
             )
             
@@ -210,6 +210,7 @@ class training:
                 print("md test f1 score:      {:.2f}".format(f1score))
                 wandb.log({"md_test_acc": accuracy_score(self.y_md_test, model_obj.predict(self.x_md_test))})
                 wandb.log({"md_test_f1": f1_score(self.y_md_test, model_obj.predict(self.x_md_test), average="weighted")})
+        
         
         run.finish()
 
