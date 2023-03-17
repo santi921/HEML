@@ -14,6 +14,7 @@ def hyperparameter_dicts():
         "lr": {"min": 1e-5, "max": 1e-1, "distribution": "log_uniform_values"},
     }
     dict_xgb = {
+        "nestimators": {"min": 50, "max": 600},
         "max_depth": {"min": 2, "max": 8},
         "subsample": {"min": 0.4, "max": 1.0},
         "eta": {"min": 0.1, "max": 0.9},

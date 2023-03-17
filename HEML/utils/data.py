@@ -495,20 +495,21 @@ def pull_mats_from_MD_folder(
     
     df = pd.read_csv(data_file)
 
-    x, y = [], []
+    x, y, names = [], [], []
     c_count, h_count, y_count = 0, 0, 0
 
     for i in tqdm(target_files):
 
         x.append(mat_pull(i))
         # get protein name from file name
-        protein_name = i.split("/")[-1].split('_')[label_ind]#.split('.')[0]
+        protein_name = i.split("/")[-1].split('_')[label_ind].split('.')[0]
         #print(protein_name)
         # check if protein name is in df['name']
         label_tf = df['name'].isin([protein_name])
         
         if label_tf.any():
             # get index of protein name
+            names.append(protein_name)
             label = df.loc[df['name'] == protein_name, 'label'].iloc[0]
             if label == "Y":
                 y.append([1, 0, 0])
@@ -520,7 +521,7 @@ def pull_mats_from_MD_folder(
                 y.append([0, 0, 1])
                 c_count += 1
     
-    return np.array(x), np.array(y)
+    return np.array(x), np.array(y), names
 
 
 def fetch_charges_dict(file_name="test.pqr"):

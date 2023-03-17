@@ -72,7 +72,7 @@ class training:
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)
 
         if self.test_md: 
-            x_md_test, y_md_test = pull_mats_from_MD_folder(
+            x_md_test, y_md_test, _ = pull_mats_from_MD_folder(
                 root_dir="../../../data/fields_test/",
                 data_file="../../../data/protein_data.csv",
                 label_ind=3
@@ -90,7 +90,7 @@ class training:
 
 
         if test_crystal:
-            x_crystal, y_crystal = pull_mats_w_label(
+            x_crystal, y_crystal, _ = pull_mats_w_label(
                 data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
             )
             
@@ -261,12 +261,13 @@ if __name__ == "__main__":
     sweep_config["name"] = method + "_" + model + "_" + dataset_name
     sweep_config["method"] = method
     if method == "bayes":
-        sweep_config["metric"] = {"name": "crystal_f1", "goal": "maximize"}
+        sweep_config["metric"] = {"name": "md_test_f1", "goal": "maximize"}
     #trainer = training(model=model, pca_tf=pca_tf, test_crystal=True, test_md=True)
     #config = config(nestimators=100, max_depth=6)
     #trainer.train(config)
 
-    sweep_id = wandb.sweep(sweep_config, project="HemeML")
+    sweep_id = wandb.sweep(sweep_config, project="HemeML_MD")
     training_obj = training(model=model, pca_tf=pca_tf, test_crystal=True, test_md=True)
     wandb.agent(sweep_id, function=training_obj.train, count=count)
     
+
