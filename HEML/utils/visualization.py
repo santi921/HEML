@@ -151,7 +151,10 @@ def mat_to_cones(
         cutoff = 0, 
         bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
         step_size = {"x": 0.3, "y": 0.3, "z": 0.3}, 
-        bohr_to_ang_conv = False):
+        bohr_to_ang_conv = False, 
+        cos_center_scaling = False,
+        log1=False,
+        min_max=False):
     
     bohr_to_ang = 1
     if bohr_to_ang_conv:
@@ -170,8 +173,9 @@ def mat_to_cones(
         comp_vect_field, 
         cutoff=cutoff, 
         std_mean=False, 
-        min_max=False, 
-        log1 = True
+        min_max=min_max, 
+        log1 = log1,
+        cos_center_scaling = cos_center_scaling
     )
 
     return go.Cone(

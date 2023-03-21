@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 
 from HEML.utils.data import mat_pull
 
-def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False):
+def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False, cos_center_scaling=False):
 
     arr_mean, arr_std, arr_min, arr_max = (
         np.mean(mat),
@@ -32,6 +32,19 @@ def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False):
 
     if std_mean:
         mat = (mat - arr_mean) / (arr_std)
+
+    if cos_center_scaling:
+        shape = mat.shape
+        center_ind = np.array([np.ceil(shape[0]//2), np.ceil(shape[1]//2), np.ceil(shape[2]//2)])
+        scale_mat = np.zeros_like(mat)
+        max_dist = np.sqrt(np.sum(center_ind)**2)
+
+        for i in range(shape[0]):
+            for j in range(shape[1]):
+                for k in range(shape[2]):
+                    scale_mat[i, j, k] = 1 + 5*np.cos(np.sqrt(np.sum((center_ind - np.array([i, j, k]))**2)) / max_dist * np.pi / 2)
+        multiply = np.multiply(mat, scale_mat)
+        mat = multiply
 
     try:
         u = mat[0][:, :, :, 0].flatten()
