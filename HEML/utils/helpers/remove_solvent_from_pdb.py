@@ -4,7 +4,7 @@ from glob import glob
 def main():
     # find all files ending in *pdb
     files = glob("*.pdb")
-    
+
     # loop over all files
     for file in files:
         index_cut = -1

@@ -1,8 +1,7 @@
 import os, random
 from HEML.utils.data import *
-from HEML.utils.dictionaries import atom_int_dict 
+from HEML.utils.dictionaries import atom_int_dict
 from glob import glob
-
 
 
 def create_folders():

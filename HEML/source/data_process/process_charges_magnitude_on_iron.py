@@ -4,21 +4,19 @@ from HEML.utils.data import get_options, check_if_file_is_empty, get_fe_position
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
     )
-    parser.add_argument(
-        "--zero_active", help="zero active site", default=True
-    )
+    parser.add_argument("--zero_active", help="zero active site", default=True)
     parser.add_argument(
         "--zero_everything_charged", help="zero everything charged", default=False
     )
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
-    
+
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
@@ -51,12 +49,10 @@ if __name__ == "__main__":
         if os.path.exists(output):
             print("output file already exists")
 
-
         # checks that input file is not empty
         if check_if_file_is_empty(i):
             print("input file is empty")
             pass
-
 
         else:
             openfile = open(i)
@@ -73,18 +69,17 @@ if __name__ == "__main__":
                 assert fe_dict["id"] != None
                 print(fe_dict["id"], fe_dict["xyz"])
                 fail_cond = False
-                #print(fe_dict["id"], fe_dict["xyz"])
+                # print(fe_dict["id"], fe_dict["xyz"])
             except:
                 fail_cond = True
                 print("Failed File: ".format(i))
                 fail += 1
 
-
             filename = os.path.basename(i)
             listname = filename.split(".")
 
             if not fail_cond:
-                
+
                 with open(output, "w") as outfile:
                     for j in readfile:
 
@@ -99,10 +94,13 @@ if __name__ == "__main__":
                 file_name = i.split("/")[-1].split(".")[0]
                 options = open(f"{outdir_cpet}options_magni_{file_name}.txt", "w+")
                 options.write(f"%field \n")
-                options.write("    locations {}:{}:{} \n".format(fe_dict["xyz"][0], fe_dict["xyz"][1], fe_dict["xyz"][2]))
+                options.write(
+                    "    locations {}:{}:{} \n".format(
+                        fe_dict["xyz"][0], fe_dict["xyz"][1], fe_dict["xyz"][2]
+                    )
+                )
                 options.write(f"output {outdir_cpet}{file_name}_mag.dat \n")
                 options.write(f"end \n")
                 options.close()
-
 
     print("fail count: {}".format(fail))

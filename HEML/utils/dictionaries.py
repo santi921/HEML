@@ -95,6 +95,3 @@ atom_colors = {
     "Fe": "orange",
     "I": "purple",
 }
-
-
-

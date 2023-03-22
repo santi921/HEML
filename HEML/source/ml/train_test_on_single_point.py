@@ -20,7 +20,6 @@ if __name__ == "__main__":
     x, y = pull_mats_w_label(
         data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
     )
-    
 
     arr_min, arr_max, = np.min(x), np.max(x)
     # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
@@ -33,23 +32,19 @@ if __name__ == "__main__":
     x = np.multiply(x_log1p, x_sign)
     print(x.shape)
     y = [np.argmax(i) for i in y]
-    
+
     # reduce x to just the center point of the matrix (midpoint_ind, midpoint_ind, midpoint_ind, 3)
     midpoint_ind = int(x.shape[1] / 2)
     x = x[:, midpoint_ind, midpoint_ind, midpoint_ind, :]
     # get magnitude of vector
     x = np.linalg.norm(x, axis=1).reshape(-1, 1)
 
-    (
-        X_train,
-        X_test,
-        y_train,
-        y_test,
-    ) = train_test_split(x, y, test_size=0.2, random_state=11)
-
+    (X_train, X_test, y_train, y_test,) = train_test_split(
+        x, y, test_size=0.2, random_state=11
+    )
 
     print(X_test.shape)
-    
+
     model_obj = RandomForestClassifier()
     kf = KFold(n_splits=5, random_state=11, shuffle=True)
     acc_train, acc_val, f1_val, auroc_val = [], [], [], []

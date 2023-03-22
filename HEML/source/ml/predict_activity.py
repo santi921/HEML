@@ -24,12 +24,11 @@ class training:
 
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y = pull_mats_w_label(
-            data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet_5_35/"
+            data_file="../../../data/protein_data.csv",
+            dir_fields="../../../data/cpet_5_35/",
         )
 
-        arr_min, arr_max, = np.min(
-            x
-        ), np.max(x)
+        arr_min, arr_max, = np.min(x), np.max(x)
         # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
         x_sign = np.sign(x)
         # getting absolute value of every element
@@ -40,12 +39,9 @@ class training:
         x = np.multiply(x_log1p, x_sign)
         y = [np.argmax(i) for i in y]
 
-        (
-            self.X_train,
-            self.X_test,
-            self.y_train,
-            self.y_test,
-        ) = train_test_split(x, y, test_size=0.2, random_state=0)
+        (self.X_train, self.X_test, self.y_train, self.y_test,) = train_test_split(
+            x, y, test_size=0.2, random_state=0
+        )
 
         if pca_tf:
             self.X_train_untransformed = self.X_train
@@ -134,11 +130,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="options for hyperparam tune")
     parser.add_argument(
-        "-dataset",
-        action="store",
-        dest="dataset",
-        default=1,
-        help="dataset to use",
+        "-dataset", action="store", dest="dataset", default=1, help="dataset to use",
     )
 
     parser.add_argument(
@@ -150,11 +142,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-model",
-        action="store",
-        dest="model",
-        default="rfc",
-        help="model",
+        "-model", action="store", dest="model", default="rfc", help="model",
     )
 
     parser.add_argument(

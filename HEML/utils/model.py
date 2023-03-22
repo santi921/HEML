@@ -95,9 +95,7 @@ def construct_models(config, model="xgb"):
         )
 
     elif model == "qda":
-        model_obj = QuadraticDiscriminantAnalysis(
-            reg_param=config.reg_param,
-        )
+        model_obj = QuadraticDiscriminantAnalysis(reg_param=config.reg_param,)
 
     elif model == "knc":
         model_obj = KNeighborsClassifier(

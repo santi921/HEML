@@ -3,12 +3,11 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-#from HEML.utils.data import *
+# from HEML.utils.data import *
 from HEML.utils.data import pull_mats_w_label
 from HEML.utils.attrib import *
 from HEML.utils.model import *
 from HEML.utils.fields import pca, split_and_filter
-
 
 
 def main():
@@ -16,9 +15,7 @@ def main():
     x, y = pull_mats_w_label(
         data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
     )
-    arr_min, arr_max, = np.min(
-        x
-    ), np.max(x)
+    arr_min, arr_max, = np.min(x), np.max(x)
     x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     y = [np.argmax(i) for i in y]
 

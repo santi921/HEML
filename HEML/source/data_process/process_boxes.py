@@ -1,6 +1,7 @@
 # get charges - preprocess
 import subprocess, os, random
 
+
 def main():
     files = os.listdir("../../data/charge_processed/")
     for ind in range(len(files)):

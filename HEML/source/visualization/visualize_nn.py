@@ -60,9 +60,7 @@ if __name__ == "__main__":
     no_classes = 3
     df = pd.read_csv("../../data/protein_data.csv")
     x, y = pull_mats_w_label("./dat")
-    arr_min, arr_max, = np.min(
-        x
-    ), np.max(x)
+    arr_min, arr_max, = np.min(x), np.max(x)
     x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     shape_mat = x.shape
     X_train, X_test, y_train, y_test = train_test_split(
@@ -78,8 +76,7 @@ if __name__ == "__main__":
         X_train = mat[: len(X_train)]
         X_test = mat[len(X_train) :]
         img_1 = X_train[
-            0,
-            :,
+            0, :,
         ]  # y_test label 3 is 0
         img_2 = X_train[1, :]  # y_test label 2 is 1
         img_3 = X_train[27, :]  # y_test label 1 is 27
@@ -97,11 +94,7 @@ if __name__ == "__main__":
         model_xgb = XGBClassifier(
             max_depth=4, colsample_bytree=0.2, subsample=0.3, eta=0.03
         )
-        model_xgb = RandomForestClassifier(
-            max_depth=2,
-            bootstrap=True,
-            ccp_alpha=0.2,
-        )
+        model_xgb = RandomForestClassifier(max_depth=2, bootstrap=True, ccp_alpha=0.2,)
         model_xgb = LogisticRegression()
         # model_xgb = MLPClassifier()
 
@@ -302,9 +295,7 @@ if __name__ == "__main__":
         rows=1,
         cols=3,
         subplot_titles=("cat 1", "cat 2", "cat 3"),
-        specs=[
-            [{"type": "cone"}, {"type": "cone"}, {"type": "surface"}],
-        ],
+        specs=[[{"type": "cone"}, {"type": "cone"}, {"type": "surface"}],],
     )
 
     u_1, v_1, w_1 = split_and_filter(mat_1)

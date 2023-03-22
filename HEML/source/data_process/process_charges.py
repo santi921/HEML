@@ -1,48 +1,34 @@
 import os, re, argparse
 from glob import glob
 from HEML.utils.data import (
-    get_options, 
+    get_options,
     check_if_file_is_empty,
     get_fe_positions,
-    get_ligand_info, 
+    get_ligand_info,
     get_N_positions,
-    check_if_dict_has_None
+    check_if_dict_has_None,
 )
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
     )
-    parser.add_argument(
-        "--zero_active", help="zero active site", default=True
-    )
+    parser.add_argument("--zero_active", help="zero active site", default=True)
     parser.add_argument(
         "--zero_everything_charged", help="zero everything charged", default=False
     )
     # store t/f if --box is used
-    parser.add_argument(
-        "--box", help="box", action="store_true"
-        )
+    parser.add_argument("--box", help="box", action="store_true")
 
-    parser.add_argument(
-        "--box_size", help="box size", default=4.0
-    )
+    parser.add_argument("--box_size", help="box size", default=4.0)
 
-    parser.add_argument(
-        "--density", help="density", default=10
-    )
-    parser.add_argument(
-        "--samples", help="samples", default=3000
-    )
-    parser.add_argument(
-        "--bins", help="bins", default=25
-    )
-    parser.add_argument(
-        "--step_size", help="step size", default=0.001
-    )
+    parser.add_argument("--density", help="density", default=10)
+    parser.add_argument("--samples", help="samples", default=3000)
+    parser.add_argument("--bins", help="bins", default=25)
+    parser.add_argument("--step_size", help="step size", default=0.001)
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
@@ -151,18 +137,17 @@ if __name__ == "__main__":
                             line_split[8] == ligand_identifier[0]
                             and line_split[10] == ligand_identifier[1]
                         )
-                        
-                        #x, y, z = float(j[30:38]), float(j[38:46]), float(j[46:54])
-                        #box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
-                        
-                        #if box_conditional:
+
+                        # x, y, z = float(j[30:38]), float(j[38:46]), float(j[46:54])
+                        # box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
+
+                        # if box_conditional:
                         #    temp_write = j[:56] + "0.000" + j[61:]
                         #    outfile.write(temp_write)
 
                         if zero_active and ("HETATM" in line_split[0] or cond):
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
-                        
 
                         elif zero_everything_charged and line_split[3] in [
                             "ASP",
@@ -199,9 +184,7 @@ if __name__ == "__main__":
                     options.close()
                 else:
 
-                    options = open(
-                        f"{outdir_cpet}options_topol_{file_name}.txt", "w+"
-                    )
+                    options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
                     options.write(
                         f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
                     )

@@ -20,7 +20,7 @@ def main():
 
     files = glob(folder_processed + "*.pdb")
 
-    for ind in range(len(files)*10):
+    for ind in range(len(files) * 10):
         i = random.choice(files)
         bool_exists = os.path.exists(out_folder + i.split("/")[-1] + ".pqr")
         print(out_folder + i.split("/")[-1] + ".pqr")

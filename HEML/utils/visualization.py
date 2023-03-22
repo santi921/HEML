@@ -3,14 +3,14 @@ from rdkit import Chem
 import plotly.graph_objects as go
 
 from HEML.utils.data import (
-    pdb_to_xyz, 
-    filter_other_by_distance, 
+    pdb_to_xyz,
+    filter_other_by_distance,
     filter_xyz_by_distance,
-    pull_mats_w_label
+    pull_mats_w_label,
 )
 from HEML.utils.xyz2mol import xyz2AC_vdW
 from HEML.utils.fields import split_and_filter, pca
-from HEML.utils.dictionaries import * 
+from HEML.utils.dictionaries import *
 
 
 def shift_and_rotate(
@@ -85,19 +85,20 @@ def get_nodes_and_edges_from_pdb(
 
 
 def get_cones_viz_from_pca(
-    vector_scale = 3, 
-    components = 10, 
+    vector_scale=3,
+    components=10,
     cutoff=75,
-    data_file = "../../data/protein_data.csv", 
-    dir_fields = "../../data/cpet/",
-    bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
-    step_size = {"x": 0.3, "y": 0.3, "z": 0.3}): 
+    data_file="../../data/protein_data.csv",
+    dir_fields="../../data/cpet/",
+    bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
+    step_size={"x": 0.3, "y": 0.3, "z": 0.3},
+):
 
     cones = []
 
-    x, _ = pull_mats_w_label(data_file = data_file, dir_fields = dir_fields)
-    print("field shape: "+ str(x.shape))
-    arr_min, arr_max,  = np.min(x), np.max(x)
+    x, _ = pull_mats_w_label(data_file=data_file, dir_fields=dir_fields)
+    print("field shape: " + str(x.shape))
+    arr_min, arr_max, = np.min(x), np.max(x)
     # getting sign of every element
     x_sign = np.sign(x)
     # getting absolute value of every element
@@ -109,85 +110,111 @@ def get_cones_viz_from_pca(
     x = (x - arr_min) / np.abs(arr_max - arr_min + 0.1)
 
     x_untransformed = x
-    x_pca, pca_obj = pca(x, verbose = True, pca_comps = components, write = False) 
+    x_pca, pca_obj = pca(x, verbose=True, pca_comps=components, write=False)
     shape_mat = x.shape
 
-
-    for ind,pca_comp in enumerate(pca_obj.components_):
-        comp_vect_field = pca_comp.reshape(shape_mat[1], shape_mat[2], shape_mat[3], shape_mat[4])
+    for ind, pca_comp in enumerate(pca_obj.components_):
+        comp_vect_field = pca_comp.reshape(
+            shape_mat[1], shape_mat[2], shape_mat[3], shape_mat[4]
+        )
         bohr_to_ang = 1.88973
         x, y, z = np.meshgrid(
-                    np.arange(bounds['x'][0] * bohr_to_ang, (bounds['x'][1]+step_size['x']) * bohr_to_ang, step_size['x']* bohr_to_ang),
-                    np.arange(bounds['y'][0] * bohr_to_ang, (bounds['y'][1]+step_size['y']) * bohr_to_ang, step_size['y']* bohr_to_ang),
-                    np.arange(bounds['z'][0] * bohr_to_ang, (bounds['z'][1]+step_size['z']) * bohr_to_ang, step_size['z']* bohr_to_ang)
-                )
+            np.arange(
+                bounds["x"][0] * bohr_to_ang,
+                (bounds["x"][1] + step_size["x"]) * bohr_to_ang,
+                step_size["x"] * bohr_to_ang,
+            ),
+            np.arange(
+                bounds["y"][0] * bohr_to_ang,
+                (bounds["y"][1] + step_size["y"]) * bohr_to_ang,
+                step_size["y"] * bohr_to_ang,
+            ),
+            np.arange(
+                bounds["z"][0] * bohr_to_ang,
+                (bounds["z"][1] + step_size["z"]) * bohr_to_ang,
+                step_size["z"] * bohr_to_ang,
+            ),
+        )
 
         u_1, v_1, w_1 = split_and_filter(
-            comp_vect_field, 
-            cutoff=cutoff, 
-            std_mean=True, 
-            min_max=False
+            comp_vect_field, cutoff=cutoff, std_mean=True, min_max=False
+        )
+
+        cones.append(
+            go.Cone(
+                x=x.flatten(),
+                y=y.flatten(),
+                z=z.flatten(),
+                u=u_1,
+                v=v_1,
+                w=w_1,
+                sizeref=vector_scale,
+                opacity=0.4,
+                showscale=False,
+                colorscale="Greens",
             )
-        
-        cones.append(go.Cone(
-            x=x.flatten(), 
-            y=y.flatten(), 
-            z=z.flatten(), 
-            u=u_1,
-            v=v_1, 
-            w=w_1,
-            sizeref=vector_scale,
-            opacity=0.4, 
-            showscale=False,
-            colorscale='Greens',))
-        
-    return cones 
+        )
+
+    return cones
 
 
 def mat_to_cones(
-        mat, 
-        shape, 
-        vector_scale = 3, 
-        cutoff = 0, 
-        bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
-        step_size = {"x": 0.3, "y": 0.3, "z": 0.3}, 
-        bohr_to_ang_conv = False, 
-        cos_center_scaling = False,
-        log1=False,
-        min_max=False):
-    
+    mat,
+    shape,
+    vector_scale=3,
+    cutoff=0,
+    bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
+    step_size={"x": 0.3, "y": 0.3, "z": 0.3},
+    bohr_to_ang_conv=False,
+    cos_center_scaling=False,
+    std_mean=False,
+    log1=False,
+    min_max=False,
+):
+
     bohr_to_ang = 1
     if bohr_to_ang_conv:
         bohr_to_ang = 1.88973
-    
+
     comp_vect_field = mat.reshape(shape[1], shape[2], shape[3], shape[4])
     x, y, z = np.meshgrid(
-                np.arange(bounds['x'][0] * bohr_to_ang, (bounds['x'][1]+step_size['x']) * bohr_to_ang, step_size['x']* bohr_to_ang),
-                np.arange(bounds['y'][0] * bohr_to_ang, (bounds['y'][1]+step_size['y']) * bohr_to_ang, step_size['y']* bohr_to_ang),
-                np.arange(bounds['z'][0] * bohr_to_ang, (bounds['z'][1]+step_size['z']) * bohr_to_ang, step_size['z']* bohr_to_ang)
-                )
+        np.arange(
+            bounds["x"][0] * bohr_to_ang,
+            (bounds["x"][1] + step_size["x"]) * bohr_to_ang,
+            step_size["x"] * bohr_to_ang,
+        ),
+        np.arange(
+            bounds["y"][0] * bohr_to_ang,
+            (bounds["y"][1] + step_size["y"]) * bohr_to_ang,
+            step_size["y"] * bohr_to_ang,
+        ),
+        np.arange(
+            bounds["z"][0] * bohr_to_ang,
+            (bounds["z"][1] + step_size["z"]) * bohr_to_ang,
+            step_size["z"] * bohr_to_ang,
+        ),
+    )
     print(x.shape)
     print(y.shape)
     print(z.shape)
     u_1, v_1, w_1 = split_and_filter(
-        comp_vect_field, 
-        cutoff=cutoff, 
-        std_mean=False, 
-        min_max=min_max, 
-        log1 = log1,
-        cos_center_scaling = cos_center_scaling
+        comp_vect_field,
+        cutoff=cutoff,
+        std_mean=std_mean,
+        min_max=min_max,
+        log1=log1,
+        cos_center_scaling=cos_center_scaling,
     )
 
     return go.Cone(
-    x=x.flatten(), 
-    y=y.flatten(), 
-    z=z.flatten(), 
-    u=u_1,
-    v=v_1, 
-    w=w_1,
-    sizeref=vector_scale,
-    opacity=0.4, 
-    showscale=False,
-    colorscale='Greens',)
-        
-  
+        x=x.flatten(),
+        y=y.flatten(),
+        z=z.flatten(),
+        u=u_1,
+        v=v_1,
+        w=w_1,
+        sizeref=vector_scale,
+        opacity=0.4,
+        showscale=False,
+        colorscale="Greens",
+    )

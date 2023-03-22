@@ -12,9 +12,7 @@ def main():
     parser.add_argument(
         "--num", help="number of topologies to calculate", default=10000
     )
-    parser.add_argument(
-        "--threads", help="number of threads to use", default=16
-    )
+    parser.add_argument("--threads", help="number of threads to use", default=16)
     options_loc = parser.parse_args().options
     num = int(parser.parse_args().num)
     threads = int(parser.parse_args().threads)

@@ -3,13 +3,14 @@ from tkinter import E
 import os, re, json
 from glob import glob
 from HEML.utils.data import (
-    get_options, 
+    get_options,
     check_if_file_is_empty,
     get_fe_positions,
-    get_ligand_info, 
+    get_ligand_info,
     get_N_positions,
-    check_if_dict_has_None
+    check_if_dict_has_None,
 )
+
 
 def write_topo(
     outdir_cpet, file_name, samples, bins, step_size, box_size, arg1, arg2, arg3, uuid=1

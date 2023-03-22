@@ -1,13 +1,21 @@
-import numpy as np 
-from sklearn.cluster import AffinityPropagation
-import plotly.graph_objects as go
+import numpy as np
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.decomposition import PCA
+from sklearn.cluster import AffinityPropagation
 
 from HEML.utils.data import mat_pull
 
-def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False, cos_center_scaling=False):
+
+def split_and_filter(
+    mat, 
+    cutoff=95, 
+    min_max=True, 
+    std_mean=False, 
+    log1=False, 
+    cos_center_scaling=False
+):
 
     arr_mean, arr_std, arr_min, arr_max = (
         np.mean(mat),
@@ -18,13 +26,13 @@ def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False, c
 
     if log1:
         shape = mat.shape
-         # get magnitude of vector field
-        mags = np.sqrt((mat**2).sum(axis=3))
-        #mags = mags.reshape([1, shape[0], shape[1], shape[2]])
+        # get magnitude of vector field
+        mags = np.sqrt((mat ** 2).sum(axis=3))
+        # mags = mags.reshape([1, shape[0], shape[1], shape[2]])
         mags_log1p = np.log1p(mags)
         # get ratio magnitude to mags_log1p
         ratio = mags_log1p / mags
-        multiply = np.multiply(mat, ratio.reshape([shape[0], shape[1], shape[2], 1])) 
+        multiply = np.multiply(mat, ratio.reshape([shape[0], shape[1], shape[2], 1]))
         mat = multiply
 
     if min_max:
@@ -35,14 +43,21 @@ def split_and_filter(mat, cutoff=95, min_max=True, std_mean=False, log1=False, c
 
     if cos_center_scaling:
         shape = mat.shape
-        center_ind = np.array([np.ceil(shape[0]//2), np.ceil(shape[1]//2), np.ceil(shape[2]//2)])
+        center_ind = np.array(
+            [np.ceil(shape[0] // 2), np.ceil(shape[1] // 2), np.ceil(shape[2] // 2)]
+        )
         scale_mat = np.zeros_like(mat)
-        max_dist = np.sqrt(np.sum(center_ind)**2)
+        max_dist = np.sqrt(np.sum(center_ind) ** 2)
 
         for i in range(shape[0]):
             for j in range(shape[1]):
                 for k in range(shape[2]):
-                    scale_mat[i, j, k] = 1 + 5*np.cos(np.sqrt(np.sum((center_ind - np.array([i, j, k]))**2)) / max_dist * np.pi / 2)
+                    scale_mat[i, j, k] = 1 + 5 * np.cos(
+                        np.sqrt(np.sum((center_ind - np.array([i, j, k])) ** 2))
+                        / max_dist
+                        * np.pi
+                        / 2
+                    )
         multiply = np.multiply(mat, scale_mat)
         mat = multiply
 
@@ -79,7 +94,6 @@ def save_numpy_as_dat(dict_meta_data, average_field, name):
         average_field: np array with average field
         name: name of file to save
     """
-    
 
     first_line = dict_meta_data["first_line"]
     steps_x = dict_meta_data["steps_x"]
@@ -93,22 +107,25 @@ def save_numpy_as_dat(dict_meta_data, average_field, name):
     # add six lines starting with #
     lines = lines + ["#\n"] * 6
 
-    # write as 
+    # write as
     for i in range(steps_x):
         for j in range(steps_y):
             for k in range(steps_z):
                 line = "{:.3f} {:.3f} {:.3f} {:.6f} {:.6f} {:.6f}\n".format(
-                    step_size_x * (i - (steps_x - 1)/2), 
-                    step_size_y * (j - (steps_y - 1)/2), 
-                    step_size_z * (k - (steps_z - 1)/2), 
-                    average_field[i, j, k, 0], average_field[i, j, k, 1], average_field[i, j, k, 2])
+                    step_size_x * (i - (steps_x - 1) / 2),
+                    step_size_y * (j - (steps_y - 1) / 2),
+                    step_size_z * (k - (steps_z - 1) / 2),
+                    average_field[i, j, k, 0],
+                    average_field[i, j, k, 1],
+                    average_field[i, j, k, 2],
+                )
                 lines.append(line)
-    
+
     with open(name, "w") as f:
         f.writelines(lines)
 
 
-def average_fields(mat): 
+def average_fields(mat):
     """Average the fields in the matrix."""
     return np.mean(mat, axis=0)
 
@@ -180,13 +197,14 @@ def augment_mat_field(mat, target, xy=True, z=False):
 
 
 def pca(
-        mat, 
-        pca=None, 
-        pca_comps=10, 
-        verbose=False, 
-        write=False,
-        bounds={'x': [-3.0, 3.0], 'y': [-3.0, 3.0], 'z': [-3.0, 3.0]} , 
-        step_size = {"x": 0.3, "y": 0.3, "z": 0.3}):
+    mat,
+    pca=None,
+    pca_comps=10,
+    verbose=False,
+    write=False,
+    bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
+    step_size={"x": 0.3, "y": 0.3, "z": 0.3},
+):
 
     mat_transform = mat.reshape(
         mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4]
@@ -213,11 +231,11 @@ def pca(
 
     fig = make_subplots(rows=1, cols=1, specs=[[{"type": "cone"}]])
     x, y, z = np.meshgrid(
-        np.arange(bounds['x'][0], bounds['x'][1]+step_size['x'], step_size['x']),
-        np.arange(bounds['y'][0], bounds['y'][1]+step_size['y'], step_size['y']),
-        np.arange(bounds['z'][0], bounds['z'][1]+step_size['z'], step_size['z'])
+        np.arange(bounds["x"][0], bounds["x"][1] + step_size["x"], step_size["x"]),
+        np.arange(bounds["y"][0], bounds["y"][1] + step_size["y"], step_size["y"]),
+        np.arange(bounds["z"][0], bounds["z"][1] + step_size["z"], step_size["z"]),
     )
-    
+
     u = pc0[0][:, :, :, 0].flatten()
     v = pc0[0][:, :, :, 1].flatten()
     w = pc0[0][:, :, :, 2].flatten()
@@ -250,7 +268,7 @@ def pca(
 
     if verbose:
         print("cumulative explained vars ratio: \n" + str(cum_explained_var))
-        
+
     return mat_transform, pca
 
 
@@ -277,7 +295,7 @@ def helmholtz_hodge_decomp_approx(
     kx = np.fft.fftfreq(NX).reshape(NX, 1, 1)
     ky = np.fft.fftfreq(NY).reshape(NY, 1)
     kz = np.fft.fftfreq(NZ)
-    k2 = kx**2 + ky**2 + kz**2
+    k2 = kx ** 2 + ky ** 2 + kz ** 2
     k2[0, 0, 0] = 1.0  # to avoid inf. we do not care about the k=0 component
 
     div_Vf_f = vx_f * kx + vy_f * ky + vz_f * kz  # * 1j
@@ -362,4 +380,3 @@ def compress(distance_matrix):
             "index_center": str(cluster_centers_indices[i]),
         }
     return compressed_dictionary
-

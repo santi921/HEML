@@ -3,14 +3,13 @@ import argparse
 from boruta import BorutaPy
 from sklearn.inspection import permutation_importance
 
-#from HEML.utils.data import *
+# from HEML.utils.data import *
 from HEML.utils.fields import pca, aug_all
 from HEML.utils.data import pull_mats_w_label
 from HEML.utils.attrib import *
 from HEML.utils.model import *
 
 from xgboost import XGBClassifier
-
 
 
 from sklearn.model_selection import train_test_split, KFold
@@ -26,9 +25,7 @@ class training:
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y = pull_mats_w_label()
 
-        arr_min, arr_max, = np.min(
-            x
-        ), np.max(x)
+        arr_min, arr_max, = np.min(x), np.max(x)
         # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
         x_sign = np.sign(x)
         # getting absolute value of every element
@@ -43,12 +40,9 @@ class training:
         self.x = x
         self.y = y
 
-        (
-            self.X_train,
-            self.X_test,
-            self.y_train,
-            self.y_test,
-        ) = train_test_split(x, y, test_size=0.2, random_state=11)
+        (self.X_train, self.X_test, self.y_train, self.y_test,) = train_test_split(
+            x, y, test_size=0.2, random_state=11
+        )
 
         if pca_tf:
             self.X_train_untransformed = self.X_train
@@ -161,11 +155,7 @@ class training:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="options for hyperparam tune")
     parser.add_argument(
-        "-dataset",
-        action="store",
-        dest="dataset",
-        default=1,
-        help="dataset to use",
+        "-dataset", action="store", dest="dataset", default=1, help="dataset to use",
     )
 
     parser.add_argument(
@@ -177,11 +167,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-model",
-        action="store",
-        dest="model",
-        default="rfc",
-        help="model",
+        "-model", action="store", dest="model", default="rfc", help="model",
     )
 
     parser.add_argument(

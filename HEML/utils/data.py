@@ -1,10 +1,9 @@
 import os, json
-import pandas as pd
 import numpy as np
-from copy import deepcopy
+import pandas as pd
 from glob import glob
 from tqdm import tqdm
-from HEML.utils.dictionaries import * 
+from HEML.utils.dictionaries import *
 
 
 def get_options(options_file="./options.json", create_folders=True):
@@ -17,7 +16,7 @@ def get_options(options_file="./options.json", create_folders=True):
     """
     with open(options_file) as f:
         options = json.load(f)
-    
+
     for key in options:
         if "folder" in key:
             if not os.path.exists(options[key]):
@@ -341,15 +340,17 @@ def get_ligand_info(file, fe_xyz):
     for j in readfile:
         line = j.split()
         sg_cond = (
-            "ATOM" in line[0] 
+            "ATOM" in line[0]
             and ("SG" in line[2])
-            and ("CY1" in line[3] or "CYS" in line[3]))
-        
+            and ("CY1" in line[3] or "CYS" in line[3])
+        )
+
         oh_cond = (
-            "ATOM" in line[0] 
+            "ATOM" in line[0]
             and ("OH" in line[2])
-            and ("TYR" in line[3] or "TR1" in line[3]))
-        
+            and ("TYR" in line[3] or "TR1" in line[3])
+        )
+
         nend_cond = (
             "ATOM" in line[0]
             and (("NE2" in line[2]) or ("ND1") in line[2])
@@ -394,7 +395,7 @@ def mat_pull(file, meta_data=False):
         lines = f.readlines()
 
     if meta_data:
-        
+
         steps_x = 2 * int(lines[0].split()[2]) + 1
         steps_y = 2 * int(lines[0].split()[3]) + 1
         steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
@@ -413,14 +414,14 @@ def mat_pull(file, meta_data=False):
             "step_size_x": step_size_x,
             "step_size_y": step_size_y,
             "step_size_z": step_size_z,
-            'bounds_x': [-x_size, x_size + step_size_x], 
-            'bounds_y': [-y_size , y_size + step_size_y],
-            'bounds_z': [-z_size , z_size + step_size_z]
+            "bounds_x": [-x_size, x_size + step_size_x],
+            "bounds_y": [-y_size, y_size + step_size_y],
+            "bounds_z": [-z_size, z_size + step_size_z],
         }
 
         return meta_dict
-    
-    else: 
+
+    else:
         steps_x = 2 * int(lines[0].split()[2]) + 1
         steps_y = 2 * int(lines[0].split()[3]) + 1
         steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
@@ -451,7 +452,7 @@ def mat_pull(file, meta_data=False):
                 ind % steps_z,
                 2,
             ] = float(line_split[-1])
-        
+
         return mat
 
 
@@ -464,7 +465,7 @@ def pull_mats_w_label(
     print(df.shape)
     y_count, h_count, c_count = 0, 0, 0
     for row in df.iterrows():
-        #print(row[1]['name'])
+        # print(row[1]['name'])
         cpet_name = dir_fields + "efield_cox_" + row[1]["name"] + ".dat"
         if os.path.exists(cpet_name):
             x.append(mat_pull(cpet_name))
@@ -482,17 +483,16 @@ def pull_mats_w_label(
 
 
 def pull_mats_from_MD_folder(
-        root_dir = '../../../data/fields/',
-        data_file="../../../data/protein_data.csv", 
-        label_ind = 3
-    ):
-
+    root_dir="../../../data/fields/",
+    data_file="../../../data/protein_data.csv",
+    label_ind=3,
+):
 
     # iterate through all files in root_dir with ending *dat
     # get the name of the file
     target_files = []
-    target_files = glob(root_dir + '/*.dat')
-    
+    target_files = glob(root_dir + "/*.dat")
+
     df = pd.read_csv(data_file)
 
     x, y, names = [], [], []
@@ -502,16 +502,16 @@ def pull_mats_from_MD_folder(
 
         x.append(mat_pull(i))
         # get protein name from file name
-        protein_name = i.split("/")[-1].split('_')[label_ind].split('.')[0]
-        #print(protein_name)
+        protein_name = i.split("/")[-1].split("_")[label_ind].split(".")[0]
+        # print(protein_name)
         # check if protein name is in df['name']
-        label_tf = df['name'].isin([protein_name])
-        
+        label_tf = df["name"].isin([protein_name])
+
         if label_tf.any():
             # get index of protein name
             names.append(protein_name)
-            label = df.loc[df['name'] == protein_name, 'label'].iloc[0]
-            #print(protein_name, label)
+            label = df.loc[df["name"] == protein_name, "label"].iloc[0]
+            # print(protein_name, label)
             if label == "Y":
                 y.append([1, 0, 0])
                 y_count += 1
@@ -521,7 +521,7 @@ def pull_mats_from_MD_folder(
             else:
                 y.append([0, 0, 1])
                 c_count += 1
-    
+
     return np.array(x), np.array(y), names
 
 

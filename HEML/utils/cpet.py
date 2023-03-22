@@ -22,11 +22,10 @@ matplotlib.rcParams.update(
 
 def run_box_calcs(cpet_path, target_path, charges_dir):
 
-    
     files_target = glob(target_path + "options_field*.txt")
     files_done = os.listdir(target_path)
     charges_dir = charges_dir
-    
+
     for i in range(20000):
         file = choice(files_target)
         files_target.remove(file)
@@ -42,7 +41,7 @@ def run_box_calcs(cpet_path, target_path, charges_dir):
             print(launch_str)
             os.system(launch_str)
         print("cpet done running")
-        
+
     print("done running cpet")
 
 
@@ -53,7 +52,7 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
     # filter files that dont end in .dat
     files_done = [i for i in files_done if i[-4:] == ".dat"]
     charges_dir = charges_dir
-    
+
     for i in range(20000):
         file = choice(files_target)
         files_target.remove(file)
@@ -61,7 +60,7 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
 
         # .split("_")[-1].split(".")[0]#.split("_")[-1]
         print("protein file: {}".format(protein))
-        
+
         if protein + ".mag.dat" not in files_done:
 
             launch_str = "{} -p {} -o {} ".format(
@@ -69,7 +68,6 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
             )
             print(launch_str)
             os.system(launch_str)
-
 
 
 def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=16):
@@ -93,7 +91,9 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
             os.system(launch_str)
         print("cpet done running")
 
-        os.system("mv {}_0.top {}{}.top".format(protein[:-4], target_path, protein[:-4]))
+        os.system(
+            "mv {}_0.top {}{}.top".format(protein[:-4], target_path, protein[:-4])
+        )
     print("done running cpet")
 
 
