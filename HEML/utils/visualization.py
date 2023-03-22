@@ -169,6 +169,7 @@ def mat_to_cones(
     cos_center_scaling=False,
     std_mean=False,
     log1=False,
+    unlog1=False,
     min_max=False,
 ):
 
@@ -203,6 +204,7 @@ def mat_to_cones(
         std_mean=std_mean,
         min_max=min_max,
         log1=log1,
+        unlog1=unlog1,
         cos_center_scaling=cos_center_scaling,
     )
 

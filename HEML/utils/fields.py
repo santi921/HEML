@@ -1,9 +1,9 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from sklearn.decomposition import PCA
 from sklearn.cluster import AffinityPropagation
+from sklearn.decomposition import PCA
 
 from HEML.utils.data import mat_pull
 
@@ -14,32 +14,45 @@ def split_and_filter(
     min_max=True, 
     std_mean=False, 
     log1=False, 
+    unlog1=False,
     cos_center_scaling=False
 ):
 
-    arr_mean, arr_std, arr_min, arr_max = (
-        np.mean(mat),
-        np.std(mat),
-        np.min(mat),
-        np.max(mat),
-    )
+    mag = np.sqrt(np.sum(mat**2, axis=3))
 
+    arr_mean = np.mean(mag)
+    arr_std = np.std(mag)
+    arr_min = np.min(mag)
+    arr_max = np.max(mag)
+    
     if log1:
-        shape = mat.shape
-        # get magnitude of vector field
-        mags = np.sqrt((mat ** 2).sum(axis=3))
-        # mags = mags.reshape([1, shape[0], shape[1], shape[2]])
-        mags_log1p = np.log1p(mags)
-        # get ratio magnitude to mags_log1p
-        ratio = mags_log1p / mags
-        multiply = np.multiply(mat, ratio.reshape([shape[0], shape[1], shape[2], 1]))
-        mat = multiply
+        x_sign = np.sign(mat)
+        # getting absolute value of every element
+        x_abs = np.abs(mat)
+        # applying log1p
+        x_log1p = np.log1p(x_abs)
+        # getting sign back
+        mat = np.multiply(x_log1p, x_sign)
+
+
+    if unlog1: 
+        print("invert log operation")
+        x_sign = np.sign(mat)
+        # getting absolute value of every element
+        x_abs = np.abs(mat)
+        # applying log1p
+        x_unlog1p = np.expm1(x_abs)
+        # getting sign back
+        mat = np.multiply(x_unlog1p, x_sign)
+
 
     if min_max:
         mat = (mat - arr_min) / (arr_max - arr_min + 10e-10)
 
+
     if std_mean:
         mat = (mat - arr_mean) / (arr_std)
+
 
     if cos_center_scaling:
         shape = mat.shape
@@ -199,6 +212,7 @@ def augment_mat_field(mat, target, xy=True, z=False):
 def pca(
     mat,
     pca=None,
+    whitening=False,
     pca_comps=10,
     verbose=False,
     write=False,
@@ -210,7 +224,7 @@ def pca(
         mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4]
     )
     if pca == None:
-        pca = PCA(n_components=pca_comps)
+        pca = PCA(n_components=pca_comps, whiten=whitening)
         mat_transform = pca.fit_transform(mat_transform)
 
     else:
