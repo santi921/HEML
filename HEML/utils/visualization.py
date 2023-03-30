@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 from rdkit import Chem
 import plotly.graph_objects as go
 
@@ -6,6 +7,7 @@ from HEML.utils.data import (
     pdb_to_xyz,
     filter_other_by_distance,
     filter_xyz_by_distance,
+    filter_by_residue,
     pull_mats_w_label,
 )
 from HEML.utils.xyz2mol import xyz2AC_vdW
@@ -64,23 +66,70 @@ def connectivity_to_list_of_bonds(connectivity_mat):
                 bonds.append([i, j])
     return bonds
 
+def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26):
+    """
+    Filter out atoms that are not connected to the track atom.
+    """
+    track_index = [i for i in range(len(filtered_atom)) if filtered_atom[i] == track]
+    bonds = connectivity_to_list_of_bonds(connectivity_mat)
+    graph = nx.from_edgelist(bonds)
+    
+    if not nx.is_connected(graph):
+        largest_cc = [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+        #print(largest_cc[0].nodes, track_index[0])
+        has_track = [i for i in range(len(largest_cc)) if track_index[0] in largest_cc[i].nodes]
+        graph_to_use = largest_cc[has_track[0]]
+        #print(graph_to_use.nodes)
+        filtered_atoms = [filtered_atom[i] for i in graph_to_use.nodes]
+        filtered_xyz = [filtered_xyz[i] for i in graph_to_use.nodes]
+        filtered_connectivity_mat = np.zeros((len(filtered_atoms), len(filtered_atoms)))
+        for i in range(len(filtered_atoms)):
+            for j in range(len(filtered_atoms)):
+                filtered_connectivity_mat[i][j] = connectivity_mat[filtered_atoms[i]][filtered_atoms[j]]
+        track_indices = [i for i in range(len(filtered_atoms)) if filtered_atoms[i] == track]
+    return filtered_atoms, filtered_xyz, filtered_connectivity_mat, track_indices
 
 def get_nodes_and_edges_from_pdb(
-    file="../../data/pdbs_processed/1a4e.pdb", distance_filter=5.0
+    file="../../data/pdbs_processed/1a4e.pdb", 
+    distance_filter=None, 
+    heme_filter=False, 
+    filter_connectivity=False
 ):
+    if heme_filter:
+        xyz, charge, atom, residues = pdb_to_xyz(file, ret_residues=True)
+        
+    else:
+        xyz, charge, atom = pdb_to_xyz(file)
+    
+    if distance_filter is not None:
+        filtered_xyz = filter_xyz_by_distance(
+            xyz, center=[130.581, 41.541, 38.350], distance=distance_filter
+        )
+        filtered_atom = filter_other_by_distance(
+            xyz, atom, center=[130.581, 41.541, 38.350], distance=distance_filter
+        )
+    
+    else: 
+        
+        filtered_xyz, filtered_atom = filter_by_residue(xyz, atom, residues, "HEM")
+        
+        if distance_filter is not None:
+            filtered_xyz = filter_xyz_by_distance(
+                filtered_xyz, center=[130.581, 41.541, 38.350], distance=distance_filter
+            )
+            filtered_atom = filter_other_by_distance(
+                filtered_xyz, filtered_atom, center=[130.581, 41.541, 38.350], distance=distance_filter
+            )
+        
 
-    xyz, charge, atom = pdb_to_xyz(file)
-    filtered_xyz = filter_xyz_by_distance(
-        xyz, center=[130.581, 41.541, 38.350], distance=distance_filter
-    )
-    # filtered_charge = filter_other_by_distance(xyz, charge, center = [130.581,  41.541,  38.350], distance = distance_filter)
-    filtered_atom = filter_other_by_distance(
-        xyz, atom, center=[130.581, 41.541, 38.350], distance=distance_filter
-    )
     connectivity_mat, rdkit_mol = xyz2AC_vdW(filtered_atom, filtered_xyz)
     connectivity_mat = get_AC(filtered_atom, filtered_xyz, covalent_factor=1.3)
-
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
+    
+    if filter_connectivity: 
+        filtered_atom, filtered_xyz, filtered_connectivity_mat, track_indices = connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
+        bonds = connectivity_to_list_of_bonds(filtered_connectivity_mat)
+    
     return filtered_atom, bonds, filtered_xyz
 
 

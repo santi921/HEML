@@ -137,18 +137,28 @@ def spacefinder(List_String):
     return outstring
 
 
-def pdb_to_xyz(file):
+def pdb_to_xyz(file, ret_residues=False):
     with open(file, "r") as f:
         lines = f.readlines()
     xyz = []
     charge = []
     atom = []
+    if ret_residues: residues = []
+    
     for line in lines:
         if line.startswith("ATOM") or line.startswith("HETATM"):
             xyz.append([float(line[30:38]), float(line[38:46]), float(line[46:54])])
             # xyz.append([float(i) for i in line.split()[6:9]])
             charge.append(float(line.split()[-2]))
             atom.append(atom_int_dict[line.split()[-1]])
+        
+        if ret_residues:
+            if line.startswith("ATOM") or line.startswith("HETATM"):
+                residues.append(line[17:20])
+    
+    if ret_residues:
+        return xyz, charge, atom, residues
+    
     return xyz, charge, atom
 
 
@@ -164,6 +174,16 @@ def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):
     mask = np.linalg.norm(xyz - center, axis=1) < distance
     mask = [i for i in range(len(mask)) if mask[i]]
     return [other[i] for i in mask]
+
+
+def filter_by_residue(xyz, atom, res_list, target="HEM"): 
+    xyz_list = []
+    atom_list = []
+    for i in range(len(res_list)):
+        if res_list[i].strip() == target:
+            xyz_list.append(xyz[i]), atom_list.append(atom[i])
+    
+    return xyz_list, atom_list
 
 
 def get_N_positions(file, fe_ID, fe_xyz):

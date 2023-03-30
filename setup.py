@@ -9,6 +9,7 @@ setup(
     scripts=['./HEML/utils/helpers/remove_solvent_from_pdb.py',
              './HEML/utils/helpers/split_movies.py',
              './HEML/utils/helpers/compute_average_field.py',
+             './HEML/utils/helpers/dist_on_topo.py',
              './HEML/source/data_process/run_topology.py',
              './HEML/source/data_process/run_box_calc.py',
              './HEML/source/data_process/get_charges.py',
