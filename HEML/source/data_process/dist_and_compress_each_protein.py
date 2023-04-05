@@ -21,7 +21,8 @@ def main():
 
     root = options["target_folder"]
     output_folder = options["compressed_output_folder"]
-
+    #root = "./"
+    #output_folder = "./out"
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
 
@@ -49,7 +50,7 @@ def main():
 
         # sorts the files in some way
         topo_files.sort(key=lambda i: i.split("_")[0])
-
+        print(topo_files)
         with open(
             output_folder + "{}_topo_file_list.txt".format(ind), "w"
         ) as file_list:
@@ -96,7 +97,9 @@ def main():
     topo_files = [
         output_folder + f for f in os.listdir(output_folder) if f.endswith(".top")
     ]
-    topo_files.sort(key=lambda i: i.split("_")[0])
+    #topo_files.sort(key=lambda i: i.split("_")[0])
+    topo_files.sort()
+
     with open(output_folder + "topo_file_list.txt", "w") as file_list:
         for i in topo_files:
             file_list.write(f"{i} \n")

@@ -22,8 +22,10 @@ def main():
     print('number of topologies in folder "{}": {}'.format(path_target, len(topo_files)))
 
     # sorts the files in some way
-    topo_files.sort(key=lambda i: i.split("_")[0])
-
+    #topo_files.sort(key=lambda i: i.split("_")[0])
+    # sort list 
+    topo_files.sort()
+    
     with open(
         output_folder + "topo_file_list.txt", "w"
     ) as file_list:
