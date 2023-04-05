@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.cluster import AffinityPropagation
 from sklearn.decomposition import PCA
-
+from sklearn.metrics import silhouette_score
 from HEML.utils.data import mat_pull
 
 
@@ -378,9 +378,9 @@ def helmholtz_hodge_decomp_approx(
     return solenoidal, compressize
 
 
-def compress(distance_matrix):
+def compress(distance_matrix, damping=0.5, maxits=4000):
     compressed_dictionary = {}
-    affinity = AffinityPropagation(affinity="precomputed")
+    affinity = AffinityPropagation(affinity="precomputed", damping=damping, maxits=maxits)
     affinity.fit(distance_matrix)
     cluster_centers_indices = affinity.cluster_centers_indices_
     labels = list(affinity.labels_)
@@ -393,4 +393,8 @@ def compress(distance_matrix):
             "count": str(labels.count(i)),
             "index_center": str(cluster_centers_indices[i]),
         }
+
+    # compute silhouette score
+    silhouette_avg = silhouette_score(distance_matrix, labels)
+    print(f"Silhouette Coefficient: {silhouette_avg}")
     return compressed_dictionary

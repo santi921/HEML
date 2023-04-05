@@ -21,6 +21,10 @@ def main():
 
     root = options["target_folder"]
     output_folder = options["compressed_output_folder"]
+    # check if the key damping exists in the options file, if not set it to 0.5
+    damping = options["damping"] if "damping" in options else 0.5
+    maxits = options["maxits"] if "maxits" in options else 1000
+    
     #root = "./"
     #output_folder = "./out"
     # get list of folders in directory specified by user
@@ -42,7 +46,7 @@ def main():
 
         # merge root, folder and cpet
         path_target = os.path.join(root, folder, "cpet/")
-        print(path_target)
+        
 
         topo_files = [
             path_target + f for f in os.listdir(path_target) if f.endswith(".top")
@@ -70,8 +74,8 @@ def main():
                 for col in row:
                     outputfile.write(f"{col} ")
                 outputfile.write("\n")
-        print('constucted distance matrix for folder "{}"'.format(folder))
-        compress_dictionary = compress(distance_matrix)
+        print('constructed distance matrix for folder "{}"'.format(folder))
+        compress_dictionary = compress(distance_matrix, damping=damping, maxits=maxits)
 
         print("moving central topologies to compressed folder...")
 
