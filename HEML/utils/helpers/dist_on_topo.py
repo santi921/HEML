@@ -3,7 +3,7 @@ from HEML.utils.cpet import make_histograms, construct_distance_matrix
 from HEML.utils.data import get_options
 from HEML.utils.fields import compress
 from random import choice
-
+import argparse
 
 def main():
     """
@@ -15,6 +15,16 @@ def main():
     output_folder = "./"
     path_target = './'
 
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('dampening', type=float, help='dampening factor', default=0.5)
+    argparser.add_argument('maxits', type=int, help='maximum number of iterations', default=1000)
+    argparser.add_argument('--compress', action='store_true', help='compress the topologies')
+
+    args = argparser.parse_args()
+
+    damping = args.dampening
+    maxits = args.maxits
+    compress = bool(args.compress)
 
     topo_files = [
         path_target + f for f in os.listdir(path_target) if f.endswith(".top")
@@ -44,5 +54,7 @@ def main():
             outputfile.write("\n")
     print('constucted distance matrix for folder "{}"'.format(path_target))
 
+    if compress: 
+        compress_dictionary = compress(distance_matrix, damping=damping, maxits=maxits)
 
 main()
