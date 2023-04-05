@@ -30,6 +30,7 @@ def main():
         if i in folders:
             folders.remove(i)
     # sort the folders by name
+    folders.sort()
 
     if not os.path.exists(output_folder):
         os.mkdir(output_folder)
@@ -49,7 +50,9 @@ def main():
         print('number of topologies in folder "{}": {}'.format(folder, len(topo_files)))
 
         # sorts the files in some way
-        topo_files.sort(key=lambda i: i.split("_")[0])
+        #topo_files.sort(key=lambda i: i.split("_")[0])
+        topo_files.sort()
+        
         print(topo_files)
         with open(
             output_folder + "{}_topo_file_list.txt".format(ind), "w"
@@ -91,7 +94,7 @@ def main():
                     "cp {} {}{}_{}".format(
                         name_center, output_folder, ind, name_center.split("/")[-1]
                     )
-                )
+                ) 
 
     # make a list of all the compressed topologies
     topo_files = [
