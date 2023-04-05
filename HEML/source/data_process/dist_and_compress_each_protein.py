@@ -24,9 +24,8 @@ def main():
     # check if the key damping exists in the options file, if not set it to 0.5
     damping = options["damping"] if "damping" in options else 0.5
     maxits = options["maxits"] if "maxits" in options else 1000
+
     
-    #root = "./"
-    #output_folder = "./out"
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
 

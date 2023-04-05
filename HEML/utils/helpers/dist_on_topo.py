@@ -16,8 +16,8 @@ def main():
     path_target = './'
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('dampening', type=float, help='dampening factor', default=0.5)
-    argparser.add_argument('maxits', type=int, help='maximum number of iterations', default=1000)
+    argparser.add_argument('-dampening', type=float, help='dampening factor', default=0.5)
+    argparser.add_argument('-maxits', type=int, help='maximum number of iterations', default=1000)
     argparser.add_argument('--compress', action='store_true', help='compress the topologies')
 
     args = argparser.parse_args()
@@ -55,6 +55,9 @@ def main():
     print('constucted distance matrix for folder "{}"'.format(path_target))
 
     if compress: 
-        compress_dictionary = compress(distance_matrix, damping=damping, maxits=maxits)
+        compress_dictionary = compress(
+            distance_matrix, 
+            damping=damping, 
+            maxits=maxits)
 
 main()
