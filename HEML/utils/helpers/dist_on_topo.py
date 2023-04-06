@@ -22,8 +22,8 @@ def main():
 
     args = argparser.parse_args()
 
-    damping = args.dampening
-    max_iter = args.max_iter
+    damping = float(args.dampening)
+    max_iter = float(args.max_iter)
     compress = bool(args.compress)
 
     topo_files = [

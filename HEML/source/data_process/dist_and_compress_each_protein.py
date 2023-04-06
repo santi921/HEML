@@ -22,8 +22,8 @@ def main():
     root = options["target_folder"]
     output_folder = options["compressed_output_folder"]
     # check if the key damping exists in the options file, if not set it to 0.5
-    damping = options["damping"] if "damping" in options else 0.5
-    max_iter = options["max_iter"] if "max_iter" in options else 1000
+    damping = float(options["damping"]) if "damping" in options else 0.5
+    max_iter = int(options["max_iter"]) if "max_iter" in options else 1000
 
     
     # get list of folders in directory specified by user
