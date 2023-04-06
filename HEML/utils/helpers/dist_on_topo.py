@@ -17,13 +17,13 @@ def main():
 
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-dampening', type=float, help='dampening factor', default=0.5)
-    argparser.add_argument('-maxits', type=int, help='maximum number of iterations', default=1000)
+    argparser.add_argument('-max_iter', type=int, help='maximum number of iterations', default=1000)
     argparser.add_argument('--compress', action='store_true', help='compress the topologies')
 
     args = argparser.parse_args()
 
     damping = args.dampening
-    maxits = args.maxits
+    max_iter = args.max_iter
     compress = bool(args.compress)
 
     topo_files = [
@@ -58,6 +58,6 @@ def main():
         compress_dictionary = compress(
             distance_matrix, 
             damping=damping, 
-            maxits=maxits)
+            max_iter=max_iter)
 
 main()

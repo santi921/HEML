@@ -23,7 +23,7 @@ def main():
     output_folder = options["compressed_output_folder"]
     # check if the key damping exists in the options file, if not set it to 0.5
     damping = options["damping"] if "damping" in options else 0.5
-    maxits = options["maxits"] if "maxits" in options else 1000
+    max_iter = options["max_iter"] if "max_iter" in options else 1000
 
     
     # get list of folders in directory specified by user
@@ -74,7 +74,7 @@ def main():
                     outputfile.write(f"{col} ")
                 outputfile.write("\n")
         print('constructed distance matrix for folder "{}"'.format(folder))
-        compress_dictionary = compress(distance_matrix, damping=damping, maxits=maxits)
+        compress_dictionary = compress(distance_matrix, damping=damping, max_iter=max_iter)
 
         print("moving central topologies to compressed folder...")
 

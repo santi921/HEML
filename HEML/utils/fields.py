@@ -378,9 +378,9 @@ def helmholtz_hodge_decomp_approx(
     return solenoidal, compressize
 
 
-def compress(distance_matrix, damping=0.5, maxits=4000):
+def compress(distance_matrix, damping=0.5, max_iter=4000):
     compressed_dictionary = {}
-    affinity = AffinityPropagation(affinity="precomputed", damping=damping, maxits=maxits)
+    affinity = AffinityPropagation(affinity="precomputed", damping=damping, max_iter=max_iter)
     affinity.fit(distance_matrix)
     cluster_centers_indices = affinity.cluster_centers_indices_
     labels = list(affinity.labels_)
