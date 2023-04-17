@@ -243,7 +243,7 @@ class config:
 
 if __name__ == "__main__":
     pca_tf = True
-    model = "brfc"  # "xgb" "brfc" "eec"
+    model = "xgb"  # "xgb" "brfc" "eec"
 
     trainer = training(
         model=model, pca_tf=pca_tf, test_crystal=True, test_md=True, aug=True

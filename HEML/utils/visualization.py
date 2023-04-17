@@ -93,7 +93,8 @@ def get_nodes_and_edges_from_pdb(
     file="../../data/pdbs_processed/1a4e.pdb", 
     distance_filter=None, 
     heme_filter=False, 
-    filter_connectivity=False
+    filter_connectivity=False,
+    center=[130.581, 41.541, 38.350],
 ):
     if heme_filter:
         xyz, charge, atom, residues = pdb_to_xyz(file, ret_residues=True)
@@ -103,10 +104,10 @@ def get_nodes_and_edges_from_pdb(
     
     if distance_filter is not None:
         filtered_xyz = filter_xyz_by_distance(
-            xyz, center=[130.581, 41.541, 38.350], distance=distance_filter
+            xyz, center=center, distance=distance_filter
         )
         filtered_atom = filter_other_by_distance(
-            xyz, atom, center=[130.581, 41.541, 38.350], distance=distance_filter
+            xyz, atom, center=center, distance=distance_filter
         )
     
     else: 
@@ -115,10 +116,10 @@ def get_nodes_and_edges_from_pdb(
         
         if distance_filter is not None:
             filtered_xyz = filter_xyz_by_distance(
-                filtered_xyz, center=[130.581, 41.541, 38.350], distance=distance_filter
+                filtered_xyz, center=center, distance=distance_filter
             )
             filtered_atom = filter_other_by_distance(
-                filtered_xyz, filtered_atom, center=[130.581, 41.541, 38.350], distance=distance_filter
+                filtered_xyz, filtered_atom, center=center, distance=distance_filter
             )
         
 

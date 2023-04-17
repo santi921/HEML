@@ -348,6 +348,20 @@ def get_fe_positions(file):
 
     return {"id": fe_ID, "xyz": fe_xyz}
 
+def get_c1_positions(file):
+    fe_ID, fe_xyz = None, None
+    with open(file, "r") as f:
+        readfile = f.readlines()
+    
+    for j in readfile:
+        line = j.split()
+        if "ATOM" in line[0] and "C1" in line[2] and "CB1" in line[3]:
+            c1_ID = f"{line[4]}:{line[5]}:{line[2]}"
+            c1_xyz = [line[6], line[7], line[8]]
+            c1_xyz = [float(x) for x in c1_xyz]
+            c1_xyz = np.array(c1_xyz)
+            break
+    return {"id": c1_ID, "xyz": c1_xyz}
 
 def get_ligand_info(file, fe_xyz):
     best_crit_dist = 10.0

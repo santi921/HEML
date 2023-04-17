@@ -25,7 +25,7 @@ class training:
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y = pull_mats_w_label(
             data_file="../../../data/protein_data.csv",
-            dir_fields="../../../data/cpet_5_35/",
+            dir_fields="../../../data/cpet/",
         )
 
         arr_min, arr_max, = np.min(x), np.max(x)

@@ -100,7 +100,7 @@ class training:
 
     def train(self):
 
-        with wandb.init(project="HemeML_redux") as run:
+        with wandb.init(project="HemeML_MD") as run:
             config = wandb.config
 
             model_obj = self.make_model(config)

@@ -14,6 +14,12 @@ def main():
     for i in heme_names:
         print(i)
         try:
+            print("NOT bioassembly" * 3)
+            urllib.request.urlretrieve(
+                "https://files.rcsb.org/download/" + i + ".pdb",
+                "../../../data/pdbs/" + i + ".pdb",
+            )
+        except:
             urllib.request.urlretrieve(
                 "https://files.rcsb.org/download/" + i + ".pdb1.gz",
                 "../../../data/pdbs/" + i + ".pdb1",
@@ -21,12 +27,4 @@ def main():
             # uncompress gz file to pdb file
             subprocess.call(["gunzip", "../../../data/pdbs/" + i + ".pdb1"])
             print("bioassembly")
-        except:
-            print("NOT bioassembly" * 3)
-            urllib.request.urlretrieve(
-                "https://files.rcsb.org/download/" + i + ".pdb",
-                "../../../data/pdbs/" + i + ".pdb",
-            )
-
-
 main()

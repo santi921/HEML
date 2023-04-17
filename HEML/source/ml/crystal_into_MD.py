@@ -60,7 +60,7 @@ if __name__ == "__main__":
             shape_before[4],
         )
         _, pca_obj = pca(
-            np.concatenate((X_train, X_train_untransformed)), verbose=True, pca_comps=20
+            np.concatenate((X_train, X_train_untransformed)), verbose=True, pca_comps=25
         )
         X_train, pca_obj_train = pca(X_train_untransformed, pca_obj)
         X_test, pca_obj_test = pca(X_test, pca_obj)
@@ -69,12 +69,12 @@ if __name__ == "__main__":
     print(X_test.shape)
 
     model_obj = XGBClassifier(
-        eta=0.78,
-        gamma=0.6,
-        max_depth=7,
-        subsample=0.80,
-        reg_lambda=0.0000011289136863384718,
-        alpha=0.0001,
+        eta=0.7,
+        gamma=63,
+        max_depth=8,
+        subsample=0.63,
+        reg_lambda=0.000002194560486561219,
+        alpha=0.0009978623441125043,
         eval_metric="mlogloss",
     )
     # model_obj = BalancedRandomForestClassifier(
