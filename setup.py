@@ -19,6 +19,7 @@ setup(
              './HEML/source/data_process/sub_turbo.py',
              './HEML/source/data_process/run_magnitude.py',
              './HEML/source/data_process/process_charges_magnitude_on_iron.py',
+             './HEML/source/data_process/process_charges_magnitude_on_carbene.py',
 
 
              ],
