@@ -108,7 +108,9 @@ def main():
                     if substitute_charge_index < len(charges_pqr):
                         if charges_pqr[substitute_charge_index] == 0: 
                             charges_pqr[substitute_charge_index]=0.0
-                        charges[charge_ind] = charges_pqr[substitute_charge_index]
+                        #print("{} {} {}".format(names_prmtop[substitute_charge_index], charges[charge_ind], charges_pqr[substitute_charge_index] * 18.2223))
+                        charges[charge_ind] = charges_pqr[substitute_charge_index] * 18.2223
+                        
                         substitute_charge_index += 1
 
                 new_line = ""
