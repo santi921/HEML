@@ -100,17 +100,15 @@ if __name__ == "__main__":
                             tf_zero = False
                             # grab from column 17 to 21 inclusive
                             lig_str = j[17:21].strip()
-                            xyz_str_x = j[30:38]
-                            xyz_str_y = j[38:46]
-                            xyz_str_z = j[46:54]
-                            #print(lig_str)
-                            #print(xyz_str_x, xyz_str_y, xyz_str_z)
                             
                             if lig_str in ligands_to_zero:
                                 tf_zero = True
                                 #print("zeroing ligand", lig_str)
 
                             if not tf_zero and zero_radius:
+                                xyz_str_x = j[30:38]
+                                xyz_str_y = j[38:46]
+                                xyz_str_z = j[46:54]
                                 distance = np.sqrt((
                                     float(xyz_str_x) - float(fe_dict["xyz"][0])
                                 ) ** 2 + (

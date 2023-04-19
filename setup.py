@@ -10,6 +10,7 @@ setup(
              './HEML/utils/helpers/split_movies.py',
              './HEML/utils/helpers/compute_average_field.py',
              './HEML/utils/helpers/dist_on_topo.py',
+             './HEML/utils/helpers/sub_charges_pqr_to_parmtop.py',
              './HEML/source/data_process/run_topology.py',
              './HEML/source/data_process/run_box_calc.py',
              './HEML/source/data_process/get_charges.py',
@@ -18,6 +19,7 @@ setup(
              './HEML/source/data_process/sub_turbo.py',
              './HEML/source/data_process/run_magnitude.py',
              './HEML/source/data_process/process_charges_magnitude_on_iron.py',
+
 
              ],
 )
