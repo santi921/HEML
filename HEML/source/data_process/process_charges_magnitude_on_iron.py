@@ -10,17 +10,25 @@ if __name__ == "__main__":
         "--options", help="location of options file", default="./options/options.json"
     )
     parser.add_argument("--zero_active", help="zero active site", default=True)
-    parser.add_argument(
-        "--zero_everything_charged", help="zero everything charged", default=False
-    )
+
+    parser.add_argument("--zero_radius", help="zero active site radius", default=False)
+
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
-    zero_everything_charged = parser.parse_args().zero_everything_charged
+    zero_radius = parser.parse_args().zero_radius
 
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
+    
+    if zero_active:
+        ligands_to_zero = options["ligands_to_zero"]
+        print("zeroing active site for: {}".format(ligands_to_zero))
+
+    if zero_radius:
+        ligands_to_zero_radius = options["zero_radius"]
+        print("zeroing active site radius from iron: {}".format(ligands_to_zero_radius))
 
     print(outdir)
     fail = 0
@@ -83,11 +91,38 @@ if __name__ == "__main__":
                 with open(output, "w") as outfile:
                     for j in readfile:
 
-                        line_split = re.split(r"(\s+)", j)
+                        if zero_active:
+                            tf_zero = False
+                            # grab from column 17 to 21 inclusive
+                            lig_str = j[17:21].strip()
+                            xyz_str_x = j[30:38]
+                            xyz_str_y = j[38:46]
+                            xyz_str_z = j[46:54]
+                            #print(lig_str)
+                            #print(xyz_str_x, xyz_str_y, xyz_str_z)
+                            
+                            if lig_str in ligands_to_zero:
+                                tf_zero = True
+                                #print("zeroing ligand", lig_str)
 
-                        if zero_active and ("HETATM" in line_split[0]):
-                            temp_write = j[:56] + "0.000" + j[61:]
-                            outfile.write(temp_write)
+                            if not tf_zero and zero_radius:
+                                distance = np.sqrt((
+                                    float(xyz_str_x) - float(fe_dict["xyz"][0])
+                                ) ** 2 + (
+                                    float(xyz_str_y) - float(fe_dict["xyz"][1])
+                                ) ** 2 + (
+                                    float(xyz_str_z) - float(fe_dict["xyz"][2])
+                                ) ** 2)
+
+                                if distance < ligands_to_zero_radius:
+                                    tf_zero = True
+                                    print("zeroing distance:{} w/ dist {}".format(lig_str, distance))
+
+                            if tf_zero:    
+                                temp_write = j[:56] + "0.000" + j[61:]
+                                outfile.write(temp_write)
+                            else: 
+                                outfile.write(j)
                         else:
                             outfile.write(j)
 
