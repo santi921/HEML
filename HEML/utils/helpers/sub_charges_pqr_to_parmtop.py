@@ -4,7 +4,7 @@ import argparse
 def main():
     
     names_pqr, charges_pqr = [], []
-    names_prmtop, charges_prmtop = [], []
+    names_prmtop = []
 
     parser = argparse.ArgumentParser(description='Adds charges from PQR to PRMTOP file')
     parser.add_argument('-p', '--PRMTOP_file', help='PRMTOP file', required=True)
@@ -32,6 +32,10 @@ def main():
         charges_pqr.append(float(line[54:61].strip()))
         names_pqr.append(line[12:16].strip())
     
+    # sanitize -0.0 charges to 0.0
+    for charge_index, charge in enumerate(charges_pqr):
+        if charges_pqr[charge_index] == 0: 
+            charges_pqr[charge_index] = 0.0
     
     # get charges, names from prmtop file
     charge_block, atom_block = False, False
@@ -44,53 +48,42 @@ def main():
         #if lines_prmtop[line_ind-1].startswith("%FLAG CHARGE") and line.startswith("%FORMAT"):
         if line.startswith("%FLAG CHARGE"):
             atom_block = False
-            print("Found the charge block")
+            print("Found the charge block in prmtop")
             charge_block = True
 
         #if lines_prmtop[line_ind-1].startswith("%FLAG ATOMIC_NUMBER") and line.startswith("%FORMAT"):
         if line.startswith("%FLAG ATOMIC_NUMBER"):
             charge_block = False
-            print("Found the atomic number block")
+            print("Found the atomic number block  in prmtop")
             break 
 
         if atom_block:
             if not line.startswith('%'):
-                
                 # chunk line into strings of 4 characters
                 atoms = [line[i:i+4].strip() for i in range(0, len(line), 4)]
                 # remove empty strings
                 atoms = list(filter(None, atoms))
 
-                if 'EPW' in atoms:
-                    #print("EPW line found")
-                    atoms.remove('EPW')
-                    for atom_ind, atom in enumerate(atoms):
-                        names_prmtop.append(atom)
-
-                else:
-                    for atom_ind, atom in enumerate(atoms):
-                        names_prmtop.append(atom)
-            
-        if charge_block:
-            if not line.startswith('%'):
-                charges = line.split()
-                for charge_ind, charge in enumerate(charges):
-                    #save in 5E16.8
-                    charges_prmtop.append(float(charge))
-      
+                for atom_ind, atom in enumerate(atoms):
+                    names_prmtop.append(atom.strip())
+                    #print(atom.strip())
     
-    names_prmtop = names_prmtop[:len(names_pqr)]
-    charges_prmtop = charges_prmtop[:len(charges_pqr)]
-    assert names_pqr == names_prmtop, "The atom names in the PQR and PRMTOP files do not match"
+    
+    #names_prmtop = names_prmtop[:len(names_pqr)]
+    #charges_prmtop = charges_prmtop[:len(charges_pqr)]
+    #assert names_pqr == names_prmtop, "The atom names in the PQR and PRMTOP files do not match"
 
     # get charges, names from prmtop file
     
     substitute_charge_index = 0 
+    full_charge_index = 0
     charge_block = False
+    #print(names_prmtop)
+    print("Length of residues in prmtop: {}\nLength of Residues in pqr: {}".format(len(names_prmtop), len(names_pqr)))
     
     for line_ind, line in enumerate(lines_prmtop):
         if lines_prmtop[line_ind-1].startswith("%FLAG CHARGE") and line.startswith("%FORMAT"):
-            print("Found the charge block")
+            #print("Found the charge block")
             charge_block = True
 
         if lines_prmtop[line_ind-1].startswith("%FLAG ATOMIC_NUMBER") and line.startswith("%FORMAT"):
@@ -102,16 +95,23 @@ def main():
                 charges = line.split()
                 charges = [float(charge) for charge in charges]
                 
-                #print(charges)
                 # substitute charges
                 for charge_ind, charge in enumerate(charges):
                     if substitute_charge_index < len(charges_pqr):
-                        if charges_pqr[substitute_charge_index] == 0: 
-                            charges_pqr[substitute_charge_index]=0.0
-                        #print("{} {} {}".format(names_prmtop[substitute_charge_index], charges[charge_ind], charges_pqr[substitute_charge_index] * 18.2223))
-                        charges[charge_ind] = charges_pqr[substitute_charge_index] * 18.2223
-                        
-                        substitute_charge_index += 1
+                        if names_prmtop[full_charge_index] == "EPW":                            
+                            full_charge_index+=1
+                            #print("skipping epw overwrite")]
+                            charges[charge_ind] = 0.0
+                        else: 
+                            #print("{} {} {}".format(
+                            #    names_prmtop[full_charge_index], 
+                            #    charges[charge_ind], 
+                            #    charges_pqr[substitute_charge_index] * 18.2223))
+                            
+                            charges[charge_ind] = charges_pqr[substitute_charge_index] * 18.2223
+                            substitute_charge_index+=1
+                            full_charge_index+=1
+
 
                 new_line = ""
                 for charge_ind, charge in enumerate(charges):
