@@ -8,7 +8,6 @@ def mol2_to_pqr(file):
     lines_pqr = []
     start_ind = -1
     for ind, line in enumerate(lines_mol2):
-
         if start_ind > 0:
             if line.startswith("@<TRIPOS>BOND"):
                 break

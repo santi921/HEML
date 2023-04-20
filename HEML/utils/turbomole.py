@@ -35,7 +35,6 @@ def setup_turbomole(folder_name):
 
 
 def submit_turbomole(folder_name, check_if_done=True, t=24, n=4, job_name="o"):
-
     os.chdir(folder_name)
 
     # check if file called GEO_OPT_CONVERGED exists
@@ -72,7 +71,6 @@ def define_turbomoleio(
     spin=0,
     new_control=False,
 ):
-
     if new_control:
         clean_up(folder=folder_name, filter=None, clean_control_only=True)
 
@@ -123,7 +121,6 @@ def define_turbomoleio(
 
 
 def get_dictionary(atoms_present=[], charge=0, spin=0):
-
     basic_dict = {
         "ired": False,
         "desy": True,
@@ -404,7 +401,6 @@ def get_fe_positions(file):
 
 
 def get_cross_vector(file_name):
-
     # find the four nitrogens closest to the iron
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
@@ -458,7 +454,6 @@ def get_carbon_xyz_from_file(file_name):
 
 
 def get_N_positions(file, fe_xyz):
-
     N_xyz_list = []
     with open(file, "r") as f:
         readfile = f.readlines()

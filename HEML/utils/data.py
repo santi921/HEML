@@ -143,22 +143,23 @@ def pdb_to_xyz(file, ret_residues=False):
     xyz = []
     charge = []
     atom = []
-    if ret_residues: residues = []
-    
+    if ret_residues:
+        residues = []
+
     for line in lines:
         if line.startswith("ATOM") or line.startswith("HETATM"):
             xyz.append([float(line[30:38]), float(line[38:46]), float(line[46:54])])
             # xyz.append([float(i) for i in line.split()[6:9]])
             charge.append(float(line.split()[-2]))
             atom.append(atom_int_dict[line.split()[-1]])
-        
+
         if ret_residues:
             if line.startswith("ATOM") or line.startswith("HETATM"):
                 residues.append(line[17:20])
-    
+
     if ret_residues:
         return xyz, charge, atom, residues
-    
+
     return xyz, charge, atom
 
 
@@ -176,13 +177,13 @@ def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):
     return [other[i] for i in mask]
 
 
-def filter_by_residue(xyz, atom, res_list, target="HEM"): 
+def filter_by_residue(xyz, atom, res_list, target="HEM"):
     xyz_list = []
     atom_list = []
     for i in range(len(res_list)):
         if res_list[i].strip() == target:
             xyz_list.append(xyz[i]), atom_list.append(atom[i])
-    
+
     return xyz_list, atom_list
 
 
@@ -348,11 +349,12 @@ def get_fe_positions(file):
 
     return {"id": fe_ID, "xyz": fe_xyz}
 
+
 def get_c1_positions(file):
     fe_ID, fe_xyz = None, None
     with open(file, "r") as f:
         readfile = f.readlines()
-    
+
     for j in readfile:
         line = j.split()
         if "ATOM" in line[0] and "C1" in line[2] and "CB1" in line[3]:
@@ -362,6 +364,7 @@ def get_c1_positions(file):
             c1_xyz = np.array(c1_xyz)
             break
     return {"id": c1_ID, "xyz": c1_xyz}
+
 
 def get_ligand_info(file, fe_xyz):
     best_crit_dist = 10.0
@@ -424,12 +427,10 @@ def get_ligand_info(file, fe_xyz):
 
 
 def mat_pull(file, meta_data=False):
-
     with open(file) as f:
         lines = f.readlines()
 
     if meta_data:
-
         steps_x = 2 * int(lines[0].split()[2]) + 1
         steps_y = 2 * int(lines[0].split()[3]) + 1
         steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
@@ -493,7 +494,6 @@ def mat_pull(file, meta_data=False):
 def pull_mats_w_label(
     data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
 ):
-
     x, y = [], []
     df = pd.read_csv(data_file)
     print(df.shape)
@@ -521,7 +521,6 @@ def pull_mats_from_MD_folder(
     data_file="../../../data/protein_data.csv",
     label_ind=3,
 ):
-
     # iterate through all files in root_dir with ending *dat
     # get the name of the file
     target_files = []
@@ -533,7 +532,6 @@ def pull_mats_from_MD_folder(
     c_count, h_count, y_count = 0, 0, 0
 
     for i in tqdm(target_files):
-
         x.append(mat_pull(i))
         # get protein name from file name
         protein_name = i.split("/")[-1].split("_")[label_ind].split(".")[0]
@@ -707,7 +705,6 @@ def get_carbon_xyz_from_file(file_name):
 
 
 def get_cross_vector(file_name):
-
     # find the four nitrogens closest to the iron
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]

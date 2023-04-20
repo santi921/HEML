@@ -9,22 +9,21 @@ from HEML.utils.data import mat_pull
 
 
 def split_and_filter(
-    mat, 
-    cutoff=95, 
-    min_max=True, 
-    std_mean=False, 
-    log1=False, 
+    mat,
+    cutoff=95,
+    min_max=True,
+    std_mean=False,
+    log1=False,
     unlog1=False,
-    cos_center_scaling=False
+    cos_center_scaling=False,
 ):
-
     mag = np.sqrt(np.sum(mat**2, axis=3))
 
     arr_mean = np.mean(mag)
     arr_std = np.std(mag)
     arr_min = np.min(mag)
     arr_max = np.max(mag)
-    
+
     if log1:
         x_sign = np.sign(mat)
         # getting absolute value of every element
@@ -34,8 +33,7 @@ def split_and_filter(
         # getting sign back
         mat = np.multiply(x_log1p, x_sign)
 
-
-    if unlog1: 
+    if unlog1:
         print("invert log operation")
         x_sign = np.sign(mat)
         # getting absolute value of every element
@@ -45,14 +43,11 @@ def split_and_filter(
         # getting sign back
         mat = np.multiply(x_unlog1p, x_sign)
 
-
     if min_max:
         mat = (mat - arr_min) / (arr_max - arr_min + 10e-10)
 
-
     if std_mean:
         mat = (mat - arr_mean) / (arr_std)
-
 
     if cos_center_scaling:
         shape = mat.shape
@@ -102,7 +97,7 @@ def split_and_filter(
 def save_numpy_as_dat(dict_meta_data, average_field, name):
     """
     Saves np array in original format from cpet output
-    Takes: 
+    Takes:
         dict_meta_data: dictionary with meta data
         average_field: np array with average field
         name: name of file to save
@@ -219,7 +214,6 @@ def pca(
     bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
     step_size={"x": 0.3, "y": 0.3, "z": 0.3},
 ):
-
     mat_transform = mat.reshape(
         mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4]
     )
@@ -309,7 +303,7 @@ def helmholtz_hodge_decomp_approx(
     kx = np.fft.fftfreq(NX).reshape(NX, 1, 1)
     ky = np.fft.fftfreq(NY).reshape(NY, 1)
     kz = np.fft.fftfreq(NZ)
-    k2 = kx ** 2 + ky ** 2 + kz ** 2
+    k2 = kx**2 + ky**2 + kz**2
     k2[0, 0, 0] = 1.0  # to avoid inf. we do not care about the k=0 component
 
     div_Vf_f = vx_f * kx + vy_f * ky + vz_f * kz  # * 1j
@@ -380,7 +374,9 @@ def helmholtz_hodge_decomp_approx(
 
 def compress(distance_matrix, damping=0.5, max_iter=4000):
     compressed_dictionary = {}
-    affinity = AffinityPropagation(affinity="precomputed", damping=damping, max_iter=max_iter)
+    affinity = AffinityPropagation(
+        affinity="precomputed", damping=damping, max_iter=max_iter
+    )
     affinity.fit(distance_matrix)
     cluster_centers_indices = affinity.cluster_centers_indices_
     labels = list(affinity.labels_)

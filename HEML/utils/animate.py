@@ -16,7 +16,6 @@ from HEML.utils.dictionaries import *
 
 
 def fetch_heme_as_string(molecule_file="../../../data/pdbs_processed/1a4e.pdb"):
-
     # THIS IS HARD CODED FOR HEMES CHANGE IF YOU WANT TO USE THIS FOR SOMETHING ELSE
     atom_list, bond_list, xyz_list = get_nodes_and_edges_from_pdb(
         molecule_file, distance_filter=5.5
@@ -44,7 +43,6 @@ def fetch_heme_as_string(molecule_file="../../../data/pdbs_processed/1a4e.pdb"):
         if atom == 7:
             diag_dict["N"].append(xyz_list[i])
         if atom == 26:
-
             diag_dict["Fe"].append(xyz_list[i])
         string_element += "{} {} {} {}\n".format(
             int_atom_dict[atom], xyz_list[i][0], xyz_list[i][1], xyz_list[i][2]
@@ -135,9 +133,18 @@ def animate_fields(folder_plot, molecule_file="../../../data/pdbs_processed/1a4e
     # Layout
     fig.update_layout(
         scene=dict(
-            xaxis=dict(nticks=10, range=meta_data_bohr["bounds_x"],),
-            yaxis=dict(nticks=10, range=meta_data_bohr["bounds_y"],),
-            zaxis=dict(nticks=10, range=meta_data_bohr["bounds_z"],),
+            xaxis=dict(
+                nticks=10,
+                range=meta_data_bohr["bounds_x"],
+            ),
+            yaxis=dict(
+                nticks=10,
+                range=meta_data_bohr["bounds_y"],
+            ),
+            zaxis=dict(
+                nticks=10,
+                range=meta_data_bohr["bounds_z"],
+            ),
         ),
         title="Slices in volumetric data",
         width=1000,

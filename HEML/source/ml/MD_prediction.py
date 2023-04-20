@@ -11,7 +11,6 @@ from HEML.utils.fields import pca, aug_all
 
 class training:
     def __init__(self, model, pca_tf=True, aug=True, test_crystal=False, test_md=False):
-
         self.aug = aug
         self.pca_tf = pca_tf
         self.model = model
@@ -102,12 +101,10 @@ class training:
             self.y_crystal = [np.argmax(i) for i in y_crystal]
 
     def make_model(self, config):
-
         model_obj = construct_models(config=config, model=self.model)
         return model_obj
 
     def train(self, config):
-
         model_obj = self.make_model(config)
 
         kf = KFold(n_splits=5, random_state=0, shuffle=True)
@@ -134,7 +131,6 @@ class training:
                 acc_train.append(accuracy_score(y_train_pred, y_train_temp))
 
             else:
-
                 model_obj.fit(x_train_temp, y_train_temp)
                 y_train_pred = model_obj.predict(x_train_temp)
                 acc_train.append(accuracy_score(y_train_pred, y_train_temp))
@@ -201,7 +197,6 @@ class training:
             result = {}
             print(set(predictions))
             for i in range(len(predictions)):
-
                 name_pro = names[i]
 
                 if name_pro not in result:

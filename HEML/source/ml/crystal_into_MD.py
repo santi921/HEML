@@ -16,7 +16,6 @@ from imblearn.ensemble import BalancedRandomForestClassifier, EasyEnsembleClassi
 
 
 if __name__ == "__main__":
-
     aug = True
     pca_tf = True
     model = "xgb"
@@ -26,7 +25,12 @@ if __name__ == "__main__":
         data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
     )
 
-    arr_min, arr_max, = np.min(x), np.max(x)
+    (
+        arr_min,
+        arr_max,
+    ) = np.min(
+        x
+    ), np.max(x)
     x_sign = np.sign(x)
     # getting absolute value of every element
     x_abs = np.abs(x)
@@ -38,9 +42,12 @@ if __name__ == "__main__":
 
     y = [np.argmax(i) for i in y]
 
-    (X_train, X_test, y_train, y_test,) = train_test_split(
-        x, y, test_size=0.2, random_state=11
-    )
+    (
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+    ) = train_test_split(x, y, test_size=0.2, random_state=11)
 
     if pca_tf:
         X_train_untransformed = X_train

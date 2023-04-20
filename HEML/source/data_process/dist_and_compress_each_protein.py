@@ -7,7 +7,7 @@ from random import choice
 
 def main():
     """
-    Usage: select a folder with MD runs in sub folder and this script will compute the distance matrix and the generate the compressed 
+    Usage: select a folder with MD runs in sub folder and this script will compute the distance matrix and the generate the compressed
     dictionary for each run. It will also copy the compressed topologies to a compressed folder in the root directory.
     """
 
@@ -25,7 +25,6 @@ def main():
     damping = float(options["damping"]) if "damping" in options else 0.5
     max_iter = int(options["max_iter"]) if "max_iter" in options else 1000
 
-    
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
 
@@ -45,7 +44,6 @@ def main():
 
         # merge root, folder and cpet
         path_target = os.path.join(root, folder, "cpet/")
-        
 
         topo_files = [
             path_target + f for f in os.listdir(path_target) if f.endswith(".top")
@@ -53,9 +51,9 @@ def main():
         print('number of topologies in folder "{}": {}'.format(folder, len(topo_files)))
 
         # sorts the files in some way
-        #topo_files.sort(key=lambda i: i.split("_")[0])
+        # topo_files.sort(key=lambda i: i.split("_")[0])
         topo_files.sort()
-        
+
         print(topo_files)
         with open(
             output_folder + "{}_topo_file_list.txt".format(ind), "w"
@@ -74,7 +72,9 @@ def main():
                     outputfile.write(f"{col} ")
                 outputfile.write("\n")
         print('constructed distance matrix for folder "{}"'.format(folder))
-        compress_dictionary = compress(distance_matrix, damping=damping, max_iter=max_iter)
+        compress_dictionary = compress(
+            distance_matrix, damping=damping, max_iter=max_iter
+        )
 
         print("moving central topologies to compressed folder...")
 
@@ -97,13 +97,13 @@ def main():
                     "cp {} {}{}_{}".format(
                         name_center, output_folder, ind, name_center.split("/")[-1]
                     )
-                ) 
+                )
 
     # make a list of all the compressed topologies
     topo_files = [
         output_folder + f for f in os.listdir(output_folder) if f.endswith(".top")
     ]
-    #topo_files.sort(key=lambda i: i.split("_")[0])
+    # topo_files.sort(key=lambda i: i.split("_")[0])
     topo_files.sort()
 
     with open(output_folder + "topo_file_list.txt", "w") as file_list:

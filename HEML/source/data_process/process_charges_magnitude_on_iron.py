@@ -1,11 +1,10 @@
-import numpy as np 
+import numpy as np
 import os, re, argparse
 from glob import glob
 from HEML.utils.data import get_options, check_if_file_is_empty, get_fe_positions
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
@@ -22,7 +21,7 @@ if __name__ == "__main__":
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
-    
+
     if zero_active:
         ligands_to_zero = options["ligands_to_zero"]
         print("zeroing active site for: {}".format(ligands_to_zero))
@@ -88,10 +87,8 @@ if __name__ == "__main__":
             listname = filename.split(".")
 
             if not fail_cond:
-
                 with open(output, "w") as outfile:
                     for j in readfile:
-
                         if zero_active:
                             tf_zero = False
                             # grab from column 17 to 21 inclusive
@@ -106,22 +103,24 @@ if __name__ == "__main__":
                                 xyz_str_y = j[38:46]
                                 xyz_str_z = j[46:54]
 
-                                distance = np.sqrt((
-                                    float(xyz_str_x) - float(fe_dict["xyz"][0])
-                                ) ** 2 + (
-                                    float(xyz_str_y) - float(fe_dict["xyz"][1])
-                                ) ** 2 + (
-                                    float(xyz_str_z) - float(fe_dict["xyz"][2])
-                                ) ** 2)
+                                distance = np.sqrt(
+                                    (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
+                                    + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
+                                    + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
+                                )
 
                                 if distance < ligands_to_zero_radius:
                                     tf_zero = True
-                                    print("zeroing distance:{} w/ dist {}".format(lig_str, distance))
+                                    print(
+                                        "zeroing distance:{} w/ dist {}".format(
+                                            lig_str, distance
+                                        )
+                                    )
 
-                            if tf_zero:    
+                            if tf_zero:
                                 temp_write = j[:56] + "0.000" + j[61:]
                                 outfile.write(temp_write)
-                            else: 
+                            else:
                                 outfile.write(j)
                         else:
                             outfile.write(j)

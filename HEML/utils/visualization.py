@@ -66,6 +66,7 @@ def connectivity_to_list_of_bonds(connectivity_mat):
                 bonds.append([i, j])
     return bonds
 
+
 def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26):
     """
     Filter out atoms that are not connected to the track atom.
@@ -73,35 +74,42 @@ def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
     track_index = [i for i in range(len(filtered_atom)) if filtered_atom[i] == track]
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
     graph = nx.from_edgelist(bonds)
-    
+
     if not nx.is_connected(graph):
         largest_cc = [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
-        #print(largest_cc[0].nodes, track_index[0])
-        has_track = [i for i in range(len(largest_cc)) if track_index[0] in largest_cc[i].nodes]
+        # print(largest_cc[0].nodes, track_index[0])
+        has_track = [
+            i for i in range(len(largest_cc)) if track_index[0] in largest_cc[i].nodes
+        ]
         graph_to_use = largest_cc[has_track[0]]
-        #print(graph_to_use.nodes)
+        # print(graph_to_use.nodes)
         filtered_atoms = [filtered_atom[i] for i in graph_to_use.nodes]
         filtered_xyz = [filtered_xyz[i] for i in graph_to_use.nodes]
         filtered_connectivity_mat = np.zeros((len(filtered_atoms), len(filtered_atoms)))
         for i in range(len(filtered_atoms)):
             for j in range(len(filtered_atoms)):
-                filtered_connectivity_mat[i][j] = connectivity_mat[filtered_atoms[i]][filtered_atoms[j]]
-        track_indices = [i for i in range(len(filtered_atoms)) if filtered_atoms[i] == track]
+                filtered_connectivity_mat[i][j] = connectivity_mat[filtered_atoms[i]][
+                    filtered_atoms[j]
+                ]
+        track_indices = [
+            i for i in range(len(filtered_atoms)) if filtered_atoms[i] == track
+        ]
     return filtered_atoms, filtered_xyz, filtered_connectivity_mat, track_indices
 
+
 def get_nodes_and_edges_from_pdb(
-    file="../../data/pdbs_processed/1a4e.pdb", 
-    distance_filter=None, 
-    heme_filter=False, 
+    file="../../data/pdbs_processed/1a4e.pdb",
+    distance_filter=None,
+    heme_filter=False,
     filter_connectivity=False,
     center=[130.581, 41.541, 38.350],
 ):
     if heme_filter:
         xyz, charge, atom, residues = pdb_to_xyz(file, ret_residues=True)
-        
+
     else:
         xyz, charge, atom = pdb_to_xyz(file)
-    
+
     if distance_filter is not None:
         filtered_xyz = filter_xyz_by_distance(
             xyz, center=center, distance=distance_filter
@@ -109,11 +117,10 @@ def get_nodes_and_edges_from_pdb(
         filtered_atom = filter_other_by_distance(
             xyz, atom, center=center, distance=distance_filter
         )
-    
-    else: 
-        
+
+    else:
         filtered_xyz, filtered_atom = filter_by_residue(xyz, atom, residues, "HEM")
-        
+
         if distance_filter is not None:
             filtered_xyz = filter_xyz_by_distance(
                 filtered_xyz, center=center, distance=distance_filter
@@ -121,16 +128,20 @@ def get_nodes_and_edges_from_pdb(
             filtered_atom = filter_other_by_distance(
                 filtered_xyz, filtered_atom, center=center, distance=distance_filter
             )
-        
 
     connectivity_mat, rdkit_mol = xyz2AC_vdW(filtered_atom, filtered_xyz)
     connectivity_mat = get_AC(filtered_atom, filtered_xyz, covalent_factor=1.3)
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
-    
-    if filter_connectivity: 
-        filtered_atom, filtered_xyz, filtered_connectivity_mat, track_indices = connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
+
+    if filter_connectivity:
+        (
+            filtered_atom,
+            filtered_xyz,
+            filtered_connectivity_mat,
+            track_indices,
+        ) = connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
         bonds = connectivity_to_list_of_bonds(filtered_connectivity_mat)
-    
+
     return filtered_atom, bonds, filtered_xyz
 
 
@@ -143,12 +154,16 @@ def get_cones_viz_from_pca(
     bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
     step_size={"x": 0.3, "y": 0.3, "z": 0.3},
 ):
-
     cones = []
 
     x, _ = pull_mats_w_label(data_file=data_file, dir_fields=dir_fields)
     print("field shape: " + str(x.shape))
-    arr_min, arr_max, = np.min(x), np.max(x)
+    (
+        arr_min,
+        arr_max,
+    ) = np.min(
+        x
+    ), np.max(x)
     # getting sign of every element
     x_sign = np.sign(x)
     # getting absolute value of every element
@@ -222,7 +237,6 @@ def mat_to_cones(
     unlog1=False,
     min_max=False,
 ):
-
     bohr_to_ang = 1
     if bohr_to_ang_conv:
         bohr_to_ang = 1.88973

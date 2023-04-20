@@ -2,7 +2,6 @@ import glob
 
 
 def main():
-
     charge_files = glob.glob("../../../data/pdbs/*")
     list = []
     diag_list = []
@@ -12,7 +11,6 @@ def main():
             lines = f.readlines()
             for line in lines:
                 if line.split()[0] == "HETATM":
-
                     item = line.split()[3]
                     len_res = len(item)
 

@@ -27,4 +27,6 @@ def main():
             # uncompress gz file to pdb file
             subprocess.call(["gunzip", "../../../data/pdbs/" + i + ".pdb1"])
             print("bioassembly")
+
+
 main()

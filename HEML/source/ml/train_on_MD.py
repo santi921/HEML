@@ -28,7 +28,6 @@ from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
 class training:
     def __init__(self, model, pca_tf=True, aug=True, test_crystal=False, test_md=False):
-
         self.aug = aug
         self.pca_tf = pca_tf
         self.model = model
@@ -38,7 +37,12 @@ class training:
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y, _ = pull_mats_from_MD_folder(label_ind=3)
 
-        arr_min, arr_max, = np.min(x), np.max(x)
+        (
+            arr_min,
+            arr_max,
+        ) = np.min(
+            x
+        ), np.max(x)
 
         x_sign = np.sign(x)
         # getting absolute value of every element
@@ -49,9 +53,12 @@ class training:
         x = np.multiply(x_log1p, x_sign)
         y = [np.argmax(i) for i in y]
 
-        (self.X_train, self.X_test, self.y_train, self.y_test,) = train_test_split(
-            x, y, test_size=0.2, random_state=0
-        )
+        (
+            self.X_train,
+            self.X_test,
+            self.y_train,
+            self.y_test,
+        ) = train_test_split(x, y, test_size=0.2, random_state=0)
         # print(self.y_test.shape)
         if self.pca_tf:
             self.X_train_untransformed = self.X_train
@@ -99,7 +106,6 @@ class training:
         return model_obj
 
     def train(self):
-
         with wandb.init(project="HemeML_MD") as run:
             config = wandb.config
 
@@ -138,7 +144,6 @@ class training:
                     acc_train.append(accuracy_score(y_train_pred, y_train_temp))
                     # print("adding accuracy")
                 else:
-
                     model_obj.fit(x_train_temp, y_train_temp)
                     y_train_pred = model_obj.predict(x_train_temp)
                     acc_train.append(accuracy_score(y_train_pred, y_train_temp))
@@ -247,10 +252,13 @@ class training:
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description="options for hyperparam tune")
     parser.add_argument(
-        "-dataset", action="store", dest="dataset", default=1, help="dataset to use",
+        "-dataset",
+        action="store",
+        dest="dataset",
+        default=1,
+        help="dataset to use",
     )
 
     parser.add_argument(
@@ -262,7 +270,11 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-model", action="store", dest="model", default="rfc", help="model",
+        "-model",
+        action="store",
+        dest="model",
+        default="rfc",
+        help="model",
     )
 
     parser.add_argument(

@@ -54,7 +54,6 @@ def move_charges_into_folder(charges_root, compressed_frame_folder):
 
 
 def get_element_and_xyz(line, freeze=False):
-
     line_split = line.split()
     shift = 0
     if len(line_split[0]) > 6:
@@ -99,7 +98,6 @@ def check_if_collisions(out_list, xyz):
 
 
 def get_cross_vector(file_name):
-
     # find the four nitrogens closest to the iron
     fe_info = get_fe_positions(file_name)
     fe_xyz = fe_info["xyz"]
@@ -171,7 +169,6 @@ def extract_heme_and_ligand_from_pdb(
             line_split = line.split()
 
             if len(line_split) > 3:
-
                 if "HETATM" in line_split:
                     shift = 0
                     heme_cond = line[17:20] == "HEM"

@@ -39,7 +39,6 @@ def get_options(options_file="./options/options.json"):
 
 
 def main():
-
     options = get_options("./options/options.json")
     root = options["compressed_proteins_folder"]
 

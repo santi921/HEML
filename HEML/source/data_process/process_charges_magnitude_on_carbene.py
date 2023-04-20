@@ -2,23 +2,22 @@ import os, re, argparse
 from glob import glob
 import numpy as np
 from HEML.utils.data import (
-    get_options, 
-    check_if_file_is_empty, 
+    get_options,
+    check_if_file_is_empty,
     get_c1_positions,
-    get_fe_positions
+    get_fe_positions,
 )
 
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
     )
     parser.add_argument("--zero_active", help="zero active site", default=True)
     parser.add_argument("--zero_radius", help="zero active site radius", default=False)
-    
+
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_radius = parser.parse_args().zero_radius
@@ -27,7 +26,7 @@ if __name__ == "__main__":
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
-    
+
     if zero_active:
         ligands_to_zero = options["ligands_to_zero"]
         print("zeroing active site for: {}".format(ligands_to_zero))
@@ -83,7 +82,7 @@ if __name__ == "__main__":
                 assert c1_dict["id"] != None
                 print(c1_dict["id"], c1_dict["id"])
                 fail_cond = False
-                
+
             except:
                 fail_cond = True
                 print("Failed File: ".format(i))
@@ -100,31 +99,33 @@ if __name__ == "__main__":
                             tf_zero = False
                             # grab from column 17 to 21 inclusive
                             lig_str = j[17:21].strip()
-                            
+
                             if lig_str in ligands_to_zero:
                                 tf_zero = True
-                                #print("zeroing ligand", lig_str)
+                                # print("zeroing ligand", lig_str)
 
                             if not tf_zero and zero_radius:
                                 xyz_str_x = j[30:38]
                                 xyz_str_y = j[38:46]
                                 xyz_str_z = j[46:54]
-                                distance = np.sqrt((
-                                    float(xyz_str_x) - float(fe_dict["xyz"][0])
-                                ) ** 2 + (
-                                    float(xyz_str_y) - float(fe_dict["xyz"][1])
-                                ) ** 2 + (
-                                    float(xyz_str_z) - float(fe_dict["xyz"][2])
-                                ) ** 2)
+                                distance = np.sqrt(
+                                    (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
+                                    + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
+                                    + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
+                                )
 
                                 if distance < ligands_to_zero_radius:
                                     tf_zero = True
-                                    print("zeroing distance:{} w/ dist {}".format(lig_str, distance))
+                                    print(
+                                        "zeroing distance:{} w/ dist {}".format(
+                                            lig_str, distance
+                                        )
+                                    )
 
-                            if tf_zero:    
+                            if tf_zero:
                                 temp_write = j[:56] + "0.000" + j[61:]
                                 outfile.write(temp_write)
-                            else: 
+                            else:
                                 outfile.write(j)
                         else:
                             outfile.write(j)

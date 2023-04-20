@@ -11,7 +11,6 @@ from HEML.utils.data import (
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
@@ -60,7 +59,6 @@ if __name__ == "__main__":
             filelist = glob(charges_directory + "*pqr")
 
     for i in filelist:
-
         # new filename
         filename = os.path.basename(i)
         listname = filename.split(".")
@@ -89,7 +87,6 @@ if __name__ == "__main__":
             nitrogen_dict = {}
 
             try:
-
                 fe_dict = get_fe_positions(i)
                 assert fe_dict["id"] != None
                 print(fe_dict["id"], fe_dict["xyz"])
@@ -125,7 +122,6 @@ if __name__ == "__main__":
             listname = filename.split(".")
 
             if not fail_cond:
-
                 ligand_identifier = ligand_dict["best_crit"].split(":")
 
                 with open(output, "w") as outfile:
@@ -162,7 +158,6 @@ if __name__ == "__main__":
 
                 file_name = i.split("/")[-1].split(".")[0]
                 if box:
-
                     options = open(f"{outdir_cpet}options_field_{file_name}.txt", "w+")
                     options.write(
                         f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
@@ -181,7 +176,6 @@ if __name__ == "__main__":
                     options.write(f"end \n")
                     options.close()
                 else:
-
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
                     options.write(
                         f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'

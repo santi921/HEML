@@ -82,7 +82,6 @@ def main():
             create_folders(folder_name)
 
             if not check_submitted(folder_name):
-
                 try:
                     os.system(
                         "{} {}/{}_heme_h.xyz > {}/embedding/normal/coord".format(

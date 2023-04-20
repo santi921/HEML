@@ -11,7 +11,6 @@ from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
 
 if __name__ == "__main__":
-
     aug = True
     pca_tf = True
     model = "xgb"
@@ -21,7 +20,12 @@ if __name__ == "__main__":
         data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
     )
 
-    arr_min, arr_max, = np.min(x), np.max(x)
+    (
+        arr_min,
+        arr_max,
+    ) = np.min(
+        x
+    ), np.max(x)
     # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
     x_sign = np.sign(x)
     # getting absolute value of every element
@@ -39,9 +43,12 @@ if __name__ == "__main__":
     # get magnitude of vector
     x = np.linalg.norm(x, axis=1).reshape(-1, 1)
 
-    (X_train, X_test, y_train, y_test,) = train_test_split(
-        x, y, test_size=0.2, random_state=11
-    )
+    (
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+    ) = train_test_split(x, y, test_size=0.2, random_state=11)
 
     print(X_test.shape)
 

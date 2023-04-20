@@ -6,7 +6,6 @@ from HEML.utils.fields import save_numpy_as_dat
 
 
 def main():
-
     # parser = argparse.ArgumentParser()
     # parser.add_argument(
     #    "--target_folder", help="location of folder with fields", default="./"
@@ -20,7 +19,6 @@ def main():
         "./run5/cpet/",
     ]
     for target_folder in targets:
-
         # find all files ending in *pdb
         files = glob("{}efield*.dat".format(target_folder))
         fields = []

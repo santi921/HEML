@@ -4,7 +4,6 @@ from HEML.utils.data import get_options
 
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
