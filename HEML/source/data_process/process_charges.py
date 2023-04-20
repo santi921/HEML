@@ -22,9 +22,7 @@ if __name__ == "__main__":
     )
     # store t/f if --box is used
     parser.add_argument("--box", help="box", action="store_true")
-
     parser.add_argument("--box_size", help="box size", default=4.0)
-
     parser.add_argument("--density", help="density", default=10)
     parser.add_argument("--samples", help="samples", default=3000)
     parser.add_argument("--bins", help="bins", default=25)
