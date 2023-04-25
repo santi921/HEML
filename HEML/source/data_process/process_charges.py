@@ -178,7 +178,8 @@ if __name__ == "__main__":
                                 )
                                 temp_write = j[:56] + "0.000" + j[61:]
                                 outfile.write(temp_write)
-
+                            else: 
+                                outfile.write(j)
                         else:
                             outfile.write(j)
 
