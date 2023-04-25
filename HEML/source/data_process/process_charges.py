@@ -1,4 +1,5 @@
 import os, re, argparse
+import numpy as np 
 from glob import glob
 from HEML.utils.data import (
     get_options,
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--samples", help="samples", default=3000)
     parser.add_argument("--bins", help="bins", default=25)
     parser.add_argument("--step_size", help="step size", default=0.001)
+    parser.add_argument("--zero_radius", help="zero active site radius", default=False)
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
@@ -36,11 +38,15 @@ if __name__ == "__main__":
     samples = int(parser.parse_args().samples)
     bins = int(parser.parse_args().bins)
     step_size = float(parser.parse_args().step_size)
+    zero_radius = bool(parser.parse_args().zero_radius)
 
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
     outdir_cpet = options["cpet_folder"]
     charges_directory = options["charges_folder"]
+    if zero_radius:
+        ligands_to_zero_radius = options["zero_radius"]
+        print("zeroing active site radius from iron: {}".format(ligands_to_zero_radius))
 
     print(outdir)
     fail = 0
@@ -152,6 +158,26 @@ if __name__ == "__main__":
                         ]:
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
+                            
+                        elif zero_radius: 
+                            xyz_str_x = j[30:38]
+                            xyz_str_y = j[38:46]
+                            xyz_str_z = j[46:54]                        
+                            distance = np.sqrt(
+                                (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
+                                + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
+                                + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
+                            )
+                            if distance < ligands_to_zero_radius:
+                                
+                                lig_str = j[17:21].strip()
+                                print(
+                                    "zeroing distance:{} w/ dist {}".format(
+                                        lig_str, distance
+                                    )
+                                )
+                                temp_write = j[:56] + "0.000" + j[61:]
+                                outfile.write(temp_write)
 
                         else:
                             outfile.write(j)

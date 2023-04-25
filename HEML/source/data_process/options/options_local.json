@@ -1,8 +1,8 @@
 {
-    "cpet_folder": "/home/santiagovargas/dev/HEML/data/carbene/cpet/",
-    "charges_folder":"/home/santiagovargas/dev/HEML/data/carbene/",
-    "processed_charges_folder":"/home/santiagovargas/dev/HEML/data/carbene/charges_processed/",
-    "cpet_loc": "./cpet",
-    "ligands_to_zero": ["HEM", "CB1", "BNA"],
-    "zero_radius": 5.0
+  "cpet_folder": "/home/santiagovargas/dev/HEML/data/test/cpet/",
+  "charges_folder": "/home/santiagovargas/dev/HEML/data/test/",
+  "processed_charges_folder": "/home/santiagovargas/dev/HEML/data/test/charges_processed/",
+  "cpet_loc": "./cpet",
+  "ligands_to_zero": ["HEM", "CB1", "BNA"],
+  "zero_radius": 5.0
 }

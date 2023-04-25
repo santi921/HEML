@@ -95,32 +95,32 @@ if __name__ == "__main__":
                     print("processing from file: {}".format(i))
 
                     for j in readfile:
-                        if zero_active:
-                            tf_zero = False
-                            # grab from column 17 to 21 inclusive
-                            lig_str = j[17:21].strip()
 
-                            if lig_str in ligands_to_zero:
+                        tf_zero = False
+                        # grab from column 17 to 21 inclusive
+                        lig_str = j[17:21].strip()
+                        
+                        if zero_active and lig_str in ligands_to_zero:
+                            tf_zero = True
+                            print("zeroing ligand", lig_str)
+
+                        if not tf_zero and zero_radius:
+                            xyz_str_x = j[30:38]
+                            xyz_str_y = j[38:46]
+                            xyz_str_z = j[46:54]
+                            distance = np.sqrt(
+                                (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
+                                + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
+                                + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
+                            )
+
+                            if distance < ligands_to_zero_radius:
                                 tf_zero = True
-                                # print("zeroing ligand", lig_str)
-
-                            if not tf_zero and zero_radius:
-                                xyz_str_x = j[30:38]
-                                xyz_str_y = j[38:46]
-                                xyz_str_z = j[46:54]
-                                distance = np.sqrt(
-                                    (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
-                                    + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
-                                    + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
-                                )
-
-                                if distance < ligands_to_zero_radius:
-                                    tf_zero = True
-                                    print(
-                                        "zeroing distance:{} w/ dist {}".format(
-                                            lig_str, distance
-                                        )
+                                print(
+                                    "zeroing distance:{} w/ dist {}".format(
+                                        lig_str, distance
                                     )
+                                )
 
                             if tf_zero:
                                 temp_write = j[:56] + "0.000" + j[61:]
