@@ -11,11 +11,11 @@ if __name__ == "__main__":
     )
     parser.add_argument("--zero_active", help="zero active site", default=True)
 
-    parser.add_argument("--zero_radius", help="zero active site radius", default=False)
+    parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
-    zero_radius = parser.parse_args().zero_radius
+    zero_radius = bool(parser.parse_args().zero_radius)
     print(zero_active, zero_radius)
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]

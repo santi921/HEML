@@ -16,7 +16,7 @@ if __name__ == "__main__":
         "--options", help="location of options file", default="./options/options.json"
     )
     parser.add_argument("--zero_active", help="zero active site", default=True)
-    parser.add_argument("--zero_radius", help="zero active site radius", default=False)
+    parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active

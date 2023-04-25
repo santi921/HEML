@@ -27,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--samples", help="samples", default=3000)
     parser.add_argument("--bins", help="bins", default=25)
     parser.add_argument("--step_size", help="step size", default=0.001)
-    parser.add_argument("--zero_radius", help="zero active site radius", default=False)
+    parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
