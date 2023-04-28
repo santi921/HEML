@@ -241,6 +241,34 @@ def plot_field(
 
 
 def main():
+    """
+        Base implementation of overlaying field on molecular structure some of the options are: 
+        filter_dict: dictionary of atoms to filter out of the pdb file
+            - filter_connectivity (bool): whether to filter out atoms that are not connected to the biggest graph 
+            - filter_distance (float or false): whether to filter out atoms that are not within a certain distance of the center
+            - residue_filter(list or false): filter residues that are not in the list
+        cone_dict: dictionary of options for the cones
+            - vector_scale: scale of the vectors
+            - std_mean: whether to use the std or mean for the color
+            - log1: whether to log the data
+            - unlog1: whether to unlog the data (keep as false, this is for some other function)
+            - min_max: whether to use the min max for the color
+            - cutoff: cutoff for the color  
+
+        alignment_dict: dictionary of options for the alignment of the molecular center
+            - center: center of the molecule
+            - x_axis: x axis of the molecule
+            - y_axis: y axis of the molecule
+            - alignment_method: heme (finds center based on heme logic), dict (uses the center and axis from the dict), none (guesses)
+        field_dims: dimensions of the field
+        x_axis_range: range of the x axis
+        y_axis_range: range of the y axis
+        show: whether to show the plot
+        save: whether to save the plot as html
+
+
+    """
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-options", help="location of options file", default="./plot_options.json"
