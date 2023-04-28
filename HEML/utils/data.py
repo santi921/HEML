@@ -163,10 +163,16 @@ def pdb_to_xyz(file, ret_residues=False):
     return xyz, charge, atom
 
 
-def filter_xyz_by_distance(xyz, center=[0, 0, 0], distance=5):
+def filter_xyz_by_distance(xyz, center=[0, 0, 0], residues=[], distance=5, ret_residues=False):
     xyz = np.array(xyz, dtype=float)
     center = np.array(center, dtype=float)
-    return list(xyz[np.linalg.norm(xyz - center, axis=1) < distance])
+    ind_hit = np.linalg.norm(xyz - center, axis=1) < distance
+    if ret_residues:
+        return (
+            list(xyz[ind_hit]),
+            list(np.array(residues)[ind_hit]),
+        )
+    return list(xyz[ind_hit])
 
 
 def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):

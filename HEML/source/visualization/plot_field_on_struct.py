@@ -37,51 +37,55 @@ def get_nodes_and_edges_from_pdb(
         filter_connectivity: whether to filter by connectivity to central molecule
         center: center of molecule to plot 
     """
-    filtered_xyz = []
-    filtered_atom = []    
+    filtered_atom, filtered_xyz = [], []
+    filtered_xyz_dist, filtered_atom_dist = [], []
+    xyz, charge, atom, residues = pdb_to_xyz(file, ret_residues=True)
 
-    distance_filter=5.0,
-    filter_connectivity=False,
-    residue_filter=False,
-
-    if filter_dict["residue_filter"] is not False:
-        xyz, charge, atom, residues = pdb_to_xyz(file, ret_residues=True)
-        for res in filter_dict["residue_filter"]: 
-            filtered_xyz, filtered_atom = filter_by_residue(xyz, atom, residues, res)
-            if filtered_atom != []:
-                filtered_atom.extend(filtered_atom)
-                filtered_xyz.extend(filtered_xyz) 
-    else: 
-        xyz, charge, atom = pdb_to_xyz(file)
-
-    print("xyz to pdb")
-    
     if filter_dict["distance_filter"] is not False:
         print("distance filter - {} ang".format(filter_dict["distance_filter"]))
-        filtered_xyz.extend(filter_xyz_by_distance(
-            xyz, center=center, distance=filter_dict["distance_filter"]
-        ))
-        filtered_atom.extend(filter_other_by_distance(
+        xyz_filter, residues = filter_xyz_by_distance(
+            xyz, 
+            center=center,
+            residues=residues, 
+            distance=filter_dict["distance_filter"], 
+            ret_residues=True
+        )
+        filtered_xyz_dist.extend(xyz_filter)
+        filtered_atom_dist.extend(filter_other_by_distance(
             xyz, atom, center=center, distance=filter_dict["distance_filter"]
         ))
-        
-    if distance_filter is False and residue_filter is False:
-        filtered_xyz, charge, filtered_atom = pdb_to_xyz(file)
+
+        if filter_dict["residue_filter"] is not False: 
+            xyz = filtered_xyz_dist
+            atom = filtered_atom_dist
     
-    filtered_atom_final, filtered_xyz_final = [], []
     
-    for i in range(len(filtered_xyz)):
-        #if filtered_xyz[i] not in filtered_xyz_final:
-        if not np.any(np.all(filtered_xyz[i] == filtered_xyz_final)):
-            filtered_xyz_final.append(filtered_xyz[i])
-            filtered_atom_final.append(filtered_atom[i])
+    if filter_dict["residue_filter"] is not False:
+        #print(residues)
+        for res in filter_dict["residue_filter"]: 
+            filtered_xyz_temp, filtered_atom_temp = filter_by_residue(xyz, atom, residues, res)
+            #print(filtered_atom_temp)
+            if filtered_atom_temp != []:
+                filtered_atom.extend(filtered_atom_temp)
+                filtered_xyz.extend(filtered_xyz_temp) 
+        assert filtered_atom != [], "No atoms found for residue filter {}".format(filter_dict["residue_filter"])
+    else: 
+        filtered_xyz = xyz
+        filtered_atom = atom
+
+    if filter_dict["distance_filter"] is False and filter_dict["residue_filter"] is False:
+        filtered_xyz_final, charge, filtered_atom_final = pdb_to_xyz(file)
+    else: 
+        filtered_atom_final, filtered_xyz_final = [], []
+        for i in range(len(filtered_xyz)):
+            if not np.any(np.all(filtered_xyz[i] == filtered_xyz_final)):
+                filtered_xyz_final.append(filtered_xyz[i])
+                filtered_atom_final.append(filtered_atom[i])
     
-    #connectivity_mat, rdkit_mol = xyz2AC_vdW(filtered_atom_final, filtered_xyz_final)
     connectivity_mat = get_AC(filtered_atom_final, filtered_xyz_final, covalent_factor=1.3)
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
     
     if filter_dict["filter_connectivity"] : 
-        print("connectivity")
         filtered_atom_final, filtered_xyz_final, filtered_connectivity_mat, track_indices = connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
         bonds = connectivity_to_list_of_bonds(filtered_connectivity_mat)
     
@@ -142,9 +146,7 @@ def get_molecule_dict(
             ND_pos = [130.469,  41.267,  40.273]
 
         center = np.mean([NA_pos, NB_pos, NC_pos, ND_pos], axis = 0)
-    
 
-    
 
     atom_list, bond_list, xyz_list = get_nodes_and_edges_from_pdb(
         file=file, 
@@ -162,11 +164,6 @@ def get_molecule_dict(
     print("number of atoms: ".format(len(atom_list)))
     string_element = "\n{}\n\n".format(len(atom_list))
     for i, atom in enumerate(atom_list):
-        # check if nitrogen
-        #if atom == 7:
-        #    diag_dict["N"].append(xyz_list[i])
-        #if atom == 26: 
-        #    diag_dict["Fe"].append(xyz_list[i])
         string_element +="{} {} {} {}\n".format(
             int_atom_dict[atom], xyz_list[i][0], xyz_list[i][1], xyz_list[i][2])
     
