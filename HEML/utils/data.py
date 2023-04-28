@@ -166,7 +166,7 @@ def pdb_to_xyz(file, ret_residues=False):
 def filter_xyz_by_distance(xyz, center=[0, 0, 0], distance=5):
     xyz = np.array(xyz, dtype=float)
     center = np.array(center, dtype=float)
-    return xyz[np.linalg.norm(xyz - center, axis=1) < distance]
+    return list(xyz[np.linalg.norm(xyz - center, axis=1) < distance])
 
 
 def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):
@@ -178,10 +178,25 @@ def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):
 
 
 def filter_by_residue(xyz, atom, res_list, target="HEM"):
+    """
+    INCLUSIVE filter for target residue
+    """
     xyz_list = []
     atom_list = []
     for i in range(len(res_list)):
         if res_list[i].strip() == target:
+            xyz_list.append(xyz[i]), atom_list.append(atom[i])
+
+    return xyz_list, atom_list
+
+def filter_by_residue_exclusive(xyz, atom, res_list, target="HEM"):
+    """
+    EXCLUSIVE filter for target residue
+    """
+    xyz_list = []
+    atom_list = []
+    for i in range(len(res_list)):
+        if res_list[i].strip() != target:
             xyz_list.append(xyz[i]), atom_list.append(atom[i])
 
     return xyz_list, atom_list

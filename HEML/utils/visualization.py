@@ -69,7 +69,7 @@ def connectivity_to_list_of_bonds(connectivity_mat):
 
 def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26):
     """
-    Filter out atoms that are not connected to the track atom.
+    Filter out atoms that are not connected to the track atom. This might need to be retooled for non-heme molecules.
     """
     track_index = [i for i in range(len(filtered_atom)) if filtered_atom[i] == track]
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
@@ -77,7 +77,7 @@ def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
 
     if not nx.is_connected(graph):
         largest_cc = [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
-        # print(largest_cc[0].nodes, track_index[0])
+        
         has_track = [
             i for i in range(len(largest_cc)) if track_index[0] in largest_cc[i].nodes
         ]
