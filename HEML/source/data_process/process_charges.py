@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--box", help="box", action="store_true")
     parser.add_argument("--box_size", help="box size", default=4.0)
     parser.add_argument("--density", help="density", default=10)
-    parser.add_argument("--samples", help="samples", default=3000)
+    parser.add_argument("--samples", help="samples", default=10000)
     parser.add_argument("--bins", help="bins", default=25)
     parser.add_argument("--step_size", help="step size", default=0.001)
     parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
