@@ -5,6 +5,7 @@ from HEML.utils.data import (
     get_options,
     check_if_file_is_empty,
     get_fe_positions,
+    get_c1_positions,
     get_ligand_info,
     get_N_positions,
     check_if_dict_has_None,
@@ -28,6 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--bins", help="bins", default=25)
     parser.add_argument("--step_size", help="step size", default=0.001)
     parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
+    parser.add_argument("--carbene", help="if computing on carbene attached to heme, this will center the calc at the mean of the fe-c bond", action="store_true")
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
@@ -39,6 +41,7 @@ if __name__ == "__main__":
     bins = int(parser.parse_args().bins)
     step_size = float(parser.parse_args().step_size)
     zero_radius = bool(parser.parse_args().zero_radius)
+    carbene_tf = bool(parser.parse_args().carbene)
 
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
@@ -100,6 +103,18 @@ if __name__ == "__main__":
                 nitrogen_dict = get_N_positions(i, fe_dict["id"], fe_dict["xyz"])
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
                 ligand_none = check_if_dict_has_None(ligand_dict)
+                if carbene_tf: 
+                    c1_dict = get_c1_positions(i, fe_dict["id"], fe_dict["xyz"])
+                    carbene_none = check_if_dict_has_None(c1_dict)
+                    if carbene_none: 
+                        print("carbene none")
+                        fail_cond = True
+                    else: 
+                        carbene_xyz = [float(i) for i in c1_dict["xyz"]]
+                        fe_xyz = [float(i) for i in fe_dict["xyz"]]
+                        mean_xyz = [(float(i) + float(j))/2 for i,j in zip(carbene_xyz, fe_xyz)]
+                        fail_cond = False
+
                 if not nitro_none and not ligand_none:
                     fail_cond = False
 
@@ -138,13 +153,6 @@ if __name__ == "__main__":
                             and line_split[10] == ligand_identifier[1]
                         )
 
-                        # x, y, z = float(j[30:38]), float(j[38:46]), float(j[46:54])
-                        # box_conditional = x > center[0] + box_size or x < center[0] - box_size or y > center[1] + box_size or y < center[1] - box_size or z > center[2] + box_size or z < center[2] - box_size
-
-                        # if box_conditional:
-                        #    temp_write = j[:56] + "0.000" + j[61:]
-                        #    outfile.write(temp_write)
-
                         if zero_active and ("HETATM" in line_split[0] or cond):
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
@@ -162,12 +170,21 @@ if __name__ == "__main__":
                         elif zero_radius: 
                             xyz_str_x = j[30:38]
                             xyz_str_y = j[38:46]
-                            xyz_str_z = j[46:54]                        
-                            distance = np.sqrt(
-                                (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
-                                + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
-                                + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
-                            )
+                            xyz_str_z = j[46:54]
+                            if carbene_tf:
+                                distance = np.sqrt(
+                                    (float(xyz_str_x) - float(mean_xyz[0])) ** 2
+                                    + (float(xyz_str_y) - float(mean_xyz[1])) ** 2
+                                    + (float(xyz_str_z) - float(mean_xyz[2])) ** 2
+                                )
+
+                            else:                     
+                                distance = np.sqrt(
+                                    (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
+                                    + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
+                                    + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
+                                )
+                            
                             if distance < ligands_to_zero_radius:
                                 
                                 lig_str = j[17:21].strip()
@@ -204,9 +221,14 @@ if __name__ == "__main__":
                     options.close()
                 else:
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
-                    options.write(
-                        f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
-                    )
+                    if carbene_tf: 
+                        options.write(
+                            f'align {mean_xyz[0]}:{mean_xyz[0]}:{mean_xyz[0]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
+                        )
+                    else: 
+                        options.write(
+                            f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
+                        )
                     options.write(f"%topology \n")
                     options.write(
                         "    volume box {} {} {} \n".format(

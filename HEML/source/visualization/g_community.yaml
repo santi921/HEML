@@ -1,0 +1,127 @@
+!!python/object:networkx.classes.graph.Graph
+_adj:
+  0:
+    1: &id001 {}
+    15: &id021 {}
+  1:
+    0: *id001
+    2: &id002 {}
+    3: &id003 {}
+    12: &id016 {}
+  2:
+    1: *id002
+    11: &id014 {}
+  3:
+    1: *id003
+    5: &id004 {}
+    6: &id006 {}
+    12: &id017 {}
+  4:
+    5: &id005 {}
+    6: &id007 {}
+    9: &id011 {}
+  5:
+    3: *id004
+    4: *id005
+    6: &id008 {}
+    8: &id009 {}
+    9: &id012 {}
+    11: &id015 {}
+  6:
+    3: *id006
+    4: *id007
+    5: *id008
+  7:
+    8: &id010 {}
+  8:
+    5: *id009
+    7: *id010
+  9:
+    4: *id011
+    5: *id012
+    10: &id013 {}
+    13: &id019 {}
+  10:
+    9: *id013
+  11:
+    2: *id014
+    5: *id015
+    12: &id018 {}
+    15: &id022 {}
+  12:
+    1: *id016
+    3: *id017
+    11: *id018
+    15: &id023 {}
+  13:
+    9: *id019
+    14: &id020 {}
+  14:
+    13: *id020
+  15:
+    0: *id021
+    11: *id022
+    12: *id023
+_node: &id025
+  0:
+    block: 0
+  1:
+    block: 0
+  2:
+    block: 0
+  3:
+    block: 1
+  4:
+    block: 1
+  5:
+    block: 1
+  6:
+    block: 1
+  7:
+    block: 1
+  8:
+    block: 1
+  9:
+    block: 1
+  10:
+    block: 1
+  11:
+    block: 2
+  12:
+    block: 2
+  13:
+    block: 2
+  14:
+    block: 2
+  15:
+    block: 2
+adjlist_inner_dict_factory: &id024 !!python/name:builtins.dict ''
+adjlist_outer_dict_factory: *id024
+edge_attr_dict_factory: *id024
+graph:
+  name: stochastic_block_model
+  partition:
+  - !!set
+    0: null
+    1: null
+    2: null
+  - !!set
+    3: null
+    4: null
+    5: null
+    6: null
+    7: null
+    8: null
+    9: null
+    10: null
+  - !!set
+    11: null
+    12: null
+    13: null
+    14: null
+    15: null
+graph_attr_dict_factory: *id024
+node_attr_dict_factory: *id024
+node_dict_factory: *id024
+nodes: !!python/object:networkx.classes.reportviews.NodeView
+  _nodes: *id025
