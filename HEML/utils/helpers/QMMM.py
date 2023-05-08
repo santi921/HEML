@@ -19,11 +19,13 @@ def main():
     # Set variables
     inp = args.inp
     step = args.step
+    print("running step {}".format(step))
     A = args.A
     B = args.B
     transition = args.transition
     product = args.product
     email = args.email
+    substrate = None
 
     # Read source file
     source_file = open(inp, 'r')
@@ -33,7 +35,7 @@ def main():
     # iterate over the lines in the source file
     for line in source_contents.splitlines():
         if line.startswith('parsefile'):
-            parsefile = line.split('=')[1].split(" ")[0].strip()
+            parse_amber_file = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith('system'):
             system = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith('parm'):
@@ -64,19 +66,25 @@ def main():
             qmmm_root = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith("scfiterlimit"):
             scfiterlimit = line.split('=')[1].split(" ")[0].strip()
-
+        elif line.startswith("pdb"):
+            pdb=line.split('=')[1].split(" ")[0].strip()
+    
+    print("donne pasing input file")
     user = os.getenv('USER')
     host = os.uname()[1]
+    file_name = tleapinput
 
     if step == "0":
-        os.mkdir('scratch')
+        
+        print("Running Step 0")
+        if not os.path.exists('scratch'):
+            os.mkdir('scratch')
+        
         os.chdir('scratch')
         
         with open('parsefile', 'w') as f:
             f.write(source_contents)
 
-        file_name = 'tleapinput'
-        
         # Read the lines containing atom types
         with open(file_name) as f:
             atom_type_lines = [line for line in f if '"sp3"' in line]
@@ -87,7 +95,7 @@ def main():
         # Iterate over the atom type lines and extract the values
         for line in atom_type_lines:
             atom_type = line.split('"')[1]
-            value = line.split('"')[-2]
+            value = line.split('"')[3]
             atom_type_values[atom_type] = value
         
         # Print the extracted values
@@ -95,80 +103,102 @@ def main():
             print(f"{atom_type}: {value}")
         
         # Read the contents of the parse_amber.tcl file
-        parse_amber_file = "./parse_amber.tcl"
+        #parse_amber_file = "./parse_amber.tcl"
         with open(parse_amber_file) as f:
             content = f.read()
         
         # Make the required substitutions
         for atom_type, atom_value in atom_type_values.items():
             if atom_value == "Fe":
+                #print("print Fe")
                 content = content.replace("{ return 26 }", f"- {atom_type} {{ return 26 }}")
             elif atom_value == "N":
+                #print("sub N")
                 content = content.replace("{ return 7 }", f"- {atom_type} {{ return 7 }}")
             elif atom_value == "O":
+                #print("sub O")
                 content = content.replace("{ return 8 }", f"- {atom_type} {{ return 8 }}")
             elif atom_value == "S":
+                #print("sub S")
                 content = content.replace("{ return 16 }", f"- {atom_type} {{ return 16 }}")
             elif atom_value == "C":
+                #print("sub C")
                 content = content.replace("{ return 6 }", f"- {atom_type} {{ return 6 }}")
             else:
                 print(f"Atom type {atom_type} not substituted in parse_amber.tcl file.")
                 exit(1)
         
-
         # Write the modified contents back to the file
         with open(parse_amber_file, 'w') as f:
+            print("writing to parse_amber.tcl")
             f.write(content)
-            filename = args.pdb
+            #filename = args.pdb
+            filename=pdb
             # Use the split method to extract the desired part
             parts = filename.split("_")
             system = parts[2]
             run = parts[3]
             frame = parts[4]
+            
+            if "." in frame: frame = frame.split(".")[0] 
+            
+            print(f"system: {system}")
+            print(f"run: {run}")
+            print(f"frame: {frame}")
 
-        with open(f"frame_{frame}.in", "w") as f:
-        f.write(f"""parm {parm}
-            trajin {trajin} {frame} {frame}
-            autoimage
-            trajout {frame}.inpcrd restart
+
+        with open(f"{system}_{run}_{frame}.in", "w") as f:
+            print("writing to frame.in")
+            f.write(f"""parm {parm}
+                trajin {trajin} {frame} {frame}
+                autoimage
+                trajout {system}_{run}_{frame}.inpcrd restart
+                trajout {system}_{run}_{frame}.pdb 
+                run
+                exit
+                """)
+
+        with open(f"{system}_{run}_{frame}.in") as f:
+            print(f.read())
+
+        with open(f"strip_{system}_{run}_{frame}.in", "w") as f:
+            print("writing to water_strip.in")
+            f.write(f"""parm {parm}
+            trajin {system}_{run}_{frame}.inpcrd
+            reference {system}_{run}_{frame}.inpcrd
+            strip :Na+,Cl-
+            strip !(:{numberofres}<:10.0) outprefix stripped10
+            trajout stripped10.{system}_{run}_{frame}.inpcrd restart
             run
             exit
             """)
 
-        with open(f"frame_{frame}.in") as f:
+        with open(f"strip_{system}_{run}_{frame}.in") as f:
             print(f.read())
 
-        with open(f"water_strip_{frame}.in", "w") as f:
-            f.write(f"""parm {parm}
-        trajin {frame}.inpcrd
-        reference {frame}.inpcrd
-        strip :Na+,Cl-
-        strip !(:$numberofres<:10.0) outprefix stripped10
-        trajout stripped10.{system}.inpcrd restart
-        run
-        exit
-        """)
 
-        with open(f"water_strip_{frame}.in") as f:
-            print(f.read())
+        with open(f"rc_{system}_{run}_{frame}.in", "w") as f:
+            print("writing to rc.in")
+            f.write(f"""parm stripped10.*.prmtop
+            trajin stripped10.{system}_{run}_{frame}.inpcrd
+            trajout rc.pdb
+            trajout rc.rst restart
+            run
+            exit
+            """)
 
-        with open(f"rc_{frame}.in", "w") as f:
-            f.write(f"""parm stripped10.{system}.prmtop
-        trajin stripped10.{system}.inpcrd
-        trajout rc.pdb
-        trajout rc.rst restart
-        run
-        exit
-        """)
-
-        with open(f"rc_{frame}.in") as f:
+        with open(f"rc_{system}_{run}_{frame}.in") as f:
             print(f.read())
 
         #CREATING RC COMPLEX FILES
+        print("running cpptraj to generate pdb, water stripped pdb, and rc files")
+
         cpptraj_command = f"cpptraj -i {system}_{run}_{frame}.in > {system}_{run}_{frame}.out"
         process = subprocess.Popen(cpptraj_command, shell=True)
         process.wait()
-        if os.path.isfile(f"{system}_{run}_{frame}.out") and "Error" not in open(f"{system}_{run}_{frame}.out").read():
+        if os.path.isfile(f"{system}_{run}_{frame}.out") and \
+            "Error" not in open(f"{system}_{run}_{frame}.out").read():
+            
             print("Generated Frame PDB")
         else:
             print("Cpptraj Error")
@@ -177,7 +207,8 @@ def main():
         cpptraj_command = f"cpptraj -i strip_{system}_{run}_{frame}.in > strip_{system}_{run}_{frame}.out"
         process = subprocess.Popen(cpptraj_command, shell=True)
         process.wait()
-        if os.path.isfile(f"strip_{system}_{run}_{frame}.out") and "Error" not in open(f"strip_{system}_{run}_{frame}.out").read():
+        if os.path.isfile(f"strip_{system}_{run}_{frame}.out") and \
+              "Error" not in open(f"strip_{system}_{run}_{frame}.out").read():
             print("Generated WaterStripped PDB and prmtop")
         else:
             print("Cpptraj Error")
@@ -192,11 +223,9 @@ def main():
             print("Cpptraj Error")
             exit()
 
-        print("Copying prmtop file: stripped10.${base}.prmtop to rc.prmtop")
+        print("Copying prmtop file: stripped10.{base}.prmtop to rc.prmtop")
         os.system(f"cp stripped10.*.prmtop rc.prmtop")
         os.system("sed -i '9s/1/0/' rc.prmtop")
-
-
 
         # ------------------- CREATING RC COMPLEX FILES ------------------- 
         os.system(f"nohup cpptraj -i {system}_{run}_{frame}.in > {system}_{run}_{frame}.out &")
@@ -237,23 +266,33 @@ def main():
 
         # ------------------- MAKING QMMM MODEL -------------------
         print("Creating QMMM Model")
-
         with open(f"QM_MM_{system}_{run}_{frame}.tcl", "w") as f:
             f.write(f"mol load pdb rc.pdb\n")
-            f.write(f'atomselect top "same residue as (within 8 of (resname {resname} {substrate}))"\n')
+            if substrate != None:
+                f.write(f'atomselect top "same residue as (within 8 of (resname {resname} {substrate}))"\n')
+            else: 
+                f.write(f'atomselect top "same residue as (within 8 of (resname {resname}))"\n')
+            
             f.write(f'atomselect0 num\n')
             f.write(f'atomselect0 writepdb MM_{system}_{run}_{frame}.pdb\n')
             f.write(f'set myfile [open mm_{system}_{run}_{frame}.txt w]\n')
             f.write(f'puts $myfile [atomselect0 list]\n')
             f.write(f'close $myfile\n')
-            f.write(f'atomselect top "(resname {resname} and not backbone and not type HA H) or (resname {substrate})"\n')
+            if substrate != None:
+                f.write(f'atomselect top "(resname {resname} and not backbone and not type HA H) or (resname {substrate})"\n')
+            else:
+                f.write(f'atomselect top "(resname {resname} and not backbone and not type HA H)"\n')
             f.write(f'atomselect1 num\n')
             f.write(f'atomselect1 writepdb QM_{system}_{run}_{frame}.pdb\n')
             f.write(f'atomselect1 writexyz QM_{system}_{run}_{frame}.xyz\n')
             f.write(f'set myfile1 [open qm_{system}_{run}_{frame}.txt w]\n')
             f.write(f'puts $myfile1 [atomselect1 list]\n')
             f.write(f'close $myfile1\n')
-            f.write(f'atomselect top "resname {resname} and type HA or resname FE1 or resname HM1 and name NA or resname CB1 and name C1 or resname {substrate} and name C3"\n')
+            if substrate != None:
+                f.write(f'atomselect top "resname {resname} and type HA or resname FE1 or resname HM1 and name NA or resname CB1 and name C1 or resname {substrate} and name C3"\n')
+            else: 
+                f.write(f'atomselect top "resname {resname} and type HA or resname FE1 or resname HM1 and name NA or resname CB1 and name C1"\n')
+            
             f.write(f'set resid [atomselect1 get resid]\n')
             f.write(f'foreach elementid $resid {{dict set tmp $elementid 1}}\n')
             f.write(f'set id [dict keys $tmp]\n')
@@ -275,12 +314,14 @@ def main():
             f.write(f'puts $myresidues "{myresidues_line}\n')
             f.write(f'puts $myresidues "ENDOFFILE')
             f.write(f'close $myresidues\n')
+            f.write(f'exit\n')
 
 
         # print messages
         print(f"Using rc.pdb")
         print(f"Using Residues:{resname}")
-        print(f"Using Substrate:{substrate}")
+        if substrate != None:
+            print(f"Using Substrate:{substrate}")
 
         # run VMD command
         os.system(f"vmd -dispdev text -e QM_MM_{system}_{run}_{frame}.tcl")
@@ -330,7 +371,6 @@ def main():
         # Define the path for the RC optimization directory
         rc_path = os.path.join(qmmm_path, "1-rc-opt")
 
-
         # create directories
         def check_create_warn(folder_path):
             if not os.path.exists(folder_path):
@@ -341,8 +381,7 @@ def main():
         for folder in [qmmm_root, qmmm_path, rc_path]:
             check_create_warn(folder)
 
-
-        
+        print("Copying files to the 1-rc-opt directory")
         # Copy files to the 1-rc-opt directory
         os.system(f"cp rc.pdb {rc_path}/.")
         os.system(f"cp rc.rst {rc_path}/.")
@@ -355,7 +394,9 @@ def main():
 
 
         # Change the working directory
-        os.chdir(f'../../QMMM/{system}_{run}_{frame}/1-rc-opt')
+        os.chdir(f'{qmmm_root}/{system}_{run}_{frame}/1-rc-opt')
+
+        print("Creating RC Optimization Input File")
 
         with open('RC_dlfind.chm', 'w') as f:
             f.write("# adenine - Amber example with polarisation turned off\n")
@@ -413,6 +454,8 @@ def main():
 
 
     if step == "1":
+        print("Running Step 1")
+
         job = os.getcwd()
         jobname = "RC-Optimization"
         subprocess.Popen(["nohup", "chemsh", "rc_dlfind.chm"], stdout=open("rc_dlfind.log", "w"), stderr=subprocess.STDOUT)
