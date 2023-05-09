@@ -1,7 +1,7 @@
 import numpy as np
 import os, re, argparse
 from glob import glob
-from HEML.utils.data import get_options, check_if_file_is_empty, get_fe_positions
+from HEML.utils.data import get_options, check_if_file_is_empty, get_fe_positions, get_c1_positions
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
