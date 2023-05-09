@@ -104,15 +104,13 @@ if __name__ == "__main__":
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
                 ligand_none = check_if_dict_has_None(ligand_dict)
                 if carbene_tf: 
-                    c1_dict = get_c1_positions(i, fe_dict["id"], fe_dict["xyz"])
+                    c1_dict = get_c1_positions(i)
                     carbene_none = check_if_dict_has_None(c1_dict)
                     if carbene_none: 
                         print("carbene none")
                         fail_cond = True
                     else: 
-                        carbene_xyz = [float(i) for i in c1_dict["xyz"]]
-                        fe_xyz = [float(i) for i in fe_dict["xyz"]]
-                        mean_xyz = [(float(i) + float(j))/2 for i,j in zip(carbene_xyz, fe_xyz)]
+                        mean_xyz = np.mean([fe_dict["xyz"], c1_dict["xyz"]], axis=0)
                         fail_cond = False
 
                 if not nitro_none and not ligand_none:
