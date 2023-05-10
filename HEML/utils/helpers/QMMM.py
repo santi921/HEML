@@ -24,8 +24,9 @@ def main():
     B = args.B
     transition = args.transition
     product = args.product
-    email = args.email
+    email = args.email 
     substrate = None
+    full_start_path = os.getcwd()
 
     # Read source file
     source_file = open(inp, 'r')
@@ -60,7 +61,7 @@ def main():
             nodes = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith('tleapinput'):
             tleapinput = line.split('=')[1].split(" ")[0].strip()
-        elif line.startswith('substrate'):
+        elif line.startswith('substrate') and line.split("=")[1] != '':
             substrate = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith("qmmm_root"):
             qmmm_root = line.split('=')[1].split(" ")[0].strip()
@@ -300,19 +301,20 @@ def main():
             f.write(f'foreach elementname $resname {{dict set tmp2 $elementname 1}}\n')
             f.write(f'set name [dict keys $tmp2]\n')
             f.write(f'set myresidues [open qm_mm_{system}_{run}_{frame}.sh w]\n')
-            f.write(f'puts $myresidues "resid=($id)"\n')
+            f.write(f'puts $myresidues "resid=(\$id)"\n')
             f.write(f'puts $myresidues "resname=($name)"\n')
             f.write(f'puts $myresidues "myresidues=()"\n')
-            f.write(f'puts $myresidues "n=${{#resname[@]}}"\n')
-            f.write(f'puts $myresidues "for i in $(seq 1 $n);"\n')
-            f.write(f'do\n')
-            f.write(f'puts $myresidues "myresidues+=${{resname[i-1]}}${{resid[i-1]}}"\n')
-            f.write(f'done\n')
+            f.write('puts $myresidues "n=\${#resname\[@]}"\n')
+            #f.write(f'puts $myresidues "n=${#resname[@]}"\n')
+            f.write(f'puts $myresidues "for i in \$(seq 1 \$n);"\n')
+            f.write(f'puts $myresidues "do"\n')
+            f.write('puts $myresidues "myresidues+=\${resname\[i-1]}\$resid\[i-1]"\n')
+            f.write(f'puts $myresidues "done"\n')
             f.write(f'puts $myresidues "cat > myresidues_{system}_{run}_{frame}.dat <<ENDOFFILE"\n')
-            f.write(f'puts $myresidues "set res [ pdb_to_res \\"rc.pdb\\"]"\n')
-            myresidues_line = "set myresidues  \\[ inlist function=combine residues= \\\\\\\$res sets= {\\\${myresidues\\[*]}} target=QM ]"
-            f.write(f'puts $myresidues "{myresidues_line}\n')
-            f.write(f'puts $myresidues "ENDOFFILE')
+            f.write('puts $myresidues "set res \[ pdb_to_res \\"rc.pdb\\"]"\n')
+            myresidues_line = "set myresidues  \\[ inlist function=combine residues= \\\\\\$res sets= {\\${myresidues\\[*]}} target=QM ]"
+            f.write(f'puts $myresidues "{myresidues_line}"\n')
+            f.write(f'puts $myresidues "ENDOFFILE"\n')
             f.write(f'close $myresidues\n')
             f.write(f'exit\n')
 
@@ -389,8 +391,8 @@ def main():
         os.system(f"cp QM_{system}_{run}_{frame}.dat {rc_path}/QM.dat")
         os.system(f"cp MM_{system}_{run}_{frame}.dat {rc_path}/MM.dat")
         os.system(f"cp myresidues_{system}_{run}_{frame}.dat {rc_path}/myresidues.dat")
-        os.system(f"cp parse_amber.tcl {rc_path}/.")
-        os.system(f"cp input.in {rc_path}/.")
+        os.system(f"cp {parse_amber_file} {rc_path}/.")
+        os.system(f"cp {full_start_path}/{inp} {rc_path}/.")
 
 
         # Change the working directory
@@ -402,7 +404,7 @@ def main():
             f.write("# adenine - Amber example with polarisation turned off\n")
             f.write("# hybrid with electrostaic embedding\n")
             f.write("global sys_name_id\n")
-            f.write("source parse_amber.tcl\n")
+            f.write("source {parse_amber_file}\n")
             f.write("source MM.dat\n")
             f.write("source QM.dat\n")
             f.write("source myresidues.dat\n")
@@ -458,7 +460,7 @@ def main():
 
         job = os.getcwd()
         jobname = "RC-Optimization"
-        subprocess.Popen(["nohup", "chemsh", "rc_dlfind.chm"], stdout=open("rc_dlfind.log", "w"), stderr=subprocess.STDOUT)
+        subprocess.Popen(["nohup", "chemsh", "RC_dlfind.chm"], stdout=open("rc_dlfind.log", "w"), stderr=subprocess.STDOUT)
         process = subprocess.Popen(["pidof", "chemsh.x"], stdout=subprocess.PIPE)
         pid_out, pid_err = process.communicate()
         pid = pid_out.decode().strip().replace(" ", ",")
