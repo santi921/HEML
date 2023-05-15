@@ -24,7 +24,7 @@ def main():
     B = args.B
     transition = args.transition
     product = args.product
-    email = args.email 
+    email = args.email
     substrate = None
     full_start_path = os.getcwd()
 
@@ -46,9 +46,10 @@ def main():
         elif line.startswith('trajin'):
             trajin = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith('resname'):
-            resname = line.split('=')[1].split(" ")[0]
+            resname = str(line.split('=')[1][1:].split("\"")[0])
             #remove everything outside the quotes
-            resname = resname.split('"')[1]
+   
+            print("resnames to be added " + str(resname))
         elif line.startswith('numberofres'):
             numberofres = line.split('=')[1].split("#")[0].strip()
         elif line.startswith('basis'):
@@ -61,7 +62,7 @@ def main():
             nodes = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith('tleapinput'):
             tleapinput = line.split('=')[1].split(" ")[0].strip()
-        elif line.startswith('substrate') and line.split("=")[1] != '':
+        elif line.startswith('substrate'):
             substrate = line.split('=')[1].split(" ")[0].strip()
         elif line.startswith("qmmm_root"):
             qmmm_root = line.split('=')[1].split(" ")[0].strip()
@@ -268,6 +269,7 @@ def main():
         # ------------------- MAKING QMMM MODEL -------------------
         print("Creating QMMM Model")
         with open(f"QM_MM_{system}_{run}_{frame}.tcl", "w") as f:
+            print("HERE RESNAME IS " + str(resname))
             f.write(f"mol load pdb rc.pdb\n")
             if substrate != None:
                 f.write(f'atomselect top "same residue as (within 8 of (resname {resname} {substrate}))"\n')
@@ -301,19 +303,24 @@ def main():
             f.write(f'foreach elementname $resname {{dict set tmp2 $elementname 1}}\n')
             f.write(f'set name [dict keys $tmp2]\n')
             f.write(f'set myresidues [open qm_mm_{system}_{run}_{frame}.sh w]\n')
-            f.write(f'puts $myresidues "resid=(\$id)"\n')
+            f.write(f'puts $myresidues "resid=($id)"\n')
             f.write(f'puts $myresidues "resname=($name)"\n')
             f.write(f'puts $myresidues "myresidues=()"\n')
+            #f.write("puts $myresidues n=${#resname[@]}\n")
             f.write('puts $myresidues "n=\${#resname\[@]}"\n')
-            #f.write(f'puts $myresidues "n=${#resname[@]}"\n')
+            #f.write(f'puts $myresidues "n=${#resname[\@]}"\n')
+            #f.write(f'puts $myresidues "n=${{#resname[@]}}"\n')
             f.write(f'puts $myresidues "for i in \$(seq 1 \$n);"\n')
             f.write(f'puts $myresidues "do"\n')
-            f.write('puts $myresidues "myresidues+=\${resname\[i-1]}\$resid\[i-1]"\n')
+            f.write('puts $myresidues "myresidues+=(\${resname\[i-1]}\${resid\[i-1]})"\n')
             f.write(f'puts $myresidues "done"\n')
             f.write(f'puts $myresidues "cat > myresidues_{system}_{run}_{frame}.dat <<ENDOFFILE"\n')
-            f.write('puts $myresidues "set res \[ pdb_to_res \\"rc.pdb\\"]"\n')
+            f.write('puts $myresidues "set res \[ pdb_to_res \\"rc.pdb\\"]"\n')            
+            #f.write(f'puts $myresidues "set res [ pdb_to_res \\"rc.pdb\\"]"\n')
+            #myresidues_line = "set myresidues  \\[ inlist function=combine residues= \\\\\\\$res sets= {\\\${myresidues\\[*]}} target=QM ]"
             myresidues_line = "set myresidues  \\[ inlist function=combine residues= \\\\\\$res sets= {\\${myresidues\\[*]}} target=QM ]"
             f.write(f'puts $myresidues "{myresidues_line}"\n')
+            #f.write(f'puts $myresidues "ENDOFFILE')
             f.write(f'puts $myresidues "ENDOFFILE"\n')
             f.write(f'close $myresidues\n')
             f.write(f'exit\n')
@@ -394,7 +401,6 @@ def main():
         os.system(f"cp {parse_amber_file} {rc_path}/.")
         os.system(f"cp {full_start_path}/{inp} {rc_path}/.")
 
-
         # Change the working directory
         os.chdir(f'{qmmm_root}/{system}_{run}_{frame}/1-rc-opt')
 
@@ -404,7 +410,7 @@ def main():
             f.write("# adenine - Amber example with polarisation turned off\n")
             f.write("# hybrid with electrostaic embedding\n")
             f.write("global sys_name_id\n")
-            f.write("source {parse_amber_file}\n")
+            f.write("source parse_amber.tcl\n")
             f.write("source MM.dat\n")
             f.write("source QM.dat\n")
             f.write("source myresidues.dat\n")
@@ -432,7 +438,12 @@ def main():
             f.write("atom_charges= $atom_charges \\\n")
             f.write("qm_theory= turbomole : [list   \\\n")
             f.write("read_control= yes \\\n")
-            f.write(str("scratchdir=ocean/projects/che160019p/") + str(user) + str("/temp \\\n"))
+            # get cwd 
+            cwd = os.getcwd()
+            f.write(str("scratchdir=") + str(cwd) + str("/temp \\\n"))
+            # make temp directory in cwd
+            os.mkdir("temp")
+            #f.write(str("scratchdir=ocean/projects/che160019p/") + str(user) + str("/temp \\\n"))
             f.write("hamiltonian= b3-lyp \\\n")
             f.write("scftype= uhf  ]  \\\n")
             f.write("mm_theory= dl_poly  : [ list \\\n")
@@ -460,7 +471,7 @@ def main():
 
         job = os.getcwd()
         jobname = "RC-Optimization"
-        subprocess.Popen(["nohup", "chemsh", "RC_dlfind.chm"], stdout=open("rc_dlfind.log", "w"), stderr=subprocess.STDOUT)
+        subprocess.Popen(["nohup", "chemsh", "rc_dlfind.chm"], stdout=open("rc_dlfind.log", "w"), stderr=subprocess.STDOUT)
         process = subprocess.Popen(["pidof", "chemsh.x"], stdout=subprocess.PIPE)
         pid_out, pid_err = process.communicate()
         pid = pid_out.decode().strip().replace(" ", ",")

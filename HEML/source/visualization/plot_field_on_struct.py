@@ -265,8 +265,6 @@ def main():
         y_axis_range: range of the y axis
         show: whether to show the plot
         save: whether to save the plot as html
-
-
     """
 
     parser = argparse.ArgumentParser()
