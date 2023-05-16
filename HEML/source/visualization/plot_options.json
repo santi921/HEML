@@ -1,0 +1,19 @@
+{
+  "cone_dict": {
+    "cutoff": 0,
+    "vector_scale": 10,
+    "std_mean": false,
+    "log1": false,
+    "unlog1": false,
+    "min_max": false
+  },
+  "alignment_dict": {
+    "alignment_method": "heme"
+  },
+  "filter_dict": {
+    "filter_connectivity": false,
+    "distance_filter": 6.0
+  },
+  "show": true,
+  "save": false
+}
