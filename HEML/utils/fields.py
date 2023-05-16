@@ -237,41 +237,40 @@ def pca(
     # print(np.shape(pc0))
     pc0 = pc0.reshape(1, mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4])
 
-    fig = make_subplots(rows=1, cols=1, specs=[[{"type": "cone"}]])
-    x, y, z = np.meshgrid(
-        np.arange(bounds["x"][0], bounds["x"][1] + step_size["x"], step_size["x"]),
-        np.arange(bounds["y"][0], bounds["y"][1] + step_size["y"], step_size["y"]),
-        np.arange(bounds["z"][0], bounds["z"][1] + step_size["z"], step_size["z"]),
-    )
-
-    u = pc0[0][:, :, :, 0].flatten()
-    v = pc0[0][:, :, :, 1].flatten()
-    w = pc0[0][:, :, :, 2].flatten()
-
-    comp_vect_field = pc0.reshape(
-        mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4]
-    )
-
-    u_1, v_1, w_1 = split_and_filter(
-        comp_vect_field, cutoff=98, std_mean=True, min_max=False
-    )
-
-    vector_scale = 3
-    fig.add_trace(
-        go.Cone(
-            x=x.flatten(),
-            y=y.flatten(),
-            z=z.flatten(),
-            u=u_1,
-            v=v_1,
-            w=w_1,
-            sizeref=vector_scale,
-        ),
-        row=1,
-        col=1,
-    )
-
     if write:
+        fig = make_subplots(rows=1, cols=1, specs=[[{"type": "cone"}]])
+        x, y, z = np.meshgrid(
+            np.arange(bounds["x"][0], bounds["x"][1] + step_size["x"], step_size["x"]),
+            np.arange(bounds["y"][0], bounds["y"][1] + step_size["y"], step_size["y"]),
+            np.arange(bounds["z"][0], bounds["z"][1] + step_size["z"], step_size["z"]),
+        )
+
+        u = pc0[0][:, :, :, 0].flatten()
+        v = pc0[0][:, :, :, 1].flatten()
+        w = pc0[0][:, :, :, 2].flatten()
+
+        comp_vect_field = pc0.reshape(
+            mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4]
+        )
+
+        u_1, v_1, w_1 = split_and_filter(
+            comp_vect_field, cutoff=90, std_mean=True, min_max=False
+        )
+
+        vector_scale = 3
+        fig.add_trace(
+            go.Cone(
+                x=x.flatten(),
+                y=y.flatten(),
+                z=z.flatten(),
+                u=u_1,
+                v=v_1,
+                w=w_1,
+                sizeref=vector_scale,
+            ),
+            row=1,
+            col=1,
+        )
         fig.write_html("./out_pca.html")
 
     if verbose:
