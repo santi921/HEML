@@ -1,6 +1,6 @@
 {
   "cone_dict": {
-    "cutoff": 0,
+    "cutoff": 50,
     "vector_scale": 10,
     "std_mean": false,
     "log1": false,
@@ -15,5 +15,8 @@
     "distance_filter": 6.0
   },
   "show": true,
-  "save": false
+  "save": false,
+  "field_dims": [21, 21, 21],
+  "x_axis_range": [-3, 3],
+  "y_axis_range": [-3, 3]
 }

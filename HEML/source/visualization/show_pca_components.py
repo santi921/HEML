@@ -339,58 +339,57 @@ def main():
 
     # defaults for cone dict
     if "cutoff" not in options["cone_dict"].keys():
-        print("setting cutoff to default")
+        print("setting cutoff to default: ", 98)
         options["cone_dict"]["cutoff"] = 98
     if "vector_scale" not in options["cone_dict"].keys():
-        print("setting vector_scale to default")
+        print("setting vector_scale to default: ", 5)
         options["cone_dict"]["vector_scale"] = 5
     if "std_mean" not in options["cone_dict"].keys():
-        print("setting std_mean to default")
+        print("setting std_mean to default: ", "False")
         options["cone_dict"]["std_mean"] = False
     if "log1" not in options["cone_dict"].keys():
-        print("setting log1 to default")
+        print("setting log1 to default: ", "False")
         options["cone_dict"]["log1"] = False
     if "unlog1" not in options["cone_dict"].keys():
-        print("setting unlog1 to default")
+        print("setting unlog1 to default: ", "False")
         options["cone_dict"]["unlog1"] = False
     if "min_max" not in options["cone_dict"].keys():
-        print("setting min_max to default")
+        print("setting min_max to default: ", "False")
         options["cone_dict"]["min_max"] = False
 
     # alignment dict
     if "alignment_method" not in options["alignment_dict"].keys():
-        print("setting alignment method to default")
+        print("setting alignment method to default: ", "heme")
         options["alignment_dict"]["alignment_method"] = "heme"
     if "center" not in options["alignment_dict"].keys():
-        print("setting center to default")
+        print("setting center to default: ", [0, 0, 0])
         options["alignment_dict"]["center"] = [0, 0, 0]
     if "x_axis" not in options["alignment_dict"].keys():
-        print("setting x axis to default")
+        print("setting x axis to default: ", [1, 0, 0])
         options["alignment_dict"]["x_axis"] = [1, 0, 0]
     if "y_axis" not in options["alignment_dict"].keys():
-        print("setting y axis to default")
+        print("setting y axis to default: ", [0, 1, 0])
         options["alignment_dict"]["y_axis"] = [0, 1, 0]
 
     # filter_dict
     if "filter_connectivity" not in options["filter_dict"].keys():
-        print("setting filter connectivity to default")
+        print("setting filter connectivity to default: ", True)
         options["filter_dict"]["filter_connectivity"] = True
     if "residue_filter" not in options["filter_dict"].keys():
-        print("setting residue filter to default")
+        print("setting residue filter to default: ", False)
         options["filter_dict"]["residue_filter"] = False
     if "distance_filter" not in options["filter_dict"].keys():
-        print("setting distance filter to default")
+        print("setting distance filter to default: ", 5.0)
         options["filter_dict"]["distance_filter"] = 5.0
-
     # other defaults
     if "x_axis_range" not in options.keys():
-        print("setting x axis range to default")
+        print("setting x axis range to default: ", [-4, 4])
         options["x_axis_range"] = [-4, 4]
     if "y_axis_range" not in options.keys():
-        print("setting y axis range to default")
+        print("setting y axis range to default: ", [-4, 4])
         options["y_axis_range"] = [-4, 4]
     if "field_dims" not in options.keys():
-        print("setting field dims to default")
+        print("setting field dims to default: ", (21, 21, 21))
         options["field_dims"] = (21, 21, 21)
 
     plot_field(
@@ -398,6 +397,8 @@ def main():
         dimensions=options["field_dims"],
         show=options["show"],
         save=options["save"],
+        x_axis_range=options["x_axis_range"],
+        y_axis_range=options["y_axis_range"],
         filter_options=options["filter_dict"],
         cone_options=options["cone_dict"],
         alignment_options=options["alignment_dict"],
