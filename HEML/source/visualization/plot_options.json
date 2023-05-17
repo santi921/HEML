@@ -1,22 +1,23 @@
 {
   "cone_dict": {
-    "cutoff": 50,
+    "cutoff": 95,
     "vector_scale": 10,
     "std_mean": false,
     "log1": false,
     "unlog1": false,
-    "min_max": false
+    "min_max": false,
+    "opacity": 0.9
   },
   "alignment_dict": {
     "alignment_method": "heme"
   },
   "filter_dict": {
     "filter_connectivity": false,
-    "distance_filter": 6.0
+    "distance_filter": 7.0
   },
   "show": true,
   "save": false,
   "field_dims": [21, 21, 21],
-  "x_axis_range": [-3, 3],
-  "y_axis_range": [-3, 3]
+  "x_axis_range": [-4, 4],
+  "y_axis_range": [-4, 4]
 }

@@ -163,7 +163,9 @@ def pdb_to_xyz(file, ret_residues=False):
     return xyz, charge, atom
 
 
-def filter_xyz_by_distance(xyz, center=[0, 0, 0], residues=[], distance=5, ret_residues=False):
+def filter_xyz_by_distance(
+    xyz, center=[0, 0, 0], residues=[], distance=5, ret_residues=False
+):
     xyz = np.array(xyz, dtype=float)
     center = np.array(center, dtype=float)
     ind_hit = np.linalg.norm(xyz - center, axis=1) < distance
@@ -194,6 +196,7 @@ def filter_by_residue(xyz, atom, res_list, target="HEM"):
             xyz_list.append(xyz[i]), atom_list.append(atom[i])
 
     return xyz_list, atom_list
+
 
 def filter_by_residue_exclusive(xyz, atom, res_list, target="HEM"):
     """
@@ -447,9 +450,33 @@ def get_ligand_info(file, fe_xyz):
     return ligand_dict
 
 
-def mat_pull(file, meta_data=False):
+def mat_pull(file, meta_data=False, verbose=False):
     with open(file) as f:
         lines = f.readlines()
+    if verbose:
+        steps_x = 2 * int(lines[0].split()[2]) + 1
+        steps_y = 2 * int(lines[0].split()[3]) + 1
+        steps_z = 2 * int(lines[0].split()[4][:-1]) + 1
+        x_size = float(lines[0].split()[-3])
+        y_size = float(lines[0].split()[-2])
+        z_size = float(lines[0].split()[-1])
+        step_size_x = np.round(x_size / float(lines[0].split()[2]), 4)
+        step_size_y = np.round(y_size / float(lines[0].split()[3]), 4)
+        step_size_z = np.round(z_size / float(lines[0].split()[4][:-1]), 4)
+
+        meta_dict = {
+            "first_line": lines[0],
+            "steps_x": steps_x,
+            "steps_y": steps_y,
+            "steps_z": steps_z,
+            "step_size_x": step_size_x,
+            "step_size_y": step_size_y,
+            "step_size_z": step_size_z,
+            "bounds_x": [-x_size, x_size + step_size_x],
+            "bounds_y": [-y_size, y_size + step_size_y],
+            "bounds_z": [-z_size, z_size + step_size_z],
+        }
+        print(meta_dict)
 
     if meta_data:
         steps_x = 2 * int(lines[0].split()[2]) + 1
@@ -513,14 +540,15 @@ def mat_pull(file, meta_data=False):
 
 
 def pull_mats_w_label(
-    data_file="../../../data/protein_data.csv", dir_fields="../../../data/cpet/"
+    data_file="../../../data/protein_data.csv",
+    dir_fields="../../../data/cpet/",
+    meta_data=False,
 ):
     x, y = [], []
     df = pd.read_csv(data_file)
     print(df.shape)
     y_count, h_count, c_count = 0, 0, 0
-    for row in df.iterrows():
-        # print(row[1]['name'])
+    for ind, row in enumerate(df.iterrows()):
         cpet_name = dir_fields + "efield_cox_" + row[1]["name"] + ".dat"
         if os.path.exists(cpet_name):
             x.append(mat_pull(cpet_name))
@@ -533,7 +561,12 @@ def pull_mats_w_label(
             else:
                 y.append([0, 0, 1])
                 c_count += 1
+        if ind == 0 and meta_data:
+            meta_dict = mat_pull(cpet_name, meta_data=True)
+
     print(y_count, h_count, c_count)
+    if meta_data:
+        return np.array(x), np.array(y), meta_dict
     return np.array(x), np.array(y)
 
 

@@ -210,9 +210,6 @@ def pca(
     whitening=False,
     pca_comps=10,
     verbose=False,
-    write=False,
-    bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
-    step_size={"x": 0.3, "y": 0.3, "z": 0.3},
 ):
     mat_transform = mat.reshape(
         mat.shape[0], mat.shape[1] * mat.shape[2] * mat.shape[3] * mat.shape[4]
@@ -237,42 +234,6 @@ def pca(
     # print(np.shape(pc0))
     pc0 = pc0.reshape(1, mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4])
 
-    if write:
-        fig = make_subplots(rows=1, cols=1, specs=[[{"type": "cone"}]])
-        x, y, z = np.meshgrid(
-            np.arange(bounds["x"][0], bounds["x"][1] + step_size["x"], step_size["x"]),
-            np.arange(bounds["y"][0], bounds["y"][1] + step_size["y"], step_size["y"]),
-            np.arange(bounds["z"][0], bounds["z"][1] + step_size["z"], step_size["z"]),
-        )
-
-        u = pc0[0][:, :, :, 0].flatten()
-        v = pc0[0][:, :, :, 1].flatten()
-        w = pc0[0][:, :, :, 2].flatten()
-
-        comp_vect_field = pc0.reshape(
-            mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4]
-        )
-
-        u_1, v_1, w_1 = split_and_filter(
-            comp_vect_field, cutoff=90, std_mean=True, min_max=False
-        )
-
-        vector_scale = 3
-        fig.add_trace(
-            go.Cone(
-                x=x.flatten(),
-                y=y.flatten(),
-                z=z.flatten(),
-                u=u_1,
-                v=v_1,
-                w=w_1,
-                sizeref=vector_scale,
-            ),
-            row=1,
-            col=1,
-        )
-        fig.write_html("./out_pca.html")
-
     if verbose:
         print("cumulative explained vars ratio: \n" + str(cum_explained_var))
 
@@ -280,6 +241,9 @@ def pca(
 
 
 def unwrap_pca(mat, pca, shape):
+    """
+    Take as input a matrix that has been transformed by PCA and return the original matrix
+    """
     mat = pca.inverse_transform(mat)
     mat = mat.reshape(len(mat), shape[1], shape[2], shape[3], shape[4])
     return mat

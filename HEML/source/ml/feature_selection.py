@@ -57,7 +57,7 @@ class training:
             self.X_test_untransformed = self.X_test
 
             _, self.pca_obj = pca(
-                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=15
+                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=25
             )
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)
@@ -135,7 +135,7 @@ class training:
 
     def boruta(self):
         feat_selector = BorutaPy(
-            self.model_obj, n_estimators=100, verbose=1, random_state=42, max_iter=2000
+            self.model_obj, n_estimators=100, verbose=0, random_state=42, max_iter=2000
         )
         feat_selector.fit(self.X_train, self.y_train)
         print(feat_selector.support_)
@@ -171,14 +171,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-count",
-        action="store",
-        dest="count",
-        default=100,
-        help="number of hyperparams",
-    )
-
-    parser.add_argument(
         "-model",
         action="store",
         dest="model",
@@ -196,16 +188,8 @@ if __name__ == "__main__":
     results = parser.parse_args()
     model = str(results.model)
     dataset_int = int(results.dataset)
-    count = int(results.count)
     aug = bool(results.aug)
 
-    sweep_config = {}
-    dict_hyper = hyperparameter_dicts()
-    sweep_config["parameters"] = dict_hyper[model]
-    sweep_config["name"] = method + "_" + model + "_" + dataset_name
-    sweep_config["method"] = method
-    if method == "bayes":
-        sweep_config["metric"] = {"name": "val_f1", "goal": "maximize"}
     training_obj = training(model=model, pca_tf=pca_tf)
     training_obj.train()
     training_obj.feature_importance()
