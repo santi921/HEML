@@ -58,7 +58,9 @@ def plot_field(
     y = [np.argmax(i) for i in y]
 
     x_untransformed = x
-    x_pca, pca_obj = pca(x, verbose=True, pca_comps=int(pca_comp_to_show + 1))
+    x_pca, pca_obj = pca(
+        x, verbose=True, pca_comps=int(pca_comp_to_show + 1), whitening=True
+    )
     shape_mat = x.shape
     print("dimensions: ", dimensions)
     print("shape_mat: ", shape_mat)
@@ -104,16 +106,16 @@ def plot_field(
     fig.fig.update(layout_showlegend=False)
 
     camera = dict(
-        up=dict(x=0, y=0, z=0.7),
+        up=dict(x=0, y=0, z=0.2),
         center=dict(x=0, y=0, z=0),
-        eye=dict(x=0.25, y=0.25, z=0.3),
+        eye=dict(x=0.6, y=0.3, z=0.15),
     )
     fig.fig.update_layout(scene_camera=camera, dragmode="orbit")
 
     if show:
         fig.fig.show(config=config)
     if save:
-        fig.fig.write_html("./{}".format(file_save), config=config)
+        fig.fig.write_html("{}".format(file_save), config=config)
 
 
 def main():
@@ -171,6 +173,7 @@ def main():
         dimensions=options["field_dims"],
         show=options["show"],
         save=options["save"],
+        file_save=options["save_name"],
         x_axis_range=options["x_axis_range"],
         y_axis_range=options["y_axis_range"],
         filter_options=options["filter_dict"],

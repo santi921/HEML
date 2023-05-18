@@ -67,7 +67,7 @@ if __name__ == "__main__":
             shape_before[4],
         )
         _, pca_obj = pca(
-            np.concatenate((X_train, X_train_untransformed)), verbose=True, pca_comps=25
+            np.concatenate((X_train, X_train_untransformed)), verbose=True, pca_comps=15
         )
         X_train, pca_obj_train = pca(X_train_untransformed, pca_obj)
         X_test, pca_obj_test = pca(X_test, pca_obj)

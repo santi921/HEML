@@ -86,6 +86,9 @@ def check_viz_dict(options):
         print("setting field dims to default: ", (21, 21, 21))
         options["field_dims"] = (21, 21, 21)
 
+    if "save_name" not in options.keys():
+        print("setting save name to default: ", "./test")
+        options["save_name"] = "./test"
     return options
 
 

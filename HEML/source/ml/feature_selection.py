@@ -24,13 +24,6 @@ class training:
 
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y = pull_mats_w_label()
-
-        (
-            arr_min,
-            arr_max,
-        ) = np.min(
-            x
-        ), np.max(x)
         # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
         x_sign = np.sign(x)
         # getting absolute value of every element
@@ -57,7 +50,7 @@ class training:
             self.X_test_untransformed = self.X_test
 
             _, self.pca_obj = pca(
-                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=25
+                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=15
             )
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)
@@ -135,16 +128,16 @@ class training:
 
     def boruta(self):
         feat_selector = BorutaPy(
-            self.model_obj, n_estimators=100, verbose=0, random_state=42, max_iter=2000
+            self.model_obj, n_estimators=200, verbose=2, random_state=42, max_iter=3000
         )
         feat_selector.fit(self.X_train, self.y_train)
         print(feat_selector.support_)
 
     def perm_imp(self):
-        self.make_model()
+        # self.make_model()
         self.train()
         r = permutation_importance(
-            self.model_obj, self.X_train, self.y_train, n_repeats=50, random_state=0
+            self.model_obj, self.X_train, self.y_train, n_repeats=100, random_state=0
         )
 
         for i in r.importances_mean.argsort()[::-1]:
@@ -156,6 +149,7 @@ class training:
                 )
 
     def feature_importance(self):
+        self.make_model()
         self.boruta()
         self.perm_imp()
 
