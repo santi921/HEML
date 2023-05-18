@@ -1,10 +1,8 @@
+# images and outputs
 *pdf
-*GEO_OPT*
-*x2t
-*t2x
-*ipynb
 *svg
 *png
+*jpg
 *dat
 *pyc
 *pqr
@@ -18,21 +16,33 @@
 *html
 config*
 debug*
-conda*
-wandb*
-*coord
-*control
 *input
-*traj
 *json
 *dat
+*ipynb
+
+#execs
 x2t
-*save
-*tar.xz
+*x2t
+*t2x
+
+# qm files
 *out
 *basis*
+*GEO_OPT*
+*traj
+*coord
+*control
+
+# compressed
 *zip
 *tar.gz
+*tar.xz
+*save
+
+# folders
+conda*
+wandb*
 data/compressed_frames/*
 *gradient
 heml.egg-info/PKG-INFO
