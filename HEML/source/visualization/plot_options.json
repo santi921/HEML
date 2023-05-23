@@ -9,16 +9,19 @@
     "opacity": 0.4
   },
   "alignment_dict": {
-    "alignment_method": "heme"
+    "alignment_method": "heme",
+    "center": [0.0, 0.0, 0.0],
+    "x_axis": [1.0, 0.0, 0.0],
+    "y_axus": [0.0, 1.0, 0.0]
   },
   "filter_dict": {
     "filter_connectivity": true,
-    "distance_filter": 5.5,
+    "distance_filter": 5.0,
     "filter_res": ["HM1", "TRY", "CYS", "HIS"]
   },
-  "show": false,
+  "show": true,
   "save": true,
-  "save_name": "./pca/comp_9.html",
+  "save_name": "./test.html",
   "field_dims": [21, 21, 21],
   "x_axis_range": [-4, 4],
   "y_axis_range": [-4, 4]

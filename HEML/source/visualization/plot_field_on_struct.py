@@ -77,7 +77,7 @@ def plot_field(
     if show:
         fig.fig.show(config=config)
     if save:
-        fig.fig.write_html("./{}".format(save_name), config=config)
+        fig.fig.write_html("{}".format(save_name), config=config)
 
 
 def main():
@@ -132,6 +132,7 @@ def main():
         dimensions=options["field_dims"],
         show=options["show"],
         save=options["save"],
+        save_name=options["save_name"],
         x_axis_range=options["x_axis_range"],
         y_axis_range=options["y_axis_range"],
         filter_options=options["filter_dict"],
