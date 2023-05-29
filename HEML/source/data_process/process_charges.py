@@ -1,5 +1,5 @@
 import os, re, argparse
-import numpy as np 
+import numpy as np
 from glob import glob
 from HEML.utils.data import (
     get_options,
@@ -29,7 +29,11 @@ if __name__ == "__main__":
     parser.add_argument("--bins", help="bins", default=25)
     parser.add_argument("--step_size", help="step size", default=0.001)
     parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
-    parser.add_argument("--carbene", help="if computing on carbene attached to heme, this will center the calc at the mean of the fe-c bond", action="store_true")
+    parser.add_argument(
+        "--carbene",
+        help="if computing on carbene attached to heme, this will center the calc at the mean of the fe-c bond",
+        action="store_true",
+    )
 
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
@@ -103,13 +107,13 @@ if __name__ == "__main__":
                 nitrogen_dict = get_N_positions(i, fe_dict["id"], fe_dict["xyz"])
                 nitro_none = check_if_dict_has_None(nitrogen_dict)
                 ligand_none = check_if_dict_has_None(ligand_dict)
-                if carbene_tf: 
+                if carbene_tf:
                     c1_dict = get_c1_positions(i)
                     carbene_none = check_if_dict_has_None(c1_dict)
-                    if carbene_none: 
+                    if carbene_none:
                         print("carbene none")
                         fail_cond = True
-                    else: 
+                    else:
                         mean_xyz = np.mean([fe_dict["xyz"], c1_dict["xyz"]], axis=0)
                         fail_cond = False
 
@@ -164,8 +168,8 @@ if __name__ == "__main__":
                         ]:
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
-                            
-                        elif zero_radius: 
+
+                        elif zero_radius:
                             xyz_str_x = j[30:38]
                             xyz_str_y = j[38:46]
                             xyz_str_z = j[46:54]
@@ -176,15 +180,14 @@ if __name__ == "__main__":
                                     + (float(xyz_str_z) - float(mean_xyz[2])) ** 2
                                 )
 
-                            else:                     
+                            else:
                                 distance = np.sqrt(
                                     (float(xyz_str_x) - float(fe_dict["xyz"][0])) ** 2
                                     + (float(xyz_str_y) - float(fe_dict["xyz"][1])) ** 2
                                     + (float(xyz_str_z) - float(fe_dict["xyz"][2])) ** 2
                                 )
-                            
+
                             if distance < ligands_to_zero_radius:
-                                
                                 lig_str = j[17:21].strip()
                                 print(
                                     "zeroing distance:{} w/ dist {}".format(
@@ -193,7 +196,7 @@ if __name__ == "__main__":
                                 )
                                 temp_write = j[:56] + "0.000" + j[61:]
                                 outfile.write(temp_write)
-                            else: 
+                            else:
                                 outfile.write(j)
                         else:
                             outfile.write(j)
@@ -219,11 +222,11 @@ if __name__ == "__main__":
                     options.close()
                 else:
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
-                    if carbene_tf: 
+                    if carbene_tf:
                         options.write(
                             f'align {mean_xyz[0]}:{mean_xyz[0]}:{mean_xyz[0]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
                         )
-                    else: 
+                    else:
                         options.write(
                             f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
                         )
@@ -235,7 +238,9 @@ if __name__ == "__main__":
                     )
                     options.write("    stepSize {} \n".format(step_size))
                     options.write("    samples {} \n".format(samples))
-                    options.write("    sampleOutput {} \n".format(file_name))
+                    options.write(
+                        "    sampleOutput {outdir_cpet}efield_cox_{file_name}.dat \n \n".format(outdir_cpet, file_name)
+                    )
                     options.write("    bins {} \n".format(bins))
                     options.write(f"end \n")
                     options.close()

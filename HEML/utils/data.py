@@ -403,7 +403,7 @@ def get_ligand_info(file, fe_xyz):
         sg_cond = (
             "ATOM" in line[0]
             and ("SG" in line[2])
-            and ("CY1" in line[3] or "CYS" in line[3])
+            and ("CY1" in line[3] or "CYS" in line[3] or "CS1" in line[3])
         )
 
         oh_cond = (
