@@ -244,6 +244,7 @@ if __name__ == "__main__":
                     options.write(f"end \n")
                     options.close()
                 else:
+
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
                     if carbene_tf:
                         nitro_axis_1 = [nitrogen_dict["N1_xyz"][0]-nitrogen_dict["mean_N_xyz"][0]+mean_xyz[0], nitrogen_dict["N1_xyz"][1]-nitrogen_dict["mean_N_xyz"][1]+mean_xyz[1], nitrogen_dict["N1_xyz"][2]-nitrogen_dict["mean_N_xyz"][2]+mean_xyz[2]]
@@ -264,7 +265,7 @@ if __name__ == "__main__":
                     options.write("    stepSize {} \n".format(step_size))
                     options.write("    samples {} \n".format(samples))
                     options.write(
-                        "    sampleOutput {outdir_cpet}efield_cox_{file_name}.dat \n \n".format(outdir_cpet, file_name)
+                        "    sampleOutput efield_topo_{file_name} \n \n"
                     )
                     options.write("    bins {} \n".format(bins))
                     options.write(f"end \n")

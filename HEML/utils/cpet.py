@@ -77,9 +77,9 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
         files_target.remove(file)
         protein = file.split("/")[-1][14:]
 
-        print("protein file: {}".format(protein))
+        print("protein file: {}".format(protein.split(".")[0]))
 
-        if protein + ".top" not in files_done:
+        if protein.split(".")[0] + ".top" not in files_done:
             launch_str = "{} -p {} -t {} -o {} ".format(
                 cpet_path, "{}.pqr".format(charges_dir + protein[:-4]), threads, file
             )
