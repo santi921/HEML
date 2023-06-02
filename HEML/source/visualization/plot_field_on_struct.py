@@ -20,14 +20,13 @@ def plot_field(
     save_name="field.html",
 ):
     string_element, dict_input = get_molecule_dict(
-        molecule_file,
-        alignment_options,
-        filter_options,
+        file=molecule_file,
+        alignment_dict=alignment_options,
+        filter_dict=filter_options,
     )
 
     mat = mat_pull(field_file, verbose=True)
     meta = mat_pull(field_file, meta_data=True)
-
     component = mat_to_cones(
         mat,
         (1, dimensions[0], dimensions[1], dimensions[2], 3),
@@ -120,6 +119,9 @@ def main():
         "-field_file", help="number of magnitudes to calculate", required=True
     )
 
+    print("overlays field on molecular structure")
+    print("field file: {}".format(parser.parse_args().field_file))
+    print("pdb file: {}".format(parser.parse_args().pdb_file))
     options_loc = str(parser.parse_args().options)
     field_file = str(parser.parse_args().field_file)
     pdb_file = str(parser.parse_args().pdb_file)

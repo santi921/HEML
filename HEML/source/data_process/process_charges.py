@@ -110,10 +110,14 @@ if __name__ == "__main__":
                 if carbene_tf:
                     c1_dict = get_c1_positions(i)
                     carbene_none = check_if_dict_has_None(c1_dict)
+                    
                     if carbene_none:
                         print("carbene none")
                         fail_cond = True
                     else:
+                        print(fe_dict["xyz"], c1_dict["xyz"])
+                        print(np.mean([fe_dict["xyz"], c1_dict["xyz"]], axis=0))
+                        print(np.array(fe_dict["xyz"]) - np.array(c1_dict["xyz"]))
                         mean_xyz = np.mean([fe_dict["xyz"], c1_dict["xyz"]], axis=0)
                         fail_cond = False
 
@@ -150,14 +154,25 @@ if __name__ == "__main__":
                 with open(output, "w") as outfile:
                     for j in readfile:
                         line_split = re.split(r"(\s+)", j)
+                        # remove items in list that are empty strings
+                        #line_split = [x for x in line_split if x != ""]
+                        # strip whitespace from list
+                        line_split = [x.strip() for x in line_split]
+                        # remove empty strings from list
+                        line_split = list(filter(None, line_split))
+                        #print(line_split)
+
                         cond = (
                             line_split[8] == ligand_identifier[0]
                             and line_split[10] == ligand_identifier[1]
                         )
-
                         if zero_active and ("HETATM" in line_split[0] or cond):
                             temp_write = j[:56] + "0.000" + j[61:]
                             outfile.write(temp_write)
+
+                        elif carbene_tf and line_split[3] in ["CB1"]:
+                            temp_write = j[:56] + "0.000" + j[61:]
+                            outfile.write(temp_write)                        
 
                         elif zero_everything_charged and line_split[3] in [
                             "ASP",
@@ -204,9 +219,17 @@ if __name__ == "__main__":
                 file_name = i.split("/")[-1].split(".")[0]
                 if box:
                     options = open(f"{outdir_cpet}options_field_{file_name}.txt", "w+")
-                    options.write(
-                        f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
-                    )
+                    if carbene_tf:
+                        nitro_axis_1 = [nitrogen_dict["N1_xyz"][0]-nitrogen_dict["mean_N_xyz"][0]+mean_xyz[0], nitrogen_dict["N1_xyz"][1]-nitrogen_dict["mean_N_xyz"][1]+mean_xyz[1], nitrogen_dict["N1_xyz"][2]-nitrogen_dict["mean_N_xyz"][2]+mean_xyz[2]]
+                        nitro_axis_2 = [nitrogen_dict["N2_xyz"][0]-nitrogen_dict["mean_N_xyz"][0]+mean_xyz[0], nitrogen_dict["N2_xyz"][1]-nitrogen_dict["mean_N_xyz"][1]+mean_xyz[1], nitrogen_dict["N2_xyz"][2]-nitrogen_dict["mean_N_xyz"][2]+mean_xyz[2]]
+                        
+                        options.write(
+                            f'align {mean_xyz[0]}:{mean_xyz[1]}:{mean_xyz[2]} {nitro_axis_1[0]}:{nitro_axis_1[1]}:{nitro_axis_1[2]} {nitro_axis_2[0]}:{nitro_axis_2[1]}:{nitro_axis_2[2]}\n'
+                        )
+                    else:
+                        options.write(
+                            f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
+                        )
                     options.write(f"%plot3d \n")
                     options.write(f"    show false \n")
                     options.write(
@@ -223,8 +246,10 @@ if __name__ == "__main__":
                 else:
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
                     if carbene_tf:
+                        nitro_axis_1 = [nitrogen_dict["N1_xyz"][0]-nitrogen_dict["mean_N_xyz"][0]+mean_xyz[0], nitrogen_dict["N1_xyz"][1]-nitrogen_dict["mean_N_xyz"][1]+mean_xyz[1], nitrogen_dict["N1_xyz"][2]-nitrogen_dict["mean_N_xyz"][2]+mean_xyz[2]]
+                        nitro_axis_2 = [nitrogen_dict["N2_xyz"][0]-nitrogen_dict["mean_N_xyz"][0]+mean_xyz[0], nitrogen_dict["N2_xyz"][1]-nitrogen_dict["mean_N_xyz"][1]+mean_xyz[1], nitrogen_dict["N2_xyz"][2]-nitrogen_dict["mean_N_xyz"][2]+mean_xyz[2]]
                         options.write(
-                            f'align {mean_xyz[0]}:{mean_xyz[0]}:{mean_xyz[0]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
+                            f'align {mean_xyz[0]}:{mean_xyz[1]}:{mean_xyz[2]} {nitro_axis_1[0]}:{nitro_axis_1[1]}:{nitro_axis_1[2]} {nitro_axis_2[0]}:{nitro_axis_2[1]}:{nitro_axis_2[2]}\n'
                         )
                     else:
                         options.write(

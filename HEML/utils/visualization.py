@@ -95,6 +95,9 @@ def check_viz_dict(options):
 def shift_and_rotate(
     xyz_list, center=[0, 0, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], z_axis=[0, 0, 1]
 ):
+    x_axis = np.array(x_axis) / np.linalg.norm(x_axis)
+    y_axis = np.array(y_axis) / np.linalg.norm(y_axis)
+    z_axis = np.array(z_axis) / np.linalg.norm(z_axis)
     for i in range(len(xyz_list)):
         xyz_list[i] = xyz_list[i] - center
         xyz_list[i] = np.array(
@@ -351,8 +354,9 @@ def get_cones_viz_from_pca(
 
 
 def get_molecule_dict(
-    file="../../../data/pdbs_processed/1a4e.pdb", alignment_dict=None, filter_dict=None
-):
+    alignment_dict, file="../../../data/pdbs_processed/1a4e.pdb", filter_dict=None
+):  
+    #print(alignment_dict)
     alignment_method = alignment_dict["alignment_method"]
 
     if alignment_method == "heme":
@@ -371,10 +375,11 @@ def get_molecule_dict(
         x_axis = x_axis / np.linalg.norm(x_axis)
         y_axis = np.array(NB_pos) - np.array(center)
         y_axis = y_axis / np.linalg.norm(y_axis)
-        z_axis = np.cross(y_axis, x_axis)
+        z_axis = np.cross(x_axis, y_axis)
         z_axis = z_axis / np.linalg.norm(z_axis)
 
     elif alignment_method == "dict":
+        print("using dict alignment provided")
         center = alignment_dict["center"]
         x_axis = alignment_dict["x_axis"]
         y_axis = alignment_dict["y_axis"]
@@ -402,18 +407,28 @@ def get_molecule_dict(
         file=file, filter_dict=filter_dict, center=center
     )
 
+    ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
+    #print(ind_fe)
+    #print(atom_list[ind_fe[0]])
+    #print(xyz_list[ind_fe[0]])
+    #print("center at helper: " + str(center))
+    #print(x_axis, y_axis, z_axis)
     xyz_list = shift_and_rotate(
         xyz_list, center=center, x_axis=x_axis, y_axis=y_axis, z_axis=z_axis
     )
-    # diag_dict = {"Fe": [], "N": []}
     print("number of atoms:  {}".format(len(atom_list)))
     string_element = "\n{}\n\n".format(len(atom_list))
     for i, atom in enumerate(atom_list):
         string_element += "{} {} {} {}\n".format(
             int_atom_dict[atom], xyz_list[i][0], xyz_list[i][1], xyz_list[i][2]
         )
-
     dict_input = {"symbols": atom_list, "geometry": xyz_list, "connectivity": bond_list}
+    # get index of iron 
+    #get element that equals 26 in atom_list
+    ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
+    print(ind_fe)
+    print(atom_list[ind_fe[0]])
+    print(xyz_list[ind_fe[0]])
     return string_element, dict_input
 
 
@@ -454,10 +469,10 @@ def mat_to_cones(
             step_size["z"] * bohr_to_ang,
         ),
     )
-    print(x.shape)
-    print(y.shape)
-    print(z.shape)
-    print("opacity: {}".format(opacity))
+    #print(x.shape)
+    #print(y.shape)
+    #print(z.shape)
+    #print("opacity: {}".format(opacity))
     u_1, v_1, w_1 = split_and_filter(
         comp_vect_field,
         cutoff=cutoff,

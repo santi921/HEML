@@ -30,7 +30,6 @@ def run_box_calcs(cpet_path, target_path, charges_dir):
         files_target.remove(file)
         protein = file.split("/")[-1][14:]  # works for protein movies
 
-        # .split("_")[-1].split(".")[0]#.split("_")[-1]
         print("protein file: {}".format(protein))
 
         if protein + ".top" not in files_done:
