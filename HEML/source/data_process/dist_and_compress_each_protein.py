@@ -88,9 +88,6 @@ def main():
 
         for k, v in compress_dictionary.items():
             name_center = v["name_center"]
-            # print(name_center)
-            # print("{}".format(name_center))
-            # print("{}/{}_{}".format(output_folder, ind, name_center.split("/")[-1]))
             if not os.path.exists(output_folder + name_center):
                 # get name of center from full path
                 os.system(

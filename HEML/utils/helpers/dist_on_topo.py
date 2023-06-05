@@ -66,7 +66,7 @@ def main():
 
     if compress_tf:
         compress_dictionary = compress(
-            distance_matrix, damping=damping, max_iter=int(max_iter)
+            distance_matrix, damping=damping, max_iter=int(max_iter), names=topo_files
         )
         with open(
             output_folder + "loc_compressed_dictionary.json", "w"
@@ -75,6 +75,15 @@ def main():
         
 
 
+        for k, v in compress_dictionary.items():
+            name_center = v["name"]
+            if not os.path.exists(output_folder + name_center):
+                # get name of center from full path
+                os.system(
+                    "cp {} {}/{}".format(
+                        name_center, output_folder, name_center
+                    )
+                )
 
 
 main()
