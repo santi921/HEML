@@ -13,7 +13,7 @@ def main():
     """
 
     # root = "./"
-    output_folder = "./"
+    output_folder = "./compressed_out/"
     path_target = "./"
 
     argparser = argparse.ArgumentParser()
@@ -32,6 +32,9 @@ def main():
     damping = float(args.dampening)
     max_iter = float(args.max_iter)
     compress_tf = bool(args.compress)
+    # if outputfolder doesnt exist, create it
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     topo_files = [
         path_target + f for f in os.listdir(path_target) if f.endswith(".top")
@@ -51,18 +54,27 @@ def main():
 
     histograms = make_histograms(topo_files)
     distance_matrix = construct_distance_matrix(histograms)
-
+    
+    # construct distance matrix
     with open(output_folder + "distance_matrix.dat", "w") as outputfile:
         for row in distance_matrix:
             for col in row:
                 outputfile.write(f"{col} ")
             outputfile.write("\n")
+
     print('constucted distance matrix for folder "{}"'.format(path_target))
 
     if compress_tf:
         compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=int(max_iter)
         )
+        with open(
+            output_folder + "loc_compressed_dictionary.json", "w"
+        ) as outputfile:
+            json.dump(compress_dictionary, outputfile, indent=4)
+        
+
+
 
 
 main()

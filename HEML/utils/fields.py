@@ -335,7 +335,7 @@ def helmholtz_hodge_decomp_approx(
     return solenoidal, compressize
 
 
-def compress(distance_matrix, damping=0.5, max_iter=4000):
+def compress(distance_matrix, damping=0.5, max_iter=4000, names=None, ret_sil=False):
     compressed_dictionary = {}
     affinity = AffinityPropagation(
         affinity="precomputed", damping=damping, max_iter=max_iter
@@ -352,8 +352,23 @@ def compress(distance_matrix, damping=0.5, max_iter=4000):
             "count": str(labels.count(i)),
             "index_center": str(cluster_centers_indices[i]),
         }
-
+        # total count of all clusters
+        compressed_dictionary["total_count"] = str(len(labels))
+        
+        if names!=None:
+            compressed_dictionary[i]["name"] = names[cluster_centers_indices[i]]
+    
+    # compute percentage of each cluster
+    for key in compressed_dictionary.keys():
+        if key != "total_count":
+            compressed_dictionary[key]["percentage"] = str(
+                float(compressed_dictionary[key]["count"])
+                / float(compressed_dictionary["total_count"])
+                * 100
+            )
     # compute silhouette score
     silhouette_avg = silhouette_score(distance_matrix, labels)
     print(f"Silhouette Coefficient: {silhouette_avg}")
+    if ret_sil:
+        compressed_dictionary["silhouette"] = silhouette_avg
     return compressed_dictionary
