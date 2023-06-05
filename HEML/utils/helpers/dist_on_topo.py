@@ -31,7 +31,7 @@ def main():
 
     damping = float(args.dampening)
     max_iter = float(args.max_iter)
-    compress = bool(args.compress)
+    compress_tf = bool(args.compress)
 
     topo_files = [
         path_target + f for f in os.listdir(path_target) if f.endswith(".top")
@@ -59,9 +59,9 @@ def main():
             outputfile.write("\n")
     print('constucted distance matrix for folder "{}"'.format(path_target))
 
-    if compress:
+    if compress_tf:
         compress_dictionary = compress(
-            distance_matrix, damping=damping, max_iter=max_iter
+            distance_matrix, damping=damping, max_iter=int(max_iter)
         )
 
 
