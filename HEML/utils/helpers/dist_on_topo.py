@@ -76,14 +76,16 @@ def main():
 
 
         for k, v in compress_dictionary.items():
-            name_center = v["name"]
-            if not os.path.exists(output_folder + name_center):
-                # get name of center from full path
-                os.system(
-                    "cp {} {}/{}".format(
-                        name_center, output_folder, name_center
+            if k != "total_count":
+                print(v)
+                name_center = v["name"]
+                if not os.path.exists(output_folder + name_center):
+                    # get name of center from full path
+                    os.system(
+                        "cp {} {}/{}".format(
+                            name_center, output_folder, name_center
+                        )
                     )
-                )
 
 
 main()
