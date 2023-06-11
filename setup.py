@@ -11,6 +11,7 @@ setup(
              './HEML/utils/helpers/compute_average_field.py',
              './HEML/utils/helpers/dist_on_topo.py',
              './HEML/utils/helpers/sub_charges_pqr_to_parmtop.py',
+             './HEML/utils/helpers/mean_field_single.py',
              './HEML/utils/helpers/QMMM.py',
              './HEML/source/data_process/run_topology.py',
              './HEML/source/data_process/run_box_calc.py',

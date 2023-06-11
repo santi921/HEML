@@ -357,7 +357,8 @@ def compress(distance_matrix, damping=0.5, max_iter=4000, names=None, ret_sil=Fa
         
         if names!=None:
             compressed_dictionary[i]["name"] = names[cluster_centers_indices[i]]
-    
+            # copy files to 
+
     # compute percentage of each cluster
     for key in compressed_dictionary.keys():
         if key != "total_count":

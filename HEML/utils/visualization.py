@@ -493,5 +493,5 @@ def mat_to_cones(
         sizeref=vector_scale,
         opacity=opacity,
         showscale=False,
-        colorscale="Greens",
+        colorscale="Picnic",
     )

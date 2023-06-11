@@ -88,7 +88,7 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
         print("cpet done running")
 
         os.system(
-            "mv {}_0.top {}{}.top".format(protein[:-4], target_path, protein[:-4])
+            "mv efield_topo_{}_0.top {}{}.top".format(protein[:-4], target_path, protein[:-4])
         )
     print("done running cpet")
 
