@@ -19,7 +19,7 @@ def main():
     chargefw2_loc = options["chargefw2_loc"]
 
     files = glob(folder_processed + "*.pdb")
-
+    print(files)
     for ind in range(len(files) * 10):
         i = random.choice(files)
         bool_exists = os.path.exists(out_folder + i.split("/")[-1] + ".pqr")
