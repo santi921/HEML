@@ -3,8 +3,8 @@ import argparse
 
 # define main
 def main():
-    names_pqr, charges_pqr = [], []
-    names_prmtop = []
+    names_pqr, charges_pqr, positions_pqr = [], [], []
+    names_prmtop, positions_pqr, residue_name_pqr, residue_pointer_pqr  = [], [], [], []
 
     parser = argparse.ArgumentParser(description="Adds charges from PQR to PRMTOP file")
     parser.add_argument("-p", "--PRMTOP_file", help="PRMTOP file", required=True)
@@ -29,7 +29,7 @@ def main():
     with open(file_prmtop, "r") as f:
         lines_prmtop = f.readlines()
 
-    # get charges, names from pqr file
+    # get charges, names, positions from pqr file
     for line_ind, line in enumerate(lines):
         assert line.startswith("ATOM") or line.startswith(
             "HETATM"
@@ -38,14 +38,19 @@ def main():
         )
         charges_pqr.append(float(line[54:61].strip()))
         names_pqr.append(line[12:16].strip())
+        #x_pos = line[].strip() # todo
+        #y_pos = line[].strip() # todo 
+        #z_pos = line[].strip() # todo
+        #positions_pqr.append([x_pos, y_pos, z_pos])
 
     # sanitize -0.0 charges to 0.0
     for charge_index, charge in enumerate(charges_pqr):
         if charges_pqr[charge_index] == 0:
             charges_pqr[charge_index] = 0.0
 
-    # get charges, names from prmtop file
-    charge_block, atom_block = False, False
+    # get charges, names, positions from prmtop file
+    charge_block, atom_block, position_block, residue_pointer_block, residue_name_block = False, False, False, False, False
+    
     for line_ind, line in enumerate(lines_prmtop):
         if line.startswith("%FLAG ATOM_NAME"):
             atom_block = True
@@ -64,27 +69,45 @@ def main():
             print("Found the atomic number block  in prmtop")
             break
 
+        if line.startswith("%FLAG RESIDUE_POINTER"):
+            residue_pointer_block = True
+            charge_block=
+            print("Found residue pointer block in prmtop")
+            break
+            
+        if line.startswith("%FLAG RESIDUE_LABEL"):
+            residue_label_block = True
+            print("Found residue label block in prmtop")
+            break
+
         if atom_block:
             if not line.startswith("%"):
                 # chunk line into strings of 4 characters
                 atoms = [line[i : i + 4].strip() for i in range(0, len(line), 4)]
                 # remove empty strings
                 atoms = list(filter(None, atoms))
-
+                
+                if len(atoms) != num_atom_per_line: 
+                    print("warning: varying number of atoms per")
                 for atom_ind, atom in enumerate(atoms):
                     names_prmtop.append(atom.strip())
                     # print(atom.strip())
 
-    # names_prmtop = names_prmtop[:len(names_pqr)]
-    # charges_prmtop = charges_prmtop[:len(charges_pqr)]
-    # assert names_pqr == names_prmtop, "The atom names in the PQR and PRMTOP files do not match"
+        if residue_name_block: 
+            if not line.startswith("%"):
+                line_res = line.split()
+                [residue_name_pqr.append(res_name) for res_name in line_res]
+        
+        if residue_pointer_block: 
+            if not line.startswith("%"):
+                line_pointer = line.split()
+                [residue_pointer_pqr.append(pointer) for pointer in line_pointer]
 
+    
     # get charges, names from prmtop file
-
     substitute_charge_index = 0
     full_charge_index = 0
     charge_block = False
-    # print(names_prmtop)
     print(
         "Length of residues in prmtop: {}\nLength of Residues in pqr: {}".format(
             len(names_prmtop), len(names_pqr)
