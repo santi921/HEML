@@ -72,7 +72,7 @@ def main():
                     outputfile.write(f"{col} ")
                 outputfile.write("\n")
         print('constructed distance matrix for folder "{}"'.format(folder))
-        compress_dictionary = compress(
+        compress_dictionary, total_count = compress(
             distance_matrix, damping=damping, max_iter=max_iter
         )
 
@@ -80,6 +80,7 @@ def main():
 
         for k, v in compress_dictionary.items():
             compress_dictionary[k]["name_center"] = topo_files[int(v["index_center"])]
+
         print("saving compressed dictionary...")
         with open(
             output_folder + "{}_compressed_dictionary.json".format(ind), "w"
