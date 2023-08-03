@@ -72,13 +72,15 @@ def main():
                     outputfile.write(f"{col} ")
                 outputfile.write("\n")
         print('constructed distance matrix for folder "{}"'.format(folder))
-        compress_dictionary, total_count = compress(
+        compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=max_iter
         )
 
         print("moving central topologies to compressed folder...")
 
         for k, v in compress_dictionary.items():
+            if k=="total_count":
+                continue
             compress_dictionary[k]["name_center"] = topo_files[int(v["index_center"])]
 
         print("saving compressed dictionary...")
@@ -88,6 +90,8 @@ def main():
             json.dump(compress_dictionary, outputfile)
 
         for k, v in compress_dictionary.items():
+            if k=='total_count':
+                continue
             name_center = v["name_center"]
             if not os.path.exists(output_folder + name_center):
                 # get name of center from full path

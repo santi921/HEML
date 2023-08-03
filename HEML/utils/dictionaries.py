@@ -1,4 +1,4 @@
-atom_int_dict = {
+tom_int_dict = {
     "H": 1,
     "C": 6,
     "N": 7,
@@ -13,7 +13,10 @@ atom_int_dict = {
     "Fe": 26,
     "FE": 26,
     "I": 53,
+    "RE": 75,
+    "CL": 17,
 }
+
 
 
 atom_mass = {
@@ -44,7 +47,9 @@ int_atom_dict = {
     35: "Br",
     26: "Fe",
     53: "I",
+    75: "Re",
 }
+
 
 
 atomic_size = {
@@ -83,7 +88,9 @@ atomic_radii = {
     "AL": 1.84,
     "MN": 1.73,
     "CO": 1.70,
+    "RE": 2.05,
 }
+
 
 atom_colors = {
     "H": "white",
@@ -97,4 +104,7 @@ atom_colors = {
     "Br": "brown",
     "Fe": "orange",
     "I": "purple",
+    "Re": "gray",
+    "RE": "gray",
+    "C-1": "green", #Chlorine atom
 }
