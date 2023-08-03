@@ -20,8 +20,12 @@ from HEML.utils.data import (
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 
-def find_closest_atoms(df_re, df_all):
+def find_closest_atoms(df_re, df_all, cat_step):
     # Create a result list
+    supported_cat_steps = ["CL","CO2B"]
+    if cat_step not in supported_cat_steps:
+        print(f"Catalytic step {cat_step} is not currently supported, exiting...")
+        exit()
     closest_atoms = []
     # Extract coordinates from the dataframes
     coords_re = df_re[["x", "y", "z"]].values
@@ -31,29 +35,43 @@ def find_closest_atoms(df_re, df_all):
     # Iterate over each Re atom
     for i, re_atom in enumerate(coords_re):
         # Print progress
-        # print(f"Processing Re atom {i+1} of {total_re}...")
+        print(f"Processing Re atom {i+1} of {total_re}...")
         # Calculate the distances from the current Re atom to all other atoms
+        print(coords_all)
+        print(re_atom)
         distances = cdist([re_atom], coords_all)[0]
         # Add the distances to df_all as a new column
         df_all["distance"] = distances
         # Sort df_all by distance
         df_sorted = df_all.sort_values("distance")
-        # Get the three closest carbons and closest chloride
-        carbons = df_sorted[df_sorted["Atom"] == "C"][:3]
-        chloride = df_sorted[df_sorted["Atom"] == "Cl"].iloc[0]
-        # Combine Re atom, closest carbons, and closest chloride
-        df_atoms = pd.concat([df_re.iloc[[i]], carbons, pd.DataFrame([chloride])])
-        # Append it to the result list
-        closest_atoms.append(df_atoms)
-        # Drop the distance column for the next iteration
-        df_all.drop("distance", axis=1, inplace=True)
+        # Get the three closest carbons and closest chloride/special carbons
+        if cat_step == "CL":
+            carbons = df_sorted[df_sorted["Atom"] == "C"][:3]
+            print(carbons)
+            print(df_sorted)
+            chloride = df_sorted[df_sorted["Atom"] == "Cl"].iloc[0]
+            # Combine Re atom, closest carbons, and closest chloride
+            df_atoms = pd.concat([df_re.iloc[[i]], carbons, pd.DataFrame([chloride])])
+            # Append it to the result list
+            closest_atoms.append(df_atoms)
+            # Drop the distance column for the next iteration
+            df_all.drop("distance", axis=1, inplace=True)
+        elif cat_step == "CO2B":
+            carbons = df_sorted[(df_sorted["Atom"] == "C") & (df_sorted["Atom_raw"] != "C1")][:3]
+            print(carbons)
+            print(df_sorted)
+            carbon_CO2 = df_sorted[df_sorted["Atom_raw"] == "C1"].iloc[0]
+            df_atoms = pd.concat([df_re.iloc[[i]], carbons, pd.DataFrame([carbon_CO2])])
+            closest_atoms.append(df_atoms)
+            df_all.drop("distance", axis=1, inplace=True)
     return closest_atoms
 
 
-def remove_furthest_carbon(df_nearest_C_Cl):
+
+def remove_furthest_carbon(df_nearest_C_Cl, cat_step):
     # Create a result list
     modified_dfs = []
-    # Iterate over each dataframe in the input list
+    # Iterate over each dataframe in the input list: robust to CL and CO2B cat_steps
     for df in df_nearest_C_Cl:
         # Get the coordinates of the atoms
         coords = df[["x", "y", "z"]].values
@@ -74,10 +92,10 @@ def remove_furthest_carbon(df_nearest_C_Cl):
     return modified_dfs
 
 
-def calculate_vectors_and_cross_product(df_list):
+def calculate_vectors_and_cross_product(df_list, cat_step):
     results = []
 
-    # Iterate over each dataframe in the input list
+    # Iterate over each dataframe in the input list: robust to CL and CO2B cat_steps
     for df in df_list:
         dict_info = {}
         # Get the Re atom (assumed to be the first row in the dataframe)
@@ -121,7 +139,7 @@ def calculate_vectors_and_cross_product(df_list):
 def get_rhe_dictionaries(pdb):
     with open(pdb, "r") as f:
         lines = f.readlines()
-    filtered_lines = [line for line in lines if line.startswith(("HETATM"))]
+    filtered_lines = [line for line in lines if line.startswith(("ATOM"))]
     filtered_data = "\n".join(filtered_lines)
     data = StringIO(filtered_data)
     print(data)
@@ -167,26 +185,26 @@ def write_charges_processed(
     zero_active=False,
     zero_radius=False,
     ligands_to_zero_radius=3.0,
+    coulomb_cutoff=20.0,
 ):
     openfile = open(pqr_file)
     readfile = openfile.readlines()
     openfile.close
     with open(output, "w") as outfile:
+        resn_to_zero=[]
         for j in readfile:
             line_split = re.split(r"(\s+)", j)
             # strip whitespace from list
             line_split = [x.strip() for x in line_split]
             # remove empty strings from list
             line_split = list(filter(None, line_split))
-
             if zero_active and ("HETATM" in line_split[0]):
-                temp_write = j[:56] + "0.000" + j[61:]
+                temp_write = j[:58] + " 0.00" + j[63:]
                 outfile.write(temp_write)
-
             elif zero_radius:
-                xyz_str_x = j[30:38]
-                xyz_str_y = j[38:46]
-                xyz_str_z = j[46:54]
+                xyz_str_x = j[31:39]
+                xyz_str_y = j[40:48]
+                xyz_str_z = j[49:57]
                 distance = np.sqrt(
                     (float(xyz_str_x) - float(center_xyz[0])) ** 2
                     + (float(xyz_str_y) - float(center_xyz[1])) ** 2
@@ -198,12 +216,15 @@ def write_charges_processed(
                     print("zeroing distance:{} w/ dist {}".format(lig_str, distance))
                     # print(xyz_str_x, xyz_str_y, xyz_str_z)
                     # print(j)
-                    temp_write = j[:56] + "0.000" + j[61:]
+                    temp_write = j[:58] + "0.000" + j[63:]
                     outfile.write(temp_write)
+                elif distance > coulomb_cutoff:
+                    pass
                 else:
                     outfile.write(j)
             else:
                 outfile.write(j)
+
 
 
 if __name__ == "__main__":
@@ -223,6 +244,7 @@ if __name__ == "__main__":
     parser.add_argument("--bins", help="bins", default=25)
     parser.add_argument("--step_size", help="step size", default=0.001)
     parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
+    parser.add_argument("--cat_step", help="step of cycle: CL, 2ERI, or CO2B", default="CL")
 
     pdb = "/home/santiagovargas/Downloads/movie_phenanthroline_wt_ryan_CO_tetramer_prepped_1_minenergy.pdb_renumbered.pdb"
 
@@ -322,7 +344,7 @@ if __name__ == "__main__":
                         )
 
                         options.write(
-                            f"align {center_xyz[0]}:{center_xyz[1]}:{center_xyz[2]} {axis_1[0]}:{axis_1[1]}:{axis_1[2]} {axis_2[0]}:{axis_1[1]}:{axis_1[2]}\n"
+                            f"align {center_xyz[0]}:{center_xyz[1]}:{center_xyz[2]} {axis_1[0]}:{axis_1[1]}:{axis_1[2]} {axis_2[0]}:{axis_2[1]}:{axis_2[2]}\n"
                         )
                         options.write(f"%plot3d \n")
                         options.write(f"    show false \n")
@@ -347,7 +369,7 @@ if __name__ == "__main__":
                         )
 
                         options.write(
-                            f"align {center_xyz[0]}:{center_xyz[1]}:{center_xyz[2]} {axis_1[0]}:{axis_1[1]}:{axis_1[2]} {axis_2[0]}:{axis_1[1]}:{axis_1[2]}\n"
+                            f"align {center_xyz[0]}:{center_xyz[1]}:{center_xyz[2]} {axis_1[0]}:{axis_1[1]}:{axis_1[2]} {axis_2[0]}:{axis_2[1]}:{axis_2[2]}\n"
                         )
                         options.write(f"%topology \n")
                         options.write(
