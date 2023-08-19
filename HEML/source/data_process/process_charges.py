@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--options", help="location of options file", default="./options/options.json"
     )
-    parser.add_argument("--zero_active", help="zero active site", default=True)
+    parser.add_argument("--zero_active", help="zero active site", default=False)
     parser.add_argument(
         "--zero_everything_charged", help="zero everything charged", default=False
     )
