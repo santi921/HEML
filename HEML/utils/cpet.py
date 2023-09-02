@@ -88,7 +88,9 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
         print("cpet done running")
 
         os.system(
-            "mv efield_topo_{}_0.top {}{}.top".format(protein[:-4], target_path, protein[:-4])
+            "mv efield_topo_{}_0.top {}{}.top".format(
+                protein[:-4], target_path, protein[:-4]
+            )
         )
     print("done running cpet")
 
@@ -152,3 +154,51 @@ def construct_distance_matrix(histograms):
             matrix[j][i] = matrix[i][j]
 
     return matrix
+
+
+def config_to_folder(single_sweep_config):
+    sweep_string = "hist_{}_step_{}_samples_{}_box_{}".format(
+        int(single_sweep_config["hist_bins"]),
+        str(single_sweep_config["step_size"]).split(".")[-1],
+        int(single_sweep_config["samples"]),
+        str(single_sweep_config["box_size"]).replace(".", "_"),
+    )
+    return sweep_string
+
+
+def config_to_folder(single_sweep_config):
+    sweep_string = "hist_{}_step_{}_samples_{}_box_{}".format(
+        int(single_sweep_config["hist_bins"]),
+        str(single_sweep_config["step_size"]).split(".")[-1],
+        int(single_sweep_config["samples"]),
+        str(single_sweep_config["box_size"]).replace(".", "_"),
+    )
+    return sweep_string
+
+
+def sweep_config_to_folders_and_base_confs(sweep_parameters):
+    base_config = sweep_parameters["base_config"]
+    sweep_configs = []
+    for sample in sweep_parameters["samples"]:
+        single_sweep_config = base_config.copy()
+        single_sweep_config["samples"] = sample
+        sweep_configs.append(single_sweep_config)
+
+    for step in sweep_parameters["step_size"]:
+        single_sweep_config = base_config.copy()
+        single_sweep_config["step_size"] = step
+        sweep_configs.append(single_sweep_config)
+
+    for hist in sweep_parameters["hist_bins"]:
+        single_sweep_config = base_config.copy()
+        single_sweep_config["hist_bins"] = hist
+        sweep_configs.append(single_sweep_config)
+
+    for box in sweep_parameters["box_size"]:
+        single_sweep_config = base_config.copy()
+        single_sweep_config["box_size"] = box
+        sweep_configs.append(single_sweep_config)
+
+    sweep_folders = [config_to_folder(config) for config in sweep_configs]
+
+    return sweep_folders, sweep_configs

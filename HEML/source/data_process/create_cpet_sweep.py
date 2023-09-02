@@ -10,6 +10,7 @@ from HEML.utils.data import (
     get_N_positions,
     check_if_dict_has_None,
 )
+from HEML.utils.cpet import sweep_config_to_folders_and_base_confs
 from HEML.utils.mol2topqr import mol2_to_pqr_folder
 
 if __name__ == "__main__":
@@ -22,8 +23,7 @@ if __name__ == "__main__":
         "--zero_everything_charged", help="zero everything charged", default=False
     )
     # store t/f if --box is used
-    parser.add_argument("--box", help="box", action="store_true")
-    parser.add_argument("--box_size", help="box size", default=4.0)
+
     parser.add_argument("--density", help="density", default=10)
     parser.add_argument("--samples", help="samples", default=10000)
     parser.add_argument("--bins", help="bins", default=25)
@@ -38,8 +38,7 @@ if __name__ == "__main__":
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
-    box = bool(parser.parse_args().box)
-    box_size = float(parser.parse_args().box_size)
+
     density = int(parser.parse_args().density)
     samples = int(parser.parse_args().samples)
     bins = int(parser.parse_args().bins)
@@ -49,13 +48,14 @@ if __name__ == "__main__":
 
     options = get_options(options_loc)
     outdir = options["processed_charges_folder"]
-    outdir_cpet = options["cpet_folder"]
+    outdir_sweep = options["sweep_folder"]
+    sweep_config = options["sweep_parameters"]
+    sweep_folders, config_list = sweep_config_to_folders_and_base_confs(sweep_config)
     charges_directory = options["charges_folder"]
     if zero_radius:
         ligands_to_zero_radius = options["zero_radius"]
         print("zeroing active site radius from iron: {}".format(ligands_to_zero_radius))
 
-    print(outdir)
     fail = 0
     filelist = glob(charges_directory + "*pqr")
     # check if there are no files in the directory with the correct extension
@@ -217,55 +217,13 @@ if __name__ == "__main__":
                             outfile.write(j)
 
                 file_name = i.split("/")[-1].split(".")[0]
-                
-                if box:
-                    options = open(f"{outdir_cpet}options_field_{file_name}.txt", "w+")
-                    if carbene_tf:
-                        nitro_axis_1 = [
-                            nitrogen_dict["N1_xyz"][0]
-                            - nitrogen_dict["mean_N_xyz"][0]
-                            + mean_xyz[0],
-                            nitrogen_dict["N1_xyz"][1]
-                            - nitrogen_dict["mean_N_xyz"][1]
-                            + mean_xyz[1],
-                            nitrogen_dict["N1_xyz"][2]
-                            - nitrogen_dict["mean_N_xyz"][2]
-                            + mean_xyz[2],
-                        ]
-                        nitro_axis_2 = [
-                            nitrogen_dict["N2_xyz"][0]
-                            - nitrogen_dict["mean_N_xyz"][0]
-                            + mean_xyz[0],
-                            nitrogen_dict["N2_xyz"][1]
-                            - nitrogen_dict["mean_N_xyz"][1]
-                            + mean_xyz[1],
-                            nitrogen_dict["N2_xyz"][2]
-                            - nitrogen_dict["mean_N_xyz"][2]
-                            + mean_xyz[2],
-                        ]
-
-                        options.write(
-                            f"align {mean_xyz[0]}:{mean_xyz[1]}:{mean_xyz[2]} {nitro_axis_1[0]}:{nitro_axis_1[1]}:{nitro_axis_1[2]} {nitro_axis_2[0]}:{nitro_axis_2[1]}:{nitro_axis_2[2]}\n"
-                        )
-                    else:
-                        options.write(
-                            f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
-                        )
-                    options.write(f"%plot3d \n")
-                    options.write(f"    show false \n")
-                    options.write(
-                        "    volume box {} {} {} \n".format(
-                            box_size, box_size, box_size
-                        )
-                    )
-                    options.write(
-                        "    density {} {} {} \n".format(density, density, density)
-                    )
-                    options.write(f"output {outdir_cpet}efield_cox_{file_name}.dat \n")
-                    options.write(f"end \n")
-                    options.close()
-                else:
+                # iterate zip of sweep folders and base config
+                for sweep_folder, config_individual in zip(sweep_folders, config_list):
+                    outdir_cpet = f"{outdir_sweep}{sweep_folder}/"
+                    if not os.path.exists(outdir_cpet):
+                        os.makedirs(outdir_cpet)
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
+                    
                     if carbene_tf:
                         nitro_axis_1 = [
                             nitrogen_dict["N1_xyz"][0]
@@ -296,16 +254,25 @@ if __name__ == "__main__":
                         options.write(
                             f'align {nitrogen_dict["mean_N_xyz"][0]}:{nitrogen_dict["mean_N_xyz"][1]}:{nitrogen_dict["mean_N_xyz"][2]} {nitrogen_dict["N1_xyz"][0]}:{nitrogen_dict["N1_xyz"][1]}:{nitrogen_dict["N1_xyz"][2]} {nitrogen_dict["N2_xyz"][0]}:{nitrogen_dict["N2_xyz"][1]}:{nitrogen_dict["N2_xyz"][2]}\n'
                         )
+
                     options.write(f"%topology \n")
                     options.write(
                         "    volume box {} {} {} \n".format(
-                            box_size, box_size, box_size
+                            config_individual["box_size"],
+                            config_individual["box_size"],
+                            config_individual["box_size"],
                         )
                     )
-                    options.write("    stepSize {} \n".format(step_size))
-                    options.write("    samples {} \n".format(samples))
+                    options.write(
+                        "    stepSize {} \n".format(config_individual["step_size"])
+                    )
+                    options.write(
+                        "    samples {} \n".format(config_individual["samples"])
+                    )
                     options.write("    sampleOutput efield_topo_{file_name} \n \n")
-                    options.write("    bins {} \n".format(bins))
+                    options.write(
+                        "    bins {} \n".format(config_individual["hist_bins"])
+                    )
                     options.write(f"end \n")
                     options.close()
 
