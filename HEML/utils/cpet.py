@@ -96,14 +96,13 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
 
 
 def run_sweep_topology_calcs(cpet_path, sweep_root, charges_dir, num=10000, threads=16):
-    # files_target = glob(target_path + "options_topol*.txt")
-
     charges_dir = charges_dir
     # in sweep root get all of the folders in that directory
     sweep_folders = os.listdir(sweep_root)
     # for each folder in the sweep root
-    files_target = glob(sweep_root + sweep_folders[0] + "options_topol*.txt")
-    files_done = glob(sweep_root + sweep_folders[0] + "*.top")
+    files_target = glob(sweep_root + sweep_folders[0] + "/options_topol*.txt")
+    files_done = glob(sweep_root + sweep_folders[0] + "/*.top")
+    print(files_done)
     # files_done = os.listdir(target_path)
 
     for i in range(num):
@@ -123,9 +122,7 @@ def run_sweep_topology_calcs(cpet_path, sweep_root, charges_dir, num=10000, thre
                 cpet_options_file_single = (
                     sweep_root + folder_single + "/" + file.split("/")[-1]
                 )
-                full_path_topo = (
-                    sweep_root + folder_single + protein.split(".")[0] + ".top"
-                )
+                full_path_topo = sweep_root + folder_single
                 launch_str = "{} -p {} -t {} -o {} ".format(
                     cpet_path,
                     "{}.pqr".format(charges_dir + protein[:-4]),
@@ -135,7 +132,7 @@ def run_sweep_topology_calcs(cpet_path, sweep_root, charges_dir, num=10000, thre
                 print(launch_str)
                 os.system(launch_str)
                 os.system(
-                    "mv efield_topo_{}_0.top {}{}.top".format(
+                    "mv topo_{}_0.top {}/{}.top".format(
                         protein[:-4], full_path_topo, protein[:-4]
                     )
                 )
