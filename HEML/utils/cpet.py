@@ -95,6 +95,57 @@ def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=1
     print("done running cpet")
 
 
+def run_sweep_topology_calcs(cpet_path, sweep_root, charges_dir, num=10000, threads=16):
+    # files_target = glob(target_path + "options_topol*.txt")
+
+    charges_dir = charges_dir
+    # in sweep root get all of the folders in that directory
+    sweep_folders = os.listdir(sweep_root)
+    # for each folder in the sweep root
+    files_target = glob(sweep_root + sweep_folders[0] + "options_topol*.txt")
+    files_done = glob(sweep_root + sweep_folders[0] + "*.top")
+    # files_done = os.listdir(target_path)
+
+    for i in range(num):
+        file = choice(files_target)
+        files_target.remove(file)
+
+        protein = file.split("/")[-1][14:]  # this is currently hard coded
+        print("protein file: {}".format(protein.split(".")[0]))
+
+        # check last folder to make sure all are done
+        if (
+            sweep_root + sweep_folders[-1] + protein.split(".")[0] + ".top"
+            not in files_done
+        ):
+            # inner loop to iterate over all folders
+            for folder_single in sweep_folders:
+                cpet_options_file_single = (
+                    sweep_root + folder_single + "/" + file.split("/")[-1]
+                )
+                full_path_topo = (
+                    sweep_root + folder_single + protein.split(".")[0] + ".top"
+                )
+                launch_str = "{} -p {} -t {} -o {} ".format(
+                    cpet_path,
+                    "{}.pqr".format(charges_dir + protein[:-4]),
+                    threads,
+                    cpet_options_file_single,
+                )
+                print(launch_str)
+                os.system(launch_str)
+                os.system(
+                    "mv efield_topo_{}_0.top {}{}.top".format(
+                        protein[:-4], full_path_topo, protein[:-4]
+                    )
+                )
+                print("cpet done running")
+        else:
+            print("protein {} already done".format(protein.split(".")[0]))
+
+    print("reached terminate condition")
+
+
 def make_histograms(topo_files, plot=False):
     histograms = []
 
