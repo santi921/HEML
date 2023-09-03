@@ -24,10 +24,6 @@ if __name__ == "__main__":
     )
     # store t/f if --box is used
 
-    parser.add_argument("--density", help="density", default=10)
-    parser.add_argument("--samples", help="samples", default=10000)
-    parser.add_argument("--bins", help="bins", default=25)
-    parser.add_argument("--step_size", help="step size", default=0.001)
     parser.add_argument("--zero_radius", help="tf zero by radius", action="store_true")
     parser.add_argument(
         "--carbene",
@@ -38,11 +34,6 @@ if __name__ == "__main__":
     options_loc = parser.parse_args().options
     zero_active = parser.parse_args().zero_active
     zero_everything_charged = parser.parse_args().zero_everything_charged
-
-    density = int(parser.parse_args().density)
-    samples = int(parser.parse_args().samples)
-    bins = int(parser.parse_args().bins)
-    step_size = float(parser.parse_args().step_size)
     zero_radius = bool(parser.parse_args().zero_radius)
     carbene_tf = bool(parser.parse_args().carbene)
 
@@ -50,11 +41,11 @@ if __name__ == "__main__":
     outdir = options["processed_charges_folder"]
     outdir_sweep = options["sweep_folder"]
     sweep_config = options["sweep_parameters"]
-    sweep_folders, config_list = sweep_config_to_folders_and_base_confs(sweep_config)
     charges_directory = options["charges_folder"]
     if zero_radius:
         ligands_to_zero_radius = options["zero_radius"]
         print("zeroing active site radius from iron: {}".format(ligands_to_zero_radius))
+    sweep_folders, config_list = sweep_config_to_folders_and_base_confs(sweep_config)
 
     fail = 0
     filelist = glob(charges_directory + "*pqr")
@@ -223,7 +214,7 @@ if __name__ == "__main__":
                     if not os.path.exists(outdir_cpet):
                         os.makedirs(outdir_cpet)
                     options = open(f"{outdir_cpet}options_topol_{file_name}.txt", "w+")
-                    
+
                     if carbene_tf:
                         nitro_axis_1 = [
                             nitrogen_dict["N1_xyz"][0]
@@ -269,7 +260,7 @@ if __name__ == "__main__":
                     options.write(
                         "    samples {} \n".format(config_individual["samples"])
                     )
-                    options.write("    sampleOutput efield_topo_{file_name} \n \n")
+                    options.write("    sampleOutput topo_{} \n".format(file_name))
                     options.write(
                         "    bins {} \n".format(config_individual["hist_bins"])
                     )
