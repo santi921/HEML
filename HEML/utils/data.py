@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 from glob import glob
 from tqdm import tqdm
-from HEML.utils.dictionaries import *
+
+from HEML.utils.dictionaries import atom_int_dict
 
 
 def get_options(options_file="./options.json", create_folders=True):
@@ -53,6 +54,13 @@ def create_folders(folder_name):
 
 
 def check_if_file_is_empty(file):
+    """
+    Checks if a file is empty
+    Takes
+        file: file to check
+    Returns
+        True if file is empty
+    """
     if os.stat(file).st_size == 0:
         return True
     else:
@@ -60,7 +68,15 @@ def check_if_file_is_empty(file):
 
 
 def check_if_dict_has_None(dict):
-    for key, value in dict.items():
+    """
+    Verifies that a dictionary does not have any None values
+    Takes
+        dict: dictionary to check
+    Returns
+        True if dict has None values
+    """
+
+    for _, value in dict.items():
         if value is None:
             return True
 
@@ -71,6 +87,14 @@ def check_if_dict_has_None(dict):
 
 
 def break_up_line(str_process):
+    """
+    Breaks up a string into two strings
+    Takes
+        str_process: string to break up
+    Returns
+        ret_1: first string
+
+    """
     split_str = str_process.split("-")
     if split_str[0] == "":
         ret_1 = "-" + split_str[1]
@@ -138,6 +162,17 @@ def spacefinder(List_String):
 
 
 def pdb_to_xyz(file, ret_residues=False):
+    """
+    Takes a pdb file and returns the xyz coordinates, charges, and atom types
+    Takes
+        file: pdb file
+        ret_residues(Optionally): returns the residues
+    Returns
+        xyz: list of xyz coordinates
+        charge: list of charges
+        atom: list of atom types
+        residues(Optionally): list of residues
+    """
     with open(file, "r") as f:
         lines = f.readlines()
     xyz = []
@@ -166,6 +201,18 @@ def pdb_to_xyz(file, ret_residues=False):
 def filter_xyz_by_distance(
     xyz, center=[0, 0, 0], residues=[], distance=5, ret_residues=False
 ):
+    """
+    Filters xyz values by distance
+    Takes
+        xyz: list of xyz coordinates
+        center: center of the filter
+        residues: list of residues
+        distance: distance to filter by
+        ret_residues(Optionally): returns the residues
+    Returns
+        xyz: list of xyz coordinates
+        residues(Optionally): list of residues
+    """
     xyz = np.array(xyz, dtype=float)
     center = np.array(center, dtype=float)
     ind_hit = np.linalg.norm(xyz - center, axis=1) < distance
@@ -178,6 +225,16 @@ def filter_xyz_by_distance(
 
 
 def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):
+    """
+    Filters by distance meant to operate on nonresidues
+    Takes
+        xyz: list of xyz coordinates
+        other: list of other values
+        center: center of the filter
+        distance: distance to filter by
+    Returns
+        other: list of other values
+    """
     xyz = np.array(xyz, dtype=float)
     center = np.array(center, dtype=float)
     mask = np.linalg.norm(xyz - center, axis=1) < distance
@@ -188,6 +245,15 @@ def filter_other_by_distance(xyz, other, center=[0, 0, 0], distance=5):
 def filter_by_residue(xyz, atom, res_list, target="HEM"):
     """
     INCLUSIVE filter for target residue
+    Takes
+        xyz: list of xyz coordinates
+        atom: list of atom types
+        res_list: list of residues
+        target: target residue
+    Returns
+        xyz_list: list of xyz coordinates
+        atom_list: list of atom types
+
     """
     xyz_list = []
     atom_list = []
@@ -201,6 +267,13 @@ def filter_by_residue(xyz, atom, res_list, target="HEM"):
 def filter_by_residue_exclusive(xyz, atom, res_list, target="HEM"):
     """
     EXCLUSIVE filter for target residue
+    Takes
+        xyz: list of xyz coordinates
+        other: list of other values
+        center: center of the filter
+        distance: distance to filter by
+    Returns
+        other: list of other values
     """
     xyz_list = []
     atom_list = []
@@ -212,7 +285,16 @@ def filter_by_residue_exclusive(xyz, atom, res_list, target="HEM"):
 
 
 def get_N_positions(file, fe_ID, fe_xyz):
-    print(file)
+    """
+    Gets the positions of the 4 nearest nitrogens to the iron. Heme development
+    Takes
+        file: pdb file
+        fe_ID: id of the iron
+        fe_xyz: xyz coordinates of the iron
+    Returns
+        nitrogen_dict: dictionary of nitrogen positions and residue IDs
+
+    """
     N_ID, N_ID2, N_ID3, N_ID4 = None, None, None, None
     N1_xyz, N2_xyz, N3_xyz, N4_xyz = None, None, None, None
 
@@ -355,6 +437,13 @@ def get_N_positions(file, fe_ID, fe_xyz):
 
 
 def get_fe_positions(file):
+    """
+    Gets the position of the iron in an xyz file. Heme development
+    Takes:
+        file: pdb file
+    Returns:
+        fe_dict: dictionary of iron positions and residue ID
+    """
     fe_ID, fe_xyz = None, None
     with open(file, "r") as f:
         readfile = f.readlines()
@@ -375,6 +464,13 @@ def get_fe_positions(file):
 
 
 def get_c1_positions(file):
+    """
+    Gets positions of C1 residue atoms. Used for carbene finding in protoglobin.
+    Takes:
+        file: pdb file
+    Returns:
+        c1_dict: dictionary of C1 positions and residue ID
+    """
     fe_ID, fe_xyz = None, None
     with open(file, "r") as f:
         readfile = f.readlines()
@@ -391,6 +487,14 @@ def get_c1_positions(file):
 
 
 def get_ligand_info(file, fe_xyz):
+    """
+    Gets the position of the ligand closest an iron in an xyz file. Heme development
+    Takes:
+        file: pdb file
+        fe_xyz: xyz coordinates of the iron
+    Returns:
+        ligand_dict: dictionary of ligand positions and residue ID
+    """
     best_crit_dist = 10.0
     fe_crit_dist = 10.0
     best_crit = None
@@ -451,6 +555,15 @@ def get_ligand_info(file, fe_xyz):
 
 
 def mat_pull(file, meta_data=False, verbose=False):
+    """
+    Pulls the matrix from a cpet file
+    Takes
+        file: cpet file
+        meta_data(Optionally): returns the meta data
+    Returns
+        mat: matrix of xyz coordinates
+        meta_data(Optionally): dictionary of meta data
+    """
     with open(file) as f:
         lines = f.readlines()
     if verbose:
@@ -544,6 +657,16 @@ def pull_mats_w_label(
     dir_fields="../../../data/cpet/",
     meta_data=False,
 ):
+    """
+    Pulls dataset from HEME paper assuming it's downloaded. HEML development
+    Takes:
+        data_file: csv file with protein names and labels
+        dir_fields: directory where the cpet files are located
+        meta_data(Optionally): returns the meta data
+    Returns:
+        x: list of matrices
+        y: list of labels
+    """
     x, y = [], []
     df = pd.read_csv(data_file)
     print(df.shape)
@@ -575,6 +698,16 @@ def pull_mats_from_MD_folder(
     data_file="../../../data/protein_data.csv",
     label_ind=3,
 ):
+    """
+    Pulls MD dataset from HEME paper assuming it's downloaded. HEML development
+    Takes:
+        data_file: csv file with protein names and labels
+        dir_fields: directory where the cpet files are located
+        meta_data(Optionally): returns the meta data
+    Returns:
+        x: list of matrices
+        y: list of labels
+    """
     # iterate through all files in root_dir with ending *dat
     # get the name of the file
     target_files = []
