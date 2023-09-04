@@ -79,9 +79,15 @@ def main():
         print("moving central topologies to compressed folder...")
 
         for k, v in compress_dictionary.items():
-            if k=="total_count":
-                continue
-            compress_dictionary[k]["name_center"] = topo_files[int(v["index_center"])]
+            if (
+                k != "total_count"
+                or k != "silhouette"
+                or k != "labels"
+                or k != "n_clusters"
+            ):
+                compress_dictionary[k]["name_center"] = topo_files[
+                    int(v["index_center"])
+                ]
 
         print("saving compressed dictionary...")
         with open(
@@ -90,7 +96,7 @@ def main():
             json.dump(compress_dictionary, outputfile)
 
         for k, v in compress_dictionary.items():
-            if k=='total_count':
+            if k == "total_count":
                 continue
             name_center = v["name_center"]
             if not os.path.exists(output_folder + name_center):

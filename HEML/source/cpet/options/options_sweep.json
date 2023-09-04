@@ -1,0 +1,24 @@
+{
+  "pdb_folder": "/ocean/projects/che160019p/santi92/frames/",
+  "processed_pdb_folder": "/ocean/projects/che160019p/santi92/pdb_processed/",
+  "charges_folder": "/ocean/projects/che160019p/santi92/chargeshemes/",
+  "processed_charges_folder": "/ocean/projects/che160019p/santi92/processed_charges/",
+  "chargefw2_loc": "/ocean/projects/che160019p/shared/ChargeFW2/bin/chargefw2",
+  "x2t_loc": "/ocean/projects/che160019p/santi92/heme_cpet/compressed_frames/x2t",
+  "compressed_proteins_folder": "/ocean/projects/che160019p/santi92/heme_cpet/compressed_frames/",
+  "sweep_folder": "/ocean/projects/che160019p/santi92/heme_cpet/sweep_results/",
+  "sweep_parameters": {
+    "hist_bins": [10, 25, 50, 1000],
+    "samples": [1000, 10000, 100000],
+    "step_size": [0.1, 0.01, 0.001],
+    "box_size": [1.5, 2.0, 2.5, 3.0],
+    "full_grid": false,
+    "base_config": {
+      "hist_bins": 25,
+      "samples": 10000,
+      "step_size": 0.01,
+      "box_size": 2.0
+    }
+  },
+  "cpet_folder": "/ocean/projects/che160019p/santi92/cpet/"
+}

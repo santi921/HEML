@@ -54,7 +54,7 @@ def main():
 
     histograms = make_histograms(topo_files)
     distance_matrix = construct_distance_matrix(histograms)
-    
+
     # construct distance matrix
     with open(output_folder + "distance_matrix.dat", "w") as outputfile:
         for row in distance_matrix:
@@ -68,23 +68,22 @@ def main():
         compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=int(max_iter), names=topo_files
         )
-        with open(
-            output_folder + "loc_compressed_dictionary.json", "w"
-        ) as outputfile:
+        with open(output_folder + "loc_compressed_dictionary.json", "w") as outputfile:
             json.dump(compress_dictionary, outputfile, indent=4)
-        
-
 
         for k, v in compress_dictionary.items():
-            if k != "total_count":
+            if (
+                k != "total_count"
+                or k != "silhouette"
+                or k != "labels"
+                or k != "n_clusters"
+            ):
                 print(v)
                 name_center = v["name"]
                 if not os.path.exists(output_folder + name_center):
                     # get name of center from full path
                     os.system(
-                        "cp {} {}/{}".format(
-                            name_center, output_folder, name_center
-                        )
+                        "cp {} {}/{}".format(name_center, output_folder, name_center)
                     )
 
 

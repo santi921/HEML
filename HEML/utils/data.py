@@ -4,7 +4,7 @@ import pandas as pd
 from glob import glob
 from tqdm import tqdm
 
-from HEML.utils.dictionaries import atom_int_dict
+# from HEML.utils.dictionaries import atom_int_dict
 
 
 def get_options(options_file="./options.json", create_folders=True):
@@ -18,10 +18,11 @@ def get_options(options_file="./options.json", create_folders=True):
     with open(options_file) as f:
         options = json.load(f)
 
-    for key in options:
-        if "folder" in key:
-            if not os.path.exists(options[key]):
-                os.makedirs(options[key])
+    if create_folders:
+        for key in options:
+            if "folder" in key:
+                if not os.path.exists(options[key]):
+                    os.makedirs(options[key])
 
     return options
 
