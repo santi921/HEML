@@ -368,8 +368,8 @@ def compress(distance_matrix, damping=0.5, max_iter=4000, names=None):
     # compute silhouette score
     silhouette_avg = silhouette_score(distance_matrix, labels)
     print(f"Silhouette Coefficient: {silhouette_avg}")
-    compressed_dictionary["silhouette"] = silhouette_avg
-    compressed_dictionary["labels"] = labels.tolist()
-    compressed_dictionary["n_clusters"] = n_clusters_
-    compressed_dictionary["total_count"] = total_count
+    compressed_dictionary["silhouette"] = float(silhouette_avg)
+    compressed_dictionary["labels"] = [int(i) for i in labels]
+    compressed_dictionary["n_clusters"] = int(n_clusters_)
+    compressed_dictionary["total_count"] = int(total_count)
     return compressed_dictionary
