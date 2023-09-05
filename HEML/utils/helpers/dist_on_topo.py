@@ -74,9 +74,9 @@ def main():
         for k, v in compress_dictionary.items():
             if (
                 k != "total_count"
-                or k != "silhouette"
-                or k != "labels"
-                or k != "n_clusters"
+                and k != "silhouette"
+                and k != "labels"
+                and k != "n_clusters"
             ):
                 print(v)
                 name_center = v["name"]
