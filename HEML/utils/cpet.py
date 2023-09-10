@@ -72,13 +72,13 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
 
 def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=16):
     files_target = glob(target_path + "options_topol*.txt")
-    files_done = os.listdir(target_path)
     charges_dir = charges_dir
 
     for i in range(num):
         file = choice(files_target)
         files_target.remove(file)
         protein = file.split("/")[-1][14:]
+        files_done = os.listdir(target_path)
 
         print("protein file: {}".format(protein.split(".")[0]))
 
