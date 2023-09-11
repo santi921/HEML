@@ -206,6 +206,24 @@ def construct_distance_matrix(histograms):
 
     return matrix
 
+def read_distance_matrix(dat_file_path):
+    with open(dat_file_path, 'r') as f:
+        # Read the lines from the file
+        lines = f.readlines()
+
+        # Initialize an empty list to hold the rows of the matrix
+        matrix = []
+
+        # For each line in the file
+        for line in lines:
+            # Split the line by spaces and convert each element to float
+            row = list(map(float, line.split()))
+            matrix.append(row)
+
+        # Convert the list of lists to a numpy array
+        distance_matrix = np.array(matrix)
+
+    return distance_matrix
 
 def config_to_folder(single_sweep_config):
     sweep_string = "hist_{}_step_{}_samples_{}_box_{}".format(
