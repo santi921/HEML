@@ -24,6 +24,7 @@ def main():
     # check if the key damping exists in the options file, if not set it to 0.5
     damping = float(options["damping"]) if "damping" in options else 0.5
     max_iter = int(options["max_iter"]) if "max_iter" in options else 1000
+    reload_distance_matrix = bool(options["reload_dist_mat"]) if "reload_dist_mat" in options else False
 
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
@@ -61,8 +62,11 @@ def main():
             for i in topo_files:
                 file_list.write(f"{i} \n")
 
-        if os.path.exists(output_folder + "{}_distance_matrix.dat".format(ind)):
-            distance_matrix = read_distance_matrix(output_folder + "{}_distance_matrix.dat".format(ind))
+        if reload_distance_matrix:
+            try:
+                distance_matrix = read_distance_matrix(output_folder + "{}_distance_matrix.dat".format(ind))
+            except:
+                print("Pre-existing distance matrix not found")
         else:
             histograms = make_histograms(topo_files)
             distance_matrix = construct_distance_matrix(histograms)
