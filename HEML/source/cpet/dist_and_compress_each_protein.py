@@ -103,16 +103,20 @@ def main():
             json.dump(compress_dictionary, outputfile)
 
         for k, v in compress_dictionary.items():
-            if k == "total_count":
-                continue
-            name_center = v["name_center"]
-            if not os.path.exists(output_folder + name_center):
-                # get name of center from full path
-                os.system(
-                    "cp {} {}{}_{}".format(
-                        name_center, output_folder, ind, name_center.split("/")[-1]
+            if (
+                k != "total_count"
+                and k != "silhouette"
+                and k != "labels"
+                and k != "n_clusters"
+            ):
+                name_center = v["name_center"]
+                if not os.path.exists(output_folder + name_center):
+                    # get name of center from full path
+                    os.system(
+                        "cp {} {}{}_{}".format(
+                            name_center, output_folder, ind, name_center.split("/")[-1]
+                        )
                     )
-                )
 
     # make a list of all the compressed topologies
     topo_files = [
