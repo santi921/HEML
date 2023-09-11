@@ -1,5 +1,5 @@
 import os, json, argparse
-from HEML.utils.cpet import make_histograms, construct_distance_matrix
+from HEML.utils.cpet import make_histograms, construct_distance_matrix, read_distance_matrix
 from HEML.utils.data import get_options
 from HEML.utils.fields import compress
 from random import choice
@@ -61,17 +61,20 @@ def main():
             for i in topo_files:
                 file_list.write(f"{i} \n")
 
-        histograms = make_histograms(topo_files)
-        distance_matrix = construct_distance_matrix(histograms)
-
-        with open(
-            output_folder + "{}_distance_matrix.dat".format(ind), "w"
-        ) as outputfile:
-            for row in distance_matrix:
-                for col in row:
-                    outputfile.write(f"{col} ")
-                outputfile.write("\n")
-        print('constructed distance matrix for folder "{}"'.format(folder))
+        if os.path.exists(output_folder + "{}_distance_matrix.dat".format(ind)):
+            distance_matrix = read_distance_matrix(output_folder + "{}_distance_matrix.dat".format(ind))
+        else:
+            histograms = make_histograms(topo_files)
+            distance_matrix = construct_distance_matrix(histograms)
+        
+            with open(
+                output_folder + "{}_distance_matrix.dat".format(ind), "w"
+            ) as outputfile:
+                for row in distance_matrix:
+                    for col in row:
+                        outputfile.write(f"{col} ")
+                    outputfile.write("\n")
+            print('constructed distance matrix for folder "{}"'.format(folder))
         compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=max_iter
         )
@@ -81,9 +84,9 @@ def main():
         for k, v in compress_dictionary.items():
             if (
                 k != "total_count"
-                or k != "silhouette"
-                or k != "labels"
-                or k != "n_clusters"
+                and k != "silhouette"
+                and k != "labels"
+                and k != "n_clusters"
             ):
                 compress_dictionary[k]["name_center"] = topo_files[
                     int(v["index_center"])
