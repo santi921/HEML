@@ -174,6 +174,7 @@ def main():
             if os.path.exists(path_target + "/distance_matrix.dat"):
                 print("loading distance matrix from file")
                 distance_matrix = np.loadtxt(path_target + "/distance_matrix.dat")
+
         distance_matrix = construct_distance_matrix(histograms)
         with open(path_target + "/distance_matrix.dat", "w") as outputfile:
             for row in distance_matrix:
