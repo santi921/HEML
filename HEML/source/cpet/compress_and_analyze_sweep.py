@@ -139,7 +139,7 @@ def main():
     damping = float(options["damping"]) if "damping" in options else 0.5
     max_iter = int(options["max_iter"]) if "max_iter" in options else 1000
     sweep_folders = os.listdir(sweep_root)
-
+    sweep_folders = [f for f in sweep_folders if os.path.isdir(os.path.join(sweep_root, f))]
     for i in ["output", "compressed_out", "sweep_out"]:
         if i in sweep_folders:
             sweep_folders.remove(i)
