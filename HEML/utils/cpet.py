@@ -20,9 +20,6 @@ matplotlib.rcParams.update(
 )
 
 
-
-
-
 def run_box_calcs(cpet_path, target_path, charges_dir):
     files_target = glob(target_path + "options_field*.txt")
     files_done = os.listdir(target_path)

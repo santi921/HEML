@@ -5,6 +5,8 @@ from plotly.subplots import make_subplots
 from sklearn.cluster import AffinityPropagation
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
+import networkx as nx
+
 from HEML.utils.data import mat_pull
 
 
@@ -335,20 +337,70 @@ def helmholtz_hodge_decomp_approx(
     return solenoidal, compressize
 
 
-def compress(distance_matrix, damping=0.5, max_iter=4000, names=None):
+def compress(
+    distance_matrix,
+    damping=0.5,
+    max_iter=4000,
+    names=None,
+    return_inds_to_filter_boundary=False,
+    filtered_cutoff=0.1,
+):
+    """
+    Method to compress the distance matrix using affinity propagation
+    Takes:
+        distance_matrix: distance matrix
+        damping: damping parameter for affinity propagation
+        max_iter: maximum number of iterations for affinity propagation
+        names: list of names of files in distance matrix
+        return_inds_to_filter_boundary: boolean to add key to filter boundaries
+    Returns:
+        compressed_dictionary: dictionary with information about the clusters
+    """
     compressed_dictionary = {}
     affinity = AffinityPropagation(
         affinity="precomputed", damping=damping, max_iter=max_iter
     )
+
     affinity.fit(distance_matrix)
     cluster_centers_indices = affinity.cluster_centers_indices_
     labels = list(affinity.labels_)
     n_clusters_ = len(cluster_centers_indices)
 
+    if return_inds_to_filter_boundary:
+        # construct networkx graph
+        bounary_list_inds = []
+
+        # compute the 0.1 quantile of the distance matrix
+        cutoff_distance = np.quantile(distance_matrix, filtered_cutoff)
+
+        G = nx.Graph()
+        G.add_nodes_from(range(len(labels)))
+        for i in range(len(labels)):
+            for j in range(i + 1, len(labels)):
+                if distance_matrix[i, j] < cutoff_distance:
+                    G.add_edge(i, j, weight=distance_matrix[i, j])
+        # add the labels to the graph
+        for i in range(len(labels)):
+            G.nodes[i]["label"] = labels[i]
+
+        # iterate through the nodes and neighbors
+        for i in range(len(labels)):
+            # if i<20:
+            neighbor_nodes = list(G.neighbors(i))
+            neighbor_labels = [G.nodes[j]["label"] for j in neighbor_nodes]
+            neighbor_setlist = list(set(neighbor_labels))
+            self_label = G.nodes[i]["label"]
+            if len(neighbor_setlist) > 0:
+                if len(neighbor_setlist) > 1:
+                    bounary_list_inds.append(i)
+                else:
+                    if self_label != neighbor_setlist:
+                        bounary_list_inds.append(i)
+
     print(f"Estimated number of clusters: {n_clusters_}")
     # get count of a value in a list
     for i in range(n_clusters_):
-        compressed_dictionary[i] = {
+        compressed_dictionary[str(i)] = {
             "count": str(labels.count(i)),
             "index_center": str(cluster_centers_indices[i]),
         }
@@ -356,21 +408,51 @@ def compress(distance_matrix, damping=0.5, max_iter=4000, names=None):
         # compressed_dictionary["total_count"] = str(len(labels))
         total_count = len(labels)
         if names != None:
-            compressed_dictionary[i]["name"] = names[cluster_centers_indices[i]]
+            compressed_dictionary[str(i)]["name"] = names[cluster_centers_indices[i]]
             # copy files to
 
     # compute percentage of each cluster
     for key in compressed_dictionary.keys():
-        if key != "total_count":
+        if type(key) == int:
             compressed_dictionary[key]["percentage"] = str(
                 float(compressed_dictionary[key]["count"]) / float(total_count) * 100
             )
+        else:
+            if key.isnumeric():
+                compressed_dictionary[key]["percentage"] = str(
+                    float(compressed_dictionary[key]["count"])
+                    / float(total_count)
+                    * 100
+                )
+
+    # resort by count
+    compressed_dictionary = dict(
+        sorted(
+            compressed_dictionary.items(),
+            key=lambda item: int(item[1]["count"]),
+            reverse=True,
+        )
+    )
+    # print percentage of each cluster
+    print("Percentage of each cluster: ")
+    for key in compressed_dictionary.keys():
+        if type(key) == int:
+            print(
+                f"Cluster {key}: {compressed_dictionary[key]['percentage']}% of total"
+            )
+        else:
+            if key.isnumeric():
+                print(
+                    f"Cluster {key}: {compressed_dictionary[key]['percentage']}% of total"
+                )
+
     # compute silhouette score
-    if len(set(labels))==1:
+    if len(set(labels)) == 1:
         silhouette_avg = 1.0
     else:
         silhouette_avg = silhouette_score(distance_matrix, labels)
     print(f"Silhouette Coefficient: {silhouette_avg}")
+    compressed_dictionary["boundary_inds"] = bounary_list_inds
     compressed_dictionary["silhouette"] = float(silhouette_avg)
     compressed_dictionary["labels"] = [int(i) for i in labels]
     compressed_dictionary["n_clusters"] = int(n_clusters_)
