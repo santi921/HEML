@@ -86,9 +86,9 @@ def main():
             compress_dictionary[str(labels[i])]["files"].append(topo_files[i])
 
         # compute simple resonance analysis
-        compress_dictionary = simple_resonance_analysis(
-            compress_dictionary, run_key="run"
-        )
+        # compress_dictionary = simple_resonance_analysis(
+        #    compress_dictionary, run_key="run"
+        # )
 
         print("moving central topologies to compressed folder...")
         for k, v in compress_dictionary.items():
