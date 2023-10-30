@@ -4,7 +4,7 @@ import pandas as pd
 from glob import glob
 from tqdm import tqdm
 
-# from HEML.utils.dictionaries import atom_int_dict
+from HEML.utils.dictionaries import atom_int_dict
 
 
 def get_options(options_file="./options.json", create_folders=True):

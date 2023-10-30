@@ -223,12 +223,14 @@ def get_nodes_and_edges_from_pdb(
             )
 
             if filtered_atom_temp != []:
-                # filtered_atom.extend(filtered_atom_temp)
-                # filtered_xyz.extend(filtered_xyz_temp)
-                filtered_atom = filtered_atom_temp
-                filtered_xyz = filtered_xyz_temp
+                filtered_atom.extend(filtered_atom_temp)
+                filtered_xyz.extend(filtered_xyz_temp)
+                # filtered_atom = filtered_atom_temp
+                # filtered_xyz = filtered_xyz_temp
 
-        assert filtered_atom != [], "No atoms found for residue filter {}".format(
+        assert (
+            filtered_atom != []
+        ), "No atoms found for residue filter {} - consider removing this key from the plot options dict".format(
             filter_dict["residue_filter"]
         )
         print("done filtering by residue!")
@@ -271,7 +273,12 @@ def get_nodes_and_edges_from_pdb(
         bonds = connectivity_to_list_of_bonds(filtered_connectivity_mat)
         print("done filtering by connectivity!")
         print("number of atoms left after conn filter: \t\t", len(filtered_atom_final))
+
     print("-" * 23 + "Filtering Module Complete" + "-" * 23)
+    print("Showing the following atoms")
+    print(filtered_atom_final)
+    print("At positions:")
+    print(filtered_xyz_final)
     return filtered_atom_final, bonds, filtered_xyz_final
 
 
@@ -355,8 +362,8 @@ def get_cones_viz_from_pca(
 
 def get_molecule_dict(
     alignment_dict, file="../../../data/pdbs_processed/1a4e.pdb", filter_dict=None
-):  
-    #print(alignment_dict)
+):
+    # print(alignment_dict)
     alignment_method = alignment_dict["alignment_method"]
 
     if alignment_method == "heme":
@@ -392,6 +399,7 @@ def get_molecule_dict(
         z_axis = z_axis / np.linalg.norm(z_axis)
 
     else:
+        print("using default alignment")
         if fe_dict == None:
             Fe_pos = [130.581, 41.541, 38.350]
 
@@ -408,11 +416,11 @@ def get_molecule_dict(
     )
 
     ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
-    #print(ind_fe)
-    #print(atom_list[ind_fe[0]])
-    #print(xyz_list[ind_fe[0]])
-    #print("center at helper: " + str(center))
-    #print(x_axis, y_axis, z_axis)
+    # print(ind_fe)
+    # print(atom_list[ind_fe[0]])
+    # print(xyz_list[ind_fe[0]])
+    # print("center at helper: " + str(center))
+    # print(x_axis, y_axis, z_axis)
     xyz_list = shift_and_rotate(
         xyz_list, center=center, x_axis=x_axis, y_axis=y_axis, z_axis=z_axis
     )
@@ -423,12 +431,12 @@ def get_molecule_dict(
             int_atom_dict[atom], xyz_list[i][0], xyz_list[i][1], xyz_list[i][2]
         )
     dict_input = {"symbols": atom_list, "geometry": xyz_list, "connectivity": bond_list}
-    # get index of iron 
-    #get element that equals 26 in atom_list
+    # get index of iron
+    # get element that equals 26 in atom_list
     ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
-    print(ind_fe)
-    print(atom_list[ind_fe[0]])
-    print(xyz_list[ind_fe[0]])
+    # print(ind_fe)
+    # print(atom_list[ind_fe[0]])
+    # print(xyz_list[ind_fe[0]])
     return string_element, dict_input
 
 
@@ -446,6 +454,8 @@ def mat_to_cones(
     unlog1=False,
     min_max=False,
     opacity=0.4,
+    sparsify=False,
+    sparse_factor=1,
 ):
     bohr_to_ang = 1
     if bohr_to_ang_conv:
@@ -469,10 +479,10 @@ def mat_to_cones(
             step_size["z"] * bohr_to_ang,
         ),
     )
-    #print(x.shape)
-    #print(y.shape)
-    #print(z.shape)
-    #print("opacity: {}".format(opacity))
+    # print(x.shape)
+    # print(y.shape)
+    # print(z.shape)
+    # print("opacity: {}".format(opacity))
     u_1, v_1, w_1 = split_and_filter(
         comp_vect_field,
         cutoff=cutoff,
@@ -481,6 +491,8 @@ def mat_to_cones(
         log1=log1,
         unlog1=unlog1,
         cos_center_scaling=cos_center_scaling,
+        sparsify=sparsify,
+        sparse_factor=sparse_factor,
     )
 
     return go.Cone(

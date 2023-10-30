@@ -18,6 +18,8 @@ def split_and_filter(
     log1=False,
     unlog1=False,
     cos_center_scaling=False,
+    sparsify=False,
+    sparse_factor=1,
 ):
     mag = np.sqrt(np.sum(mat**2, axis=3))
 
@@ -92,6 +94,17 @@ def split_and_filter(
     u = np.around(u, decimals=2)
     v = np.around(v, decimals=2)
     w = np.around(w, decimals=2)
+
+    if sparsify:
+        u_zeros = np.zeros_like(u)
+        v_zeros = np.zeros_like(v)
+        w_zeros = np.zeros_like(w)
+        u_zeros[::sparse_factor] = u[::sparse_factor]
+        v_zeros[::sparse_factor] = v[::sparse_factor]
+        w_zeros[::sparse_factor] = w[::sparse_factor]
+        u = u_zeros
+        v = v_zeros
+        w = w_zeros
 
     return u, v, w
 
