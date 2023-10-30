@@ -1,5 +1,5 @@
 import os, json, argparse
-from HEML.utils.cpet import make_histograms, construct_distance_matrix
+from HEML.utils.cpet import make_histograms, construct_distance_matrix, read_distance_matrix
 from HEML.utils.data import get_options
 from HEML.utils.fields import compress
 from HEML.utils.analysis import simple_resonance_analysis
@@ -25,6 +25,7 @@ def main():
     # check if the key damping exists in the options file, if not set it to 0.5
     damping = float(options["damping"]) if "damping" in options else 0.5
     max_iter = int(options["max_iter"]) if "max_iter" in options else 1000
+    reload_distance_matrix = bool(options["reload_dist_mat"]) if "reload_dist_mat" in options else False
 
     # get list of folders in directory specified by user
     folders = [f for f in os.listdir(root) if os.path.isdir(os.path.join(root, f))]
@@ -62,17 +63,23 @@ def main():
             for i in topo_files:
                 file_list.write(f"{i} \n")
 
-        histograms = make_histograms(topo_files)
-        distance_matrix = construct_distance_matrix(histograms)
-
-        with open(
-            output_folder + "{}_distance_matrix.dat".format(ind), "w"
-        ) as outputfile:
-            for row in distance_matrix:
-                for col in row:
-                    outputfile.write(f"{col} ")
-                outputfile.write("\n")
-        print('constructed distance matrix for folder "{}"'.format(folder))
+        if reload_distance_matrix:
+            try:
+                distance_matrix = read_distance_matrix(output_folder + "{}_distance_matrix.dat".format(ind))
+            except:
+                print("Pre-existing distance matrix not found")
+        else:
+            histograms = make_histograms(topo_files)
+            distance_matrix = construct_distance_matrix(histograms)
+        
+            with open(
+                output_folder + "{}_distance_matrix.dat".format(ind), "w"
+            ) as outputfile:
+                for row in distance_matrix:
+                    for col in row:
+                        outputfile.write(f"{col} ")
+                    outputfile.write("\n")
+            print('constructed distance matrix for folder "{}"'.format(folder))
         compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=max_iter
         )
@@ -92,6 +99,12 @@ def main():
 
         print("moving central topologies to compressed folder...")
         for k, v in compress_dictionary.items():
+            if (
+                k != "total_count"
+                and k != "silhouette"
+                and k != "labels"
+                and k != "n_clusters"
+            ):
             if k.isnumeric():
                 compress_dictionary[k]["name_center"] = topo_files[
                     int(v["index_center"])
@@ -104,6 +117,12 @@ def main():
             json.dump(compress_dictionary, outputfile)
 
         for k, v in compress_dictionary.items():
+            if (
+                k != "total_count"
+                and k != "silhouette"
+                and k != "labels"
+                and k != "n_clusters"
+            ):
             if k.isnumeric():
                 name_center = v["name_center"]
                 if not os.path.exists(output_folder + name_center):
@@ -113,6 +132,7 @@ def main():
                             name_center, output_folder, ind, name_center.split("/")[-1]
                         )
                     )
+
     # make a list of all the compressed topologies
     topo_files = [
         output_folder + f for f in os.listdir(output_folder) if f.endswith(".top")

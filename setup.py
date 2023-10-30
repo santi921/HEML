@@ -16,7 +16,6 @@ setup(
         "./HEML/utils/helpers/mean_field_single.py",
         "./HEML/utils/helpers/QMMM.py",
         "./HEML/source/cpet/run_topology.py",
-        "./HEML/source/cpet/run_box_calc.py",
         "./HEML/source/cpet/dist_and_compress_each_protein.py",
         "./HEML/source/cpet/run_sweep.py",
         "./HEML/source/cpet/create_cpet_sweep.py",

@@ -69,13 +69,13 @@ def run_mag_calcs(cpet_path, target_path, charges_dir):
 
 def run_topology_calcs(cpet_path, target_path, charges_dir, num=10000, threads=16):
     files_target = glob(target_path + "options_topol*.txt")
-    files_done = os.listdir(target_path)
     charges_dir = charges_dir
 
     for i in range(num):
         file = choice(files_target)
         files_target.remove(file)
         protein = file.split("/")[-1][14:]
+        files_done = os.listdir(target_path)
 
         print("protein file: {}".format(protein.split(".")[0]))
 
@@ -203,6 +203,24 @@ def construct_distance_matrix(histograms):
 
     return matrix
 
+def read_distance_matrix(dat_file_path):
+    with open(dat_file_path, 'r') as f:
+        # Read the lines from the file
+        lines = f.readlines()
+
+        # Initialize an empty list to hold the rows of the matrix
+        matrix = []
+
+        # For each line in the file
+        for line in lines:
+            # Split the line by spaces and convert each element to float
+            row = list(map(float, line.split()))
+            matrix.append(row)
+
+        # Convert the list of lists to a numpy array
+        distance_matrix = np.array(matrix)
+
+    return distance_matrix
 
 def config_to_folder(single_sweep_config):
     sweep_string = "hist_{}_step_{}_samples_{}_box_{}".format(
