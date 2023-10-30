@@ -15,6 +15,8 @@ setup(
         "./HEML/utils/helpers/sub_charges_pqr_to_parmtop.py",
         "./HEML/utils/helpers/mean_field_single.py",
         "./HEML/utils/helpers/QMMM.py",
+        "./HEML/utils/helpers/downsample_png.py",
+        "./HEML/utils/helpers/convert_svg_to_png.py",
         "./HEML/source/cpet/run_topology.py",
         "./HEML/source/cpet/dist_and_compress_each_protein.py",
         "./HEML/source/cpet/run_sweep.py",

@@ -4,18 +4,13 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
-
-
 import argparse, moly
 import numpy as np
 
 
 # from HEML.utils.data import *
 from HEML.utils.data import pull_mats_w_label
-from HEML.utils.attrib import *
-from HEML.utils.model import *
 from HEML.utils.fields import pca, unwrap_pca
-from HEML.utils.dictionaries import *
 from HEML.utils.visualization import mat_to_cones, get_molecule_dict, check_viz_dict
 from HEML.utils.data import get_options
 
@@ -33,10 +28,11 @@ def plot_field(
     pca_comp_to_show=0,
     file_save="pca_component.html",
 ):
+    print(alignment_options)
     string_element, dict_input = get_molecule_dict(
-        molecule_file,
-        alignment_options,
-        filter_options,
+        file=molecule_file,
+        alignment_dict=alignment_options,
+        filter_dict=filter_options,
     )
     x, y, meta = pull_mats_w_label(
         data_file="../../../data/protein_data.csv",
@@ -86,17 +82,19 @@ def plot_field(
         min_max=cone_options["min_max"],
         cutoff=cone_options["cutoff"],
         opacity=cone_options["opacity"],
+        sparsify=cone_options["sparsify"],
+        sparse_factor=cone_options["sparsify_factor"],
     )
 
     fig = moly.Figure()
     molecule = moly.Molecule.from_data(string_element, dtype="string")
-    fig.add_molecule("molecule", molecule)
+    fig.add_molecule("molecule", molecule, style="tubes")
     fig.add_trace(component)
     fig.fig.update_layout(yaxis_range=y_axis_range, xaxis_range=x_axis_range)
 
     config = {
         "toImageButtonOptions": {
-            "format": "svg",  # one of png, svg, jpeg, webp
+            "format": "png",  # one of png, svg, jpeg, webp
             "filename": "custom_image",
             "height": 1000,
             "width": 1000,
@@ -115,6 +113,7 @@ def plot_field(
 
     if show:
         fig.fig.show(config=config)
+
     if save:
         fig.fig.write_html("{}".format(file_save), config=config)
 
@@ -162,26 +161,28 @@ def main():
     parser.add_argument(
         "-data_root", help="root of fields to compute pca on", required=True
     )
-    parser.add_argument("-pca_component", help="which pca to show", default=0)
+    parser.add_argument("-pca_components", help="which pca to show", default=0)
 
+    pca_comps_to_show = int(parser.parse_args().pca_components)
     options_loc = str(parser.parse_args().options)
     pdb_file = str(parser.parse_args().pdb_file)
     options = get_options(options_loc)
     options = check_viz_dict(options)
 
-    plot_field(
-        molecule_file=pdb_file,
-        dimensions=options["field_dims"],
-        show=options["show"],
-        save=options["save"],
-        file_save=options["save_name"],
-        x_axis_range=options["x_axis_range"],
-        y_axis_range=options["y_axis_range"],
-        filter_options=options["filter_dict"],
-        cone_options=options["cone_dict"],
-        alignment_options=options["alignment_dict"],
-        pca_comp_to_show=int(parser.parse_args().pca_component),
-    )
+    for i in range(pca_comps_to_show):
+        plot_field(
+            molecule_file=pdb_file,
+            dimensions=options["field_dims"],
+            show=options["show"],
+            save=options["save"],
+            x_axis_range=options["x_axis_range"],
+            y_axis_range=options["y_axis_range"],
+            filter_options=options["filter_dict"],
+            cone_options=options["cone_dict"],
+            alignment_options=options["alignment_dict"],
+            pca_comp_to_show=i,
+            file_save=options["save_name"] + str(i) + ".html",
+        )
 
 
 main()

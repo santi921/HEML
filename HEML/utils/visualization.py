@@ -12,8 +12,8 @@ from HEML.utils.data import (
 )
 from HEML.utils.xyz2mol import xyz2AC_vdW
 from HEML.utils.fields import split_and_filter, pca
-from HEML.utils.dictionaries import *
 from HEML.utils.data import get_fe_positions, get_N_positions
+from HEML.utils.dictionaries import *
 
 
 def check_viz_dict(options):
@@ -95,6 +95,18 @@ def check_viz_dict(options):
 def shift_and_rotate(
     xyz_list, center=[0, 0, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], z_axis=[0, 0, 1]
 ):
+    """
+    Applies a shift and rotation to the molecule
+    Takes:
+        xyz_list: list of xyz coordinates
+        center: new center of the molecule
+        x_axis: new x axis of the molecule
+        y_axis: new y axis of the molecule
+        z_axis: new z axis of the molecule
+    Returns:
+        xyz_list: list of xyz coordinates after shift and rotation
+
+    """
     x_axis = np.array(x_axis) / np.linalg.norm(x_axis)
     y_axis = np.array(y_axis) / np.linalg.norm(y_axis)
     z_axis = np.array(z_axis) / np.linalg.norm(z_axis)
@@ -111,7 +123,15 @@ def shift_and_rotate(
 
 
 def ms(x, y, z, radius, resolution=50):
-    """Return the coordinates for plotting a sphere centered at (x,y,z)"""
+    """
+        Return the coordinates for plotting a sphere centered at (x,y,z)
+    Takes:
+        x,y,z: center of sphere
+        radius: radius of sphere
+        resolution: resolution of sphere
+    Returns:
+        X,Y,Z: coordinates for plotting sphere
+    """
     u, v = np.mgrid[0 : 2 * np.pi : resolution * 2j, 0 : np.pi : resolution * 1j]
     X = radius * np.cos(u) * np.sin(v) + x
     Y = radius * np.sin(u) * np.sin(v) + y
@@ -120,8 +140,17 @@ def ms(x, y, z, radius, resolution=50):
 
 
 def get_AC(atoms, xyz, covalent_factor=1.4):
+    """
+    Get the connectivity matrix for a molecule
+    Takes:
+        atoms: list of atoms
+        xyz: list of xyz coordinates
+        covalent_factor: covalent factor to multiply by
+    Returns:
+        AC: connectivity matrix
+    """
     pt = Chem.GetPeriodicTable()
-    # xyz to distance matrix
+
     xyz = np.array(xyz)
     dist_mat = np.linalg.norm(xyz[:, None, :] - xyz[None, :, :], axis=-1)
     num_atoms = xyz.shape[0]
@@ -139,6 +168,13 @@ def get_AC(atoms, xyz, covalent_factor=1.4):
 
 
 def connectivity_to_list_of_bonds(connectivity_mat):
+    """
+    Converts a connectivity matrix to a list of bonds
+    Takes:
+        connectivity_mat: connectivity matrix
+    Returns:
+        bonds: list of list of bonds
+    """
     bonds = []
     for i in range(len(connectivity_mat)):
         for j in range(i + 1, len(connectivity_mat)):
@@ -150,6 +186,16 @@ def connectivity_to_list_of_bonds(connectivity_mat):
 def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26):
     """
     Filter out atoms that are not connected to the track atom. This might need to be retooled for non-heme molecules.
+    Takes:
+        filtered_atom: list of atoms
+        filtered_xyz: list of xyz coordinates
+        connectivity_mat: connectivity matrix
+        track: atom to track
+    Returns:
+        filtered_atoms: filtered list of atoms
+        filtered_xyz: filtered list of xyz coordinates
+        filtered_connectivity_mat: filtered connectivity matrix
+        track_indices: indices of the track atoms
     """
     track_index = [i for i in range(len(filtered_atom)) if filtered_atom[i] == track]
     bonds = connectivity_to_list_of_bonds(connectivity_mat)
@@ -162,7 +208,7 @@ def connectivity_filter(filtered_atom, filtered_xyz, connectivity_mat, track=26)
             i for i in range(len(largest_cc)) if track_index[0] in largest_cc[i].nodes
         ]
         graph_to_use = largest_cc[has_track[0]]
-        # print(graph_to_use.nodes)
+
         filtered_atoms = [filtered_atom[i] for i in graph_to_use.nodes]
         filtered_xyz = [filtered_xyz[i] for i in graph_to_use.nodes]
         filtered_connectivity_mat = np.zeros((len(filtered_atoms), len(filtered_atoms)))
@@ -181,6 +227,7 @@ def get_nodes_and_edges_from_pdb(
     filter_dict,
     file="../../data/pdbs_processed/1a4e.pdb",
     center=[130.581, 41.541, 38.350],
+    verbose=False,
 ):
     """
     Obtains and processes the nodes and edges from a pdb file.
@@ -189,6 +236,10 @@ def get_nodes_and_edges_from_pdb(
         distance_filter: distance to filter by
         filter_connectivity: whether to filter by connectivity to central molecule
         center: center of molecule to plot
+    Returns:
+        filtered_atom_final: list of atoms
+        bonds: list of list of bonds
+        filtered_xyz_final: list of xyz coordinates
     """
     filtered_atom, filtered_xyz = [], []
     filtered_xyz_dist, filtered_atom_dist = [], []
@@ -275,10 +326,11 @@ def get_nodes_and_edges_from_pdb(
         print("number of atoms left after conn filter: \t\t", len(filtered_atom_final))
 
     print("-" * 23 + "Filtering Module Complete" + "-" * 23)
-    print("Showing the following atoms")
-    print(filtered_atom_final)
-    print("At positions:")
-    print(filtered_xyz_final)
+    if verbose:
+        print("Showing the following atoms")
+        print(filtered_atom_final)
+        print("At positions:")
+        print(filtered_xyz_final)
     return filtered_atom_final, bonds, filtered_xyz_final
 
 
@@ -290,7 +342,24 @@ def get_cones_viz_from_pca(
     dir_fields="../../data/cpet/",
     bounds={"x": [-3.0, 3.0], "y": [-3.0, 3.0], "z": [-3.0, 3.0]},
     step_size={"x": 0.3, "y": 0.3, "z": 0.3},
+    sparsify_tf=False,
+    sparsity_factor=1,
 ):
+    """
+    Gets cones from a pca
+    Takes:
+        vector_scale: scale of the vectors
+        components: number of components to use
+        cutoff: cutoff for the cone filter
+        data_file: data file to use
+        dir_fields: directory of fields
+        bounds: bounds of the field
+        step_size: step size of the field
+        sparsify_tf: whether to sparsify the cones
+        sparsity_factor: factor to sparsify by
+    Returns:
+        cones: Cones object
+    """
     cones = []
 
     x, _ = pull_mats_w_label(data_file=data_file, dir_fields=dir_fields)
@@ -339,7 +408,12 @@ def get_cones_viz_from_pca(
         )
 
         u_1, v_1, w_1 = split_and_filter(
-            comp_vect_field, cutoff=cutoff, std_mean=True, min_max=False
+            comp_vect_field,
+            cutoff=cutoff,
+            std_mean=True,
+            min_max=False,
+            sparsify=sparsify_tf,
+            sparse_factor=sparsity_factor,
         )
 
         cones.append(
@@ -394,7 +468,6 @@ def get_molecule_dict(
         # noramlize axis
         x_axis = x_axis / np.linalg.norm(x_axis)
         y_axis = y_axis / np.linalg.norm(y_axis)
-        # z_axis = z_axis / np.linalg.norm(z_axis)
         z_axis = np.cross(x_axis, y_axis)
         z_axis = z_axis / np.linalg.norm(z_axis)
 
@@ -415,12 +488,8 @@ def get_molecule_dict(
         file=file, filter_dict=filter_dict, center=center
     )
 
-    ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
-    # print(ind_fe)
-    # print(atom_list[ind_fe[0]])
-    # print(xyz_list[ind_fe[0]])
-    # print("center at helper: " + str(center))
-    # print(x_axis, y_axis, z_axis)
+    # ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
+
     xyz_list = shift_and_rotate(
         xyz_list, center=center, x_axis=x_axis, y_axis=y_axis, z_axis=z_axis
     )
@@ -433,10 +502,6 @@ def get_molecule_dict(
     dict_input = {"symbols": atom_list, "geometry": xyz_list, "connectivity": bond_list}
     # get index of iron
     # get element that equals 26 in atom_list
-    ind_fe = [i for i in range(len(atom_list)) if atom_list[i] == 26]
-    # print(ind_fe)
-    # print(atom_list[ind_fe[0]])
-    # print(xyz_list[ind_fe[0]])
     return string_element, dict_input
 
 
@@ -457,6 +522,27 @@ def mat_to_cones(
     sparsify=False,
     sparse_factor=1,
 ):
+    """
+    Converts a matrix to cones
+    Takes:
+        mat: matrix to convert
+        shape: shape of matrix
+        vector_scale: scale of vectors
+        cutoff: cutoff for cone filter
+        bounds: bounds of the field
+        step_size: step size of the field
+        bohr_to_ang_conv: whether to convert from bohr to angstroms
+        cos_center_scaling: whether to scale by the cosine of the distance from the center
+        std_mean: whether to scale by the standard deviation
+        log1: whether to apply log1p
+        unlog1: whether to apply expm1
+        min_max: whether to scale by the min max
+        opacity: opacity of the cones
+        sparsify: whether to sparsify the cones
+        sparse_factor: factor to sparsify by
+    Returns:
+        cones: Cones object
+    """
     bohr_to_ang = 1
     if bohr_to_ang_conv:
         bohr_to_ang = 1.88973
@@ -479,10 +565,6 @@ def mat_to_cones(
             step_size["z"] * bohr_to_ang,
         ),
     )
-    # print(x.shape)
-    # print(y.shape)
-    # print(z.shape)
-    # print("opacity: {}".format(opacity))
     u_1, v_1, w_1 = split_and_filter(
         comp_vect_field,
         cutoff=cutoff,
