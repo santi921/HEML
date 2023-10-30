@@ -1,4 +1,4 @@
-tom_int_dict = {
+atom_int_dict = {
     "H": 1,
     "C": 6,
     "N": 7,
@@ -16,7 +16,6 @@ tom_int_dict = {
     "RE": 75,
     "CL": 17,
 }
-
 
 
 atom_mass = {
@@ -49,7 +48,6 @@ int_atom_dict = {
     53: "I",
     75: "Re",
 }
-
 
 
 atomic_size = {
@@ -106,5 +104,5 @@ atom_colors = {
     "I": "purple",
     "Re": "gray",
     "RE": "gray",
-    "C-1": "green", #Chlorine atom
+    "C-1": "green",  # Chlorine atom
 }

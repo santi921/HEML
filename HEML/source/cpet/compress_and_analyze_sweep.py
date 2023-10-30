@@ -3,6 +3,7 @@ import os, json, argparse
 from HEML.utils.cpet import make_histograms, construct_distance_matrix
 from HEML.utils.data import get_options
 from HEML.utils.fields import compress
+from HEML.utils.analysis import simple_resonance_analysis
 from random import choice
 import pandas as pd
 import pickle
@@ -26,12 +27,7 @@ def nice_output(results_dict, output_folder):
         list_cluster_centers_temp = []
         list_cluster_distribution_temp = []
         for sub_k, sub_v in v["compress_dictionary"].items():
-            if (
-                sub_k != "n_clusters"
-                and sub_k != "silhouette"
-                and sub_k != "total_count"
-                and sub_k != "labels"
-            ):
+            if sub_k.isnumeric():
                 list_cluster_centers_temp.append(sub_v["index_center"])
                 percentage_raw = float(sub_v["percentage"])
                 # percentage_raw = "{:.0f}".format(percentage_raw)
@@ -139,7 +135,9 @@ def main():
     damping = float(options["damping"]) if "damping" in options else 0.5
     max_iter = int(options["max_iter"]) if "max_iter" in options else 1000
     sweep_folders = os.listdir(sweep_root)
-    sweep_folders = [f for f in sweep_folders if os.path.isdir(os.path.join(sweep_root, f))]
+    sweep_folders = [
+        f for f in sweep_folders if os.path.isdir(os.path.join(sweep_root, f))
+    ]
     for i in ["output", "compressed_out", "sweep_out"]:
         if i in sweep_folders:
             sweep_folders.remove(i)
@@ -174,6 +172,7 @@ def main():
             if os.path.exists(path_target + "/distance_matrix.dat"):
                 print("loading distance matrix from file")
                 distance_matrix = np.loadtxt(path_target + "/distance_matrix.dat")
+
         distance_matrix = construct_distance_matrix(histograms)
         with open(path_target + "/distance_matrix.dat", "w") as outputfile:
             for row in distance_matrix:
@@ -184,6 +183,19 @@ def main():
         compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=max_iter
         )
+
+        # add names to dictionary of files in each cluster
+        labels = compress_dictionary["labels"]
+        topo_files = [i.strip() for i in topo_files]
+        for i in range(len(labels)):
+            if "files" not in compress_dictionary[str(labels[i])]:
+                compress_dictionary[str(labels[i])]["files"] = []
+            compress_dictionary[str(labels[i])]["files"].append(topo_files[i])
+
+        # compute simple resonance analysis
+        # compress_dictionary = simple_resonance_analysis(
+        #    compress_dictionary, run_key="run"
+        # )
 
         # get mean and std of distance matrix
         mean = distance_matrix.mean()

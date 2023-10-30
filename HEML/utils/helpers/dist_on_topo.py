@@ -2,6 +2,7 @@ import os, json, argparse
 from HEML.utils.cpet import make_histograms, construct_distance_matrix
 from HEML.utils.data import get_options
 from HEML.utils.fields import compress
+from HEML.utils.analysis import simple_resonance_analysis
 from random import choice
 import argparse
 
@@ -68,6 +69,20 @@ def main():
         compress_dictionary = compress(
             distance_matrix, damping=damping, max_iter=int(max_iter), names=topo_files
         )
+
+        # add names to dictionary of files in each cluster
+        labels = compress_dictionary["labels"]
+        topo_files = [i.strip() for i in topo_files]
+        for i in range(len(labels)):
+            if "files" not in compress_dictionary[str(labels[i])]:
+                compress_dictionary[str(labels[i])]["files"] = []
+            compress_dictionary[str(labels[i])]["files"].append(topo_files[i])
+
+        # compute simple resonance analysis
+        # compress_dictionary = simple_resonance_analysis(
+        #     compress_dictionary, run_key="run"
+        # )
+        # save
         with open(output_folder + "loc_compressed_dictionary.json", "w") as outputfile:
             json.dump(compress_dictionary, outputfile, indent=4)
 
@@ -78,7 +93,7 @@ def main():
                 and k != "labels"
                 and k != "n_clusters"
             ):
-                print(v)
+                # print(v)
                 name_center = v["name"]
                 if not os.path.exists(output_folder + name_center):
                     # get name of center from full path
