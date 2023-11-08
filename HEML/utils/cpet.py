@@ -145,7 +145,25 @@ def run_sweep_topology_calcs(cpet_path, sweep_root, charges_dir, num=10000, thre
 
 def make_histograms(topo_files, plot=False):
     histograms = []
+    #Calculate reasonable maximum distances and curvatures
+    dist_list = []
+    curv_list = []
+    for topo_file in topo_files:
+        curvatures, distances = [],[]
+        with open(topo_file) as topology_data:
+            for line in topology_data:
+                if line.startswith("#"):
+                    continue
 
+                line = line.split(",")
+                distances.append(float(line[0]))
+                curvatures.append(float(line[1]))
+        dist_list.extend(distances)
+        curv_list.extend(curvatures)
+    max_distance = max(dist_list)
+    max_curvature = max(curv_list)
+    
+    #Make histograms
     for topo_file in topo_files:
         curvatures, distances = [], []
 
@@ -158,13 +176,13 @@ def make_histograms(topo_files, plot=False):
                 distances.append(float(line[0]))
                 curvatures.append(float(line[1]))
 
-        # bins is number of histograms bins in x and y direction (so below is 100x100 bins)
+        # bins is number of histograms bins in x and y direction (so below is 200x200 bins)
         # range gives xrange, yrange for the histogram
         a, b, c, q = plt.hist2d(
             distances,
             curvatures,
             bins=200,
-            range=[[0, 10], [0, 30]],
+            range=[[0, max_distance], [0, max_curvature]],
             norm=matplotlib.colors.LogNorm(),
             density=True,
             cmap="jet",
