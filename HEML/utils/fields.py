@@ -239,7 +239,7 @@ def pca(
     cum_explained_var = []
     for i in range(0, len(pca.explained_variance_ratio_)):
         if i == 0:
-            cum_explained_var.append(pca.explained_variance_ratio_[i])
+            cum_explained_var.append(pca.explained_variance_ratio_[0])
         else:
             cum_explained_var.append(
                 pca.explained_variance_ratio_[i] + cum_explained_var[i - 1]
@@ -250,6 +250,7 @@ def pca(
     pc0 = pc0.reshape(1, mat.shape[1], mat.shape[2], mat.shape[3], mat.shape[4])
 
     if verbose:
+        print("individual explained vars: \n" + str(pca.explained_variance_ratio_))
         print("cumulative explained vars ratio: \n" + str(cum_explained_var))
 
     return mat_transform, pca

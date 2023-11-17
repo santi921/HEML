@@ -1,0 +1,23 @@
+{
+  "cpet_folder": "/home/santiagovargas/dev/HEML/data/charge_change_experiment/cpet/",
+  "charges_folder": "/home/santiagovargas/dev/HEML/data/charge_change_experiment/",
+  "cpet_loc": "./cpet",
+  "filter_resids": [
+    "HEM",
+    "CB1",
+    "BNA"
+  ],
+  "dimensions": [
+    2.5,
+    2.5,
+    2.5
+  ],
+  "density": [
+    10,
+    10,
+    10
+  ],
+  "zero_radius": 3.0,
+  "step_size": 0.01,
+  "n_samples": 10000
+}

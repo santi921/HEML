@@ -24,6 +24,7 @@ setup(
         "./HEML/source/cpet/compress_and_analyze_sweep.py",
         "./HEML/source/data_process/run_magnitude.py",
         "./HEML/source/data_process/get_charges.py",
+        "./HEML/source/data_process/topo_compute.py",
         "./HEML/source/data_process/process_charges.py",
         "./HEML/source/data_process/process_charges_magnitude_on_iron.py",
         "./HEML/source/data_process/process_charges_magnitude_on_carbene.py",
