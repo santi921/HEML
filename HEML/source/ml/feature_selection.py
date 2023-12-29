@@ -50,19 +50,19 @@ class training:
             self.X_test_untransformed = self.X_test
 
             _, self.pca_obj = pca(
-                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=15
+                np.concatenate((self.X_train, self.X_test)), verbose=True, pca_comps=10
             )
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)
 
     def make_model(self):
         model_dict = {
-            "alpha": 0.000010657294909830847,
-            "eta": 0.8230449864361263,
-            "gamma": 0.00002776158908445319,
-            "max_depth": 3,
-            "reg_lambda": 0.000004975837567403846,
-            "subsample": 0.7744313711193004,
+            # "alpha": 0.0009153975240800882,
+            # "eta": 0.1103,
+            # "gamma": 0.6115568683158007,
+            # "max_depth": 5,
+            # "reg_lambda": 0.00001599136531565379,
+            # "subsample": 0.6,
         }
         self.model_obj = XGBClassifier(**model_dict, eval_metric="mlogloss")
 
@@ -110,10 +110,10 @@ class training:
         y_test_pred = self.model_obj.predict(self.X_test)
         acc_test = accuracy_score(self.y_test, y_test_pred)
         f1_test = f1_score(self.y_test, y_test_pred, average="weighted")
-
-        print("train acc:        {:.2f}".format(np.mean(np.array(acc_train))))
-        print("validation acc:   {:.2f}".format(np.mean(np.array(acc_val))))
-        print("test acc:         {:.2f}".format(acc_test))
+        print("--" * 25)
+        # print("train acc:        {:.2f}".format(np.mean(np.array(acc_train))))
+        # print("validation acc:   {:.2f}".format(np.mean(np.array(acc_val))))
+        # print("test acc:         {:.2f}".format(acc_test))
         print("validation f1:    {:.2f}".format(np.mean(np.array(f1_val))))
         print("test f1:          {:.2f}".format(f1_test))
 
@@ -123,12 +123,13 @@ class training:
                 self.model_obj.predict_proba(self.X_test),
                 multi_class="ovr",
             )
-            print("validation auroc: {:.2f}".format(np.mean(np.array(auroc_val))))
-            print("test auroc:       {:.2f}".format(roc_auc_test))
+            # print("validation auroc: {:.2f}".format(np.mean(np.array(auroc_val))))
+            # print("test auroc:       {:.2f}".format(roc_auc_test))
+        print("--" * 25)
 
     def boruta(self):
         feat_selector = BorutaPy(
-            self.model_obj, n_estimators=200, verbose=2, random_state=42, max_iter=3000
+            self.model_obj, verbose=2, random_state=42, max_iter=1000
         )
         feat_selector.fit(self.X_train, self.y_train)
         print(feat_selector.support_)

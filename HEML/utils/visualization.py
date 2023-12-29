@@ -233,8 +233,10 @@ def get_nodes_and_edges_from_pdb(
     Obtains and processes the nodes and edges from a pdb file.
     Takes:
         file: pdb file to be processed
-        distance_filter: distance to filter by
-        filter_connectivity: whether to filter by connectivity to central molecule
+        filter_dict: dictionary of filters to apply
+            distance_filter: distance to filter by
+            filter_connectivity: whether to filter by connectivity to central molecule
+            residue_filter: residue to filter by
         center: center of molecule to plot
     Returns:
         filtered_atom_final: list of atoms
@@ -246,6 +248,7 @@ def get_nodes_and_edges_from_pdb(
     xyz, charge, atom, residues = pdb_to_xyz(file, ret_residues=True)
     print("-" * 25 + "Filtering Module Start" + "-" * 25)
     print("number of atoms before filtering: \t", len(atom))
+
     if filter_dict["distance_filter"] is not False:
         print("distance filter - {} ang".format(filter_dict["distance_filter"]))
         xyz_filter, residues = filter_xyz_by_distance(

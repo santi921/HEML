@@ -46,12 +46,10 @@ if __name__ == "__main__":
             # try:
             options["path_to_pqr"] = file_pqr
             fe_dict = get_fe_positions(file_pqr)
-            print(fe_dict)
             n_dict = get_N_positions(
                 file_pqr, fe_ID=fe_dict["id"], fe_xyz=fe_dict["xyz"]
             )
 
-            print(n_dict)
             options["center"] = list(fe_dict["xyz"])
             options["x"] = list(n_dict["N1_xyz"])
             options["y"] = list(n_dict["N2_xyz"])
