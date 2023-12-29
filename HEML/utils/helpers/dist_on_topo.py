@@ -9,7 +9,7 @@ import argparse
 
 def main():
     """
-    Usage: select a folder with MD runs in sub folder and this script will compute the distance matrix and the generate the compressed
+    Usage: select a folder with topo runs in sub folder and this script will compute the distance matrix and the generate the compressed
     dictionary for each run. It will also copy the compressed topologies to a compressed folder in the root directory.
     """
 

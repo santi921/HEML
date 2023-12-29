@@ -356,7 +356,7 @@ def compress(
     damping=0.5,
     max_iter=4000,
     names=None,
-    return_inds_to_filter_boundary=False,
+    return_inds_to_filter_boundary=True,
     filtered_cutoff=0.1,
 ):
     """
@@ -380,36 +380,35 @@ def compress(
     labels = list(affinity.labels_)
     n_clusters_ = len(cluster_centers_indices)
 
-    if return_inds_to_filter_boundary:
-        # construct networkx graph
-        bounary_list_inds = []
+    # construct networkx graph
+    bounary_list_inds = []
 
-        # compute the 0.1 quantile of the distance matrix
-        cutoff_distance = np.quantile(distance_matrix, filtered_cutoff)
+    # compute the 0.1 quantile of the distance matrix
+    cutoff_distance = np.quantile(distance_matrix, filtered_cutoff)
 
-        G = nx.Graph()
-        G.add_nodes_from(range(len(labels)))
-        for i in range(len(labels)):
-            for j in range(i + 1, len(labels)):
-                if distance_matrix[i, j] < cutoff_distance:
-                    G.add_edge(i, j, weight=distance_matrix[i, j])
-        # add the labels to the graph
-        for i in range(len(labels)):
-            G.nodes[i]["label"] = labels[i]
+    G = nx.Graph()
+    G.add_nodes_from(range(len(labels)))
+    for i in range(len(labels)):
+        for j in range(i + 1, len(labels)):
+            if distance_matrix[i, j] < cutoff_distance:
+                G.add_edge(i, j, weight=distance_matrix[i, j])
+    # add the labels to the graph
+    for i in range(len(labels)):
+        G.nodes[i]["label"] = labels[i]
 
-        # iterate through the nodes and neighbors
-        for i in range(len(labels)):
-            # if i<20:
-            neighbor_nodes = list(G.neighbors(i))
-            neighbor_labels = [G.nodes[j]["label"] for j in neighbor_nodes]
-            neighbor_setlist = list(set(neighbor_labels))
-            self_label = G.nodes[i]["label"]
-            if len(neighbor_setlist) > 0:
-                if len(neighbor_setlist) > 1:
+    # iterate through the nodes and neighbors
+    for i in range(len(labels)):
+        # if i<20:
+        neighbor_nodes = list(G.neighbors(i))
+        neighbor_labels = [G.nodes[j]["label"] for j in neighbor_nodes]
+        neighbor_setlist = list(set(neighbor_labels))
+        self_label = G.nodes[i]["label"]
+        if len(neighbor_setlist) > 0:
+            if len(neighbor_setlist) > 1:
+                bounary_list_inds.append(i)
+            else:
+                if self_label != neighbor_setlist:
                     bounary_list_inds.append(i)
-                else:
-                    if self_label != neighbor_setlist:
-                        bounary_list_inds.append(i)
 
     print(f"Estimated number of clusters: {n_clusters_}")
     # get count of a value in a list
