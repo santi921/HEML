@@ -356,6 +356,7 @@ def compress(
     damping=0.5,
     max_iter=4000,
     names=None,
+    affinitty=True,
     return_inds_to_filter_boundary=True,
     filtered_cutoff=0.1,
 ):
@@ -366,10 +367,14 @@ def compress(
         damping: damping parameter for affinity propagation
         max_iter: maximum number of iterations for affinity propagation
         names: list of names of files in distance matrix
+        affinitty: boolean to use affinity or distance matrix
         return_inds_to_filter_boundary: boolean to add key to filter boundaries
     Returns:
         compressed_dictionary: dictionary with information about the clusters
     """
+    if affinitty:
+        distance_matrix = -1 * distance_matrix
+
     compressed_dictionary = {}
     affinity = AffinityPropagation(
         affinity="precomputed", damping=damping, max_iter=max_iter
