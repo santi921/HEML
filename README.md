@@ -21,8 +21,8 @@ For Computing Fields/Boxs on an MD trajectory:
 
     2) Setup an``./options.json`` file with the following entries:
 
-* cpet_loc
-* chargefw2_loc
+* cpet_loc - currently CPET is a dependency and can be found at https://github.com/matthew-hennefarth/CPET. We are in the process of creating a pythonic variant that can be installed via pip
+* chargefw2_loc 
 * processed_charges_folder
 * cpet_folder
 * charges_folder
@@ -31,3 +31,7 @@ For Computing Fields/Boxs on an MD trajectory:
 3) You can now run ``get_charges.py`` and this will generate files in the pqr format in the destination (``charges_folder``).
 4) Process the charges and generate the cpet input files via ``process_charges.py``
 5) Run your box or topology calculation using ``run_topology.py`` or ``run_box_calc.py``
+
+If you use any of the scripts/utilities in this package it would be goated if you cited the following 
+1) Todo: add HEML
+2) Todo: add Proto
