@@ -89,7 +89,7 @@ def plot_field(
     fig = moly.Figure()
     molecule = moly.Molecule.from_data(string_element, dtype="string")
     fig.add_molecule("molecule", molecule, style="tubes")
-    fig.add_trace(component)
+    #fig.add_trace(component)
     fig.fig.update_layout(yaxis_range=y_axis_range, xaxis_range=x_axis_range)
 
     config = {

@@ -23,7 +23,7 @@
   },
   "show": false,
   "save": true,
-  "save_name": "pca_",
+  "save_name": "bare_",
   "field_dims": [21, 21, 21],
   "x_axis_range": [-4, 4],
   "y_axis_range": [-4, 4]

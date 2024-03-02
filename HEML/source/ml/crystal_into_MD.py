@@ -147,7 +147,7 @@ if __name__ == "__main__":
         print("test auroc:       {:.2f}".format(roc_auc_test))
 
     names, mat = [], []
-    dir_fields = "../../../data/fields/"
+    dir_fields = "../../../data/fields_test/"
     # dir_fields = "../../../data/charges_md/cpet/"
     # dir_fields = "../../../data/md_run_boxes/1ebe/"
     test_files = os.listdir(dir_fields)
