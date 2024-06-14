@@ -165,7 +165,19 @@ def aug_all(mat, target, xy=True, z=False, mut=False):
     return np.array(full_aug), np.array(full_aug_target)
 
 
-def augment_mat_field(mat, target, xy=True, z=False):
+def augment_mat_field(mat, target=None, xy=True, z=False):
+    """
+    Utility function to augment the matrix and target. Also works without a target
+    Takes:
+        mat: matrix to augment
+        target: target to augment
+        xy: boolean to augment in xy plane
+        z: boolean to augment in z plane
+    Returns:
+        aug_mat: augmented matrix
+        aug_target(optionally): augmented target
+    """
+
     aug_target = []
     aug_mat = []
 
@@ -183,11 +195,11 @@ def augment_mat_field(mat, target, xy=True, z=False):
         aug_mat.append(x_flip)
         aug_mat.append(y_flip)
         aug_mat.append(xy_flip)
-
-        aug_target.append(target)
-        aug_target.append(target)
-        aug_target.append(target)
-        aug_target.append(target)
+        if target is not None:
+            aug_target.append(target)
+            aug_target.append(target)
+            aug_target.append(target)
+            aug_target.append(target)
 
     if z:
         z_flip = np.array(np.flip(mat, axis=2), dtype=float)
@@ -210,13 +222,16 @@ def augment_mat_field(mat, target, xy=True, z=False):
         aug_mat.append(xz_flip)
         aug_mat.append(yz_flip)
         aug_mat.append(xyz_flip)
+        if target is not None:
+            aug_target.append(target)
+            aug_target.append(target)
+            aug_target.append(target)
+            aug_target.append(target)
 
-        aug_target.append(target)
-        aug_target.append(target)
-        aug_target.append(target)
-        aug_target.append(target)
-
-    return aug_mat, aug_target
+    if target == None:
+        return aug_mat
+    else:
+        return aug_mat, aug_target
 
 
 def pca(

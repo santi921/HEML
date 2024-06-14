@@ -1,12 +1,12 @@
 {
   "cone_dict": {
     "cutoff": 90,
-    "vector_scale": 0.6,
+    "vector_scale": 0.8,
     "std_mean": false,
     "log1": false,
     "unlog1": false,
     "min_max": false,
-    "opacity": 0.5,
+    "opacity": 0.9,
     "sparsify": true,
     "sparsify_factor": 5
   },
@@ -18,12 +18,11 @@
   },
   "filter_dict": {
     "filter_connectivity": true,
-    "distance_filter": 5.0,
-    "filter_res": ["HM1", "TRY", "CYS", "HIS"]
+    "distance_filter": 6.0
   },
   "show": false,
   "save": true,
-  "save_name": "bare_",
+  "save_name": "pca_",
   "field_dims": [21, 21, 21],
   "x_axis_range": [-4, 4],
   "y_axis_range": [-4, 4]

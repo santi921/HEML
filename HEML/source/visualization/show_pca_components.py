@@ -19,7 +19,7 @@ def plot_field(
     cone_options,
     alignment_options,
     filter_options,
-    molecule_file="../../../data/pdbs_processed/1a4e.pdb",
+    molecule_file="../../../data/pdbs_processed/3wxo.pdb",
     dimensions=(21, 21, 21),
     show=False,
     save=True,
@@ -89,7 +89,7 @@ def plot_field(
     fig = moly.Figure()
     molecule = moly.Molecule.from_data(string_element, dtype="string")
     fig.add_molecule("molecule", molecule, style="tubes")
-    #fig.add_trace(component)
+    fig.add_trace(component)
     fig.fig.update_layout(yaxis_range=y_axis_range, xaxis_range=x_axis_range)
 
     config = {

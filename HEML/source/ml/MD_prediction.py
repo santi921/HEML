@@ -10,7 +10,15 @@ from HEML.utils.fields import pca, aug_all
 
 
 class training:
-    def __init__(self, model, pca_tf=True, aug=True, test_crystal=False, test_md=False,  joint_pca=False):
+    def __init__(
+        self,
+        model,
+        pca_tf=True,
+        aug=True,
+        test_crystal=False,
+        test_md=False,
+        joint_pca=False,
+    ):
         self.aug = aug
         self.pca_tf = pca_tf
         self.model = model
@@ -18,7 +26,7 @@ class training:
         self.test_md = test_md
         self.joint_pca = joint_pca
 
-        pca_comps = 25
+        pca_comps = 15
 
         # df = pd.read_csv("../../data/protein_data.csv")
         x, y, names = pull_mats_from_MD_folder(label_ind=3)
@@ -39,14 +47,14 @@ class training:
             self.y_test,
             self.names_train,
             self.names_test,
-        ) = train_test_split(x, y, names, test_size=0.1, random_state=0)
+        ) = train_test_split(x, y, names, test_size=0.15, random_state=0)
         # print(self.y_test.shape)
 
         if self.test_md:
             x_md_test, y_md_test, names_test = pull_mats_from_MD_folder(
-                root_dir="../../../data/fields_test/",
+                root_dir="../../../data/fields_test_2/",
                 data_file="../../../data/protein_data.csv",
-                label_ind=3,
+                label_ind=0,
             )
             x_sign = np.sign(x_md_test)
             # getting absolute value of every element
@@ -60,7 +68,7 @@ class training:
             if self.aug:
                 x_md_test, y_md_test = aug_all(x_md_test, y_md_test, xy=True, z=False)
                 # create new list with repeated element in names_test
-            
+
             names_test = [item for item in names_test for i in range(4)]
             self.y_md_test = [np.argmax(i) for i in y_md_test]
             self.names_md_test = names_test
@@ -77,21 +85,25 @@ class training:
                     z=True,
                 )
                 if self.joint_pca:
-                    _, self.pca_obj = pca(np.concatenate((self.X_train, self.X_test, x_md_test)), verbose=True, pca_comps=pca_comps)
+                    _, self.pca_obj = pca(
+                        np.concatenate((self.X_train, self.X_test, x_md_test)),
+                        verbose=True,
+                        pca_comps=pca_comps,
+                    )
 
                 else:
-                    _, self.pca_obj = pca(x_train_temp, verbose=True, pca_comps=pca_comps)
-           
-            else:    
-                _, self.pca_obj = pca(self.X_train, verbose=True, pca_comps=pca_comps)
+                    _, self.pca_obj = pca(
+                        x_train_temp, verbose=True, pca_comps=pca_comps
+                    )
 
+            else:
+                _, self.pca_obj = pca(self.X_train, verbose=True, pca_comps=pca_comps)
 
             self.X_train, self.pca_obj_train = pca(self.X_train, self.pca_obj)
             self.X_test, self.pca_obj_test = pca(self.X_test, self.pca_obj)
 
         if self.test_md:
             self.x_md_test, _ = pca(x_md_test, self.pca_obj)
-
 
         if test_crystal:
             x_crystal, y_crystal = pull_mats_w_label(
@@ -248,24 +260,23 @@ if __name__ == "__main__":
     model = "xgb"  # "xgb" "brfc" "eec"
 
     trainer = training(
-        model=model, 
-        pca_tf=pca_tf, 
-        test_crystal=False, 
-        test_md=True, 
-        aug=True, 
-        joint_pca=True
-
+        model=model,
+        pca_tf=pca_tf,
+        test_crystal=False,
+        test_md=True,
+        aug=False,
+        joint_pca=True,
     )
 
     config_best_joint_pca = config(
         nestimators=800,
-        #nestimators=400, 
-        #max_depth=5,
+        # nestimators=400,
+        # max_depth=5,
         max_depth=4,
         eta=0.70399291160943,
         gamma=63.27723608448208,
-        #gamma=50.0,
-        #reg_lambda=0.0,
+        # gamma=50.0,
+        # reg_lambda=0.0,
         reg_lambda=0.0,
         alpha=0.0009978623441125043,
         subsample=0.8322187403324615,

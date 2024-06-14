@@ -35,14 +35,10 @@ class training:
         self.test_md = test_md
 
         # df = pd.read_csv("../../data/protein_data.csv")
-        x, y, _ = pull_mats_from_MD_folder(label_ind=3)
-
-        (
-            arr_min,
-            arr_max,
-        ) = np.min(
-            x
-        ), np.max(x)
+        x, y, names = pull_mats_from_MD_folder(label_ind=3)
+        x_val, y_val, names_val = pull_mats_from_MD_folder(
+            root_dir="../../../data/fields_test/"
+        )
 
         x_sign = np.sign(x)
         # getting absolute value of every element
@@ -53,12 +49,30 @@ class training:
         x = np.multiply(x_log1p, x_sign)
         y = [np.argmax(i) for i in y]
 
-        (
+        """(
             self.X_train,
             self.X_test,
             self.y_train,
             self.y_test,
-        ) = train_test_split(x, y, test_size=0.2, random_state=0)
+        ) = train_test_split(x, y, test_size=0.2, random_state=0)"""
+
+        x_sign = np.sign(x_val)
+        # getting absolute value of every element
+        x_abs = np.abs(x_val)
+        # applying log1p
+        x_log1p = np.log1p(x_abs)
+        # getting sign back
+        x_val = np.multiply(x_log1p, x_sign)
+        y_val = [np.argmax(i) for i in y_val]
+
+        self.X_train = x
+        self.X_test = x_val
+        self.y_train = y
+        self.y_test = y_val
+
+        self.names_train = names
+        self.names_test = names_val
+
         # print(self.y_test.shape)
         if self.pca_tf:
             self.X_train_untransformed = self.X_train
@@ -72,9 +86,9 @@ class training:
 
         if self.test_md:
             x_md_test, y_md_test, _ = pull_mats_from_MD_folder(
-                root_dir="../../../data/fields_test/",
+                root_dir="../../../data/fields_test_2/",
                 data_file="../../../data/protein_data.csv",
-                label_ind=3,
+                label_ind=0,
             )
             x_sign = np.sign(x_md_test)
             # getting absolute value of every element
@@ -83,7 +97,7 @@ class training:
             x_log1p = np.log1p(x_abs)
             # getting sign back
             x_md_test = np.multiply(x_log1p, x_sign)
-            # print('pull mats on md test {} {}'.format(len(x_md_test), len(y_md_test)))
+            print("pull mats on md test {} {}".format(len(x_md_test), len(y_md_test)))
             self.x_md_test, _ = pca(x_md_test, self.pca_obj)
             self.y_md_test = [np.argmax(i) for i in y_md_test]
 
@@ -208,7 +222,7 @@ class training:
                         f1_score(
                             self.y_crystal,
                             model_obj.predict(self.x_crystal),
-                            average="weighted",
+                            average="macro",
                         )
                     )
                 )
@@ -217,7 +231,7 @@ class training:
                         "crystal_f1": f1_score(
                             self.y_crystal,
                             model_obj.predict(self.x_crystal),
-                            average="weighted",
+                            average="macro",
                         )
                     }
                 )
@@ -228,7 +242,7 @@ class training:
                 print(len(self.x_md_test), len(predictions), len(self.y_md_test))
 
                 acc_score = accuracy_score(self.y_md_test, predictions)
-                f1score = f1_score(self.y_md_test, predictions, average="weighted")
+                f1score = f1_score(self.y_md_test, predictions, average="macro")
                 print("md test acc:           {:.2f}".format(acc_score))
                 print("md test f1 score:      {:.2f}".format(f1score))
                 wandb.log(
@@ -243,7 +257,7 @@ class training:
                         "md_test_f1": f1_score(
                             self.y_md_test,
                             model_obj.predict(self.x_md_test),
-                            average="weighted",
+                            average="macro",
                         )
                     }
                 )
@@ -253,13 +267,6 @@ class training:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="options for hyperparam tune")
-    parser.add_argument(
-        "-dataset",
-        action="store",
-        dest="dataset",
-        default=1,
-        help="dataset to use",
-    )
 
     parser.add_argument(
         "-count",
@@ -287,7 +294,7 @@ if __name__ == "__main__":
 
     results = parser.parse_args()
     model = str(results.model)
-    dataset_int = int(results.dataset)
+    # dataset_int = int(results.dataset)
     count = int(results.count)
     aug = bool(results.aug)
 
@@ -303,5 +310,7 @@ if __name__ == "__main__":
     # trainer.train(config)
 
     sweep_id = wandb.sweep(sweep_config, project="HemeML_MD")
-    training_obj = training(model=model, pca_tf=pca_tf, test_crystal=False, test_md=True)
+    training_obj = training(
+        model=model, pca_tf=pca_tf, test_crystal=False, test_md=True
+    )
     wandb.agent(sweep_id, function=training_obj.train, count=count)
