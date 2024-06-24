@@ -9,7 +9,7 @@ import numpy as np
 
 
 # from HEML.utils.data import *
-from HEML.utils.data import pull_mats_w_label
+from HEML.utils.data import pull_mats_from_MD_folder
 from HEML.utils.fields import pca, unwrap_pca
 from HEML.utils.visualization import mat_to_cones, get_molecule_dict, check_viz_dict
 from HEML.utils.data import get_options
@@ -19,6 +19,9 @@ def plot_field(
     cone_options,
     alignment_options,
     filter_options,
+    x, 
+    pca_obj,
+    meta,
     molecule_file="../../../data/pdbs_processed/3wxo.pdb",
     dimensions=(21, 21, 21),
     show=False,
@@ -34,30 +37,11 @@ def plot_field(
         alignment_dict=alignment_options,
         filter_dict=filter_options,
     )
-    x, y, meta = pull_mats_w_label(
-        data_file="../../../data/protein_data.csv",
-        dir_fields="../../../data/cpet/",
-        meta_data=True,
-    )
-    print("meta data", meta)
-    arr_min = np.min(x)
-    arr_max = np.max(x)
 
-    # x = (x - arr_min) / (arr_max - arr_min + 1e-18)
-    x_sign = np.sign(x)
-    # getting absolute value of every element
-    x_abs = np.abs(x)
-    # applying log1p
-    x_log1p = np.log1p(x_abs)
-    # getting sign back
-    x = np.multiply(x_log1p, x_sign)
-
-    y = [np.argmax(i) for i in y]
-
-    x_untransformed = x
-    x_pca, pca_obj = pca(
-        x, verbose=True, pca_comps=int(pca_comp_to_show + 1), whitening=True
-    )
+    #x_pca, _ = pca(
+    #    x, verbose=True, pca_comps=int(pca_comp_to_show + 1), whitening=True,
+    #    pca=pca_obj
+    #)
     shape_mat = x.shape
     print("dimensions: ", dimensions)
     print("shape_mat: ", shape_mat)
@@ -166,13 +150,54 @@ def main():
     pca_comps_to_show = int(parser.parse_args().pca_components)
     options_loc = str(parser.parse_args().options)
     pdb_file = str(parser.parse_args().pdb_file)
+    data_root = str(parser.parse_args().data_root)
     options = get_options(options_loc)
     options = check_viz_dict(options)
+
+    # change this to get the data from the crystal folder
+    x, _, _ = pull_mats_from_MD_folder(
+        data_file="../../../data/protein_data.csv",
+        root_dir=data_root,
+    )
+
+    #x_test, _, _ = pull_mats_from_MD_folder(
+    #    data_file="../../../data/protein_data.csv",
+    #    root_dir="../../../data/fields_test/",
+    #)
+
+    # concat x, x_test
+    #x = np.concatenate((x, x_test), axis=0)
+    
+    meta = {
+        "bounds_x": [-4, 4],
+        "bounds_y": [-4, 4],
+        "bounds_z": [-4, 4],
+        "step_size_x": 0.4,
+        "step_size_y": 0.4,
+        "step_size_z": 0.4,
+    }
+
+    arr_min = np.min(x)
+    arr_max = np.max(x)
+
+    x_sign = np.sign(x)
+    # getting absolute value of every element
+    x_abs = np.abs(x)
+    # applying log1p
+    x_log1p = np.log1p(x_abs)
+    # getting sign back
+    x = np.multiply(x_log1p, x_sign)
+
+    mat_transform, pca_obj = pca(x, verbose=True, pca_comps=10, whitening=True)
+    
 
     for i in range(pca_comps_to_show):
         plot_field(
             molecule_file=pdb_file,
             dimensions=options["field_dims"],
+            x=x,
+            pca_obj=pca_obj,
+            meta=meta, 
             show=options["show"],
             save=options["save"],
             x_axis_range=options["x_axis_range"],

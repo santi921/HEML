@@ -461,6 +461,7 @@ def get_molecule_dict(
         y_axis = y_axis / np.linalg.norm(y_axis)
         z_axis = np.cross(x_axis, y_axis)
         z_axis = z_axis / np.linalg.norm(z_axis)
+        print("z_axis: ", z_axis)
 
     elif alignment_method == "dict":
         print("using dict alignment provided")

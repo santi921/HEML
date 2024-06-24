@@ -1,14 +1,14 @@
 {
   "cone_dict": {
-    "cutoff": 90,
-    "vector_scale": 0.8,
+    "cutoff": 80,
+    "vector_scale": 2.0,
     "std_mean": false,
     "log1": false,
     "unlog1": false,
     "min_max": false,
     "opacity": 0.9,
     "sparsify": true,
-    "sparsify_factor": 5
+    "sparsify_factor": 6
   },
   "alignment_dict": {
     "alignment_method": "heme",
@@ -18,11 +18,11 @@
   },
   "filter_dict": {
     "filter_connectivity": true,
-    "distance_filter": 6.0
+    "distance_filter": 5.0
   },
   "show": false,
   "save": true,
-  "save_name": "pca_",
+  "save_name": "pca_md_test_only_",
   "field_dims": [21, 21, 21],
   "x_axis_range": [-4, 4],
   "y_axis_range": [-4, 4]
